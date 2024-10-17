@@ -1,4 +1,1208 @@
-<!doctype html><html lang="zh-CN" ><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta name="theme-color" media="(prefers-color-scheme: light)" content="#f7f7f7"><meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1b1b1e"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="viewport" content="width=device-width, user-scalable=no initial-scale=1, shrink-to-fit=no, viewport-fit=cover" ><meta name="generator" content="Jekyll v4.3.4" /><meta property="og:title" content="初探Flutter（一） Widget" /><meta name="author" content="Smallfan" /><meta property="og:locale" content="zh_CN" /><meta name="description" content="一、Widget" /><meta property="og:description" content="一、Widget" /><link rel="canonical" href="/posts/flutter_widget/" /><meta property="og:url" content="/posts/flutter_widget/" /><meta property="og:site_name" content="Smallfan" /><meta property="og:image" content="https://blogpic.smallfan.top/flutter/randerTree.jpg" /><meta property="og:type" content="article" /><meta property="article:published_time" content="2022-09-05T02:51:55+08:00" /><meta name="twitter:card" content="summary_large_image" /><meta property="twitter:image" content="https://blogpic.smallfan.top/flutter/randerTree.jpg" /><meta property="twitter:title" content="初探Flutter（一） Widget" /><meta name="twitter:site" content="@Smallfan" /><meta name="twitter:creator" content="@Smallfan" /> <script type="application/ld+json"> {"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Smallfan"},"dateModified":"2022-09-05T02:51:55+08:00","datePublished":"2022-09-05T02:51:55+08:00","description":"一、Widget","headline":"初探Flutter（一） Widget","image":"https://blogpic.smallfan.top/flutter/randerTree.jpg","mainEntityOfPage":{"@type":"WebPage","@id":"/posts/flutter_widget/"},"url":"/posts/flutter_widget/"}</script><title>初探Flutter（一） Widget | Smallfan</title><link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicons/apple-touch-icon.png"><link rel="icon" type="image/x-icon" sizes="32x32" href="/assets/img/favicons/favicon-32x32.ico"><link rel="icon" type="image/x-icon" sizes="16x16" href="/assets/img/favicons/favicon-16x16.ico"><link rel="manifest" href="/assets/img/favicons/site.webmanifest"><link rel="shortcut icon" href="/assets/img/favicons/favicon.ico"><meta name="apple-mobile-web-app-title" content="Smallfan"><meta name="application-name" content="Smallfan"><meta name="msapplication-TileColor" content="#da532c"><meta name="msapplication-config" content="/assets/img/favicons/browserconfig.xml"><meta name="theme-color" content="#ffffff"><link rel="preconnect" href="https://fonts.googleapis.com" ><link rel="dns-prefetch" href="https://fonts.googleapis.com" ><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="dns-prefetch" href="https://fonts.gstatic.com" ><link rel="preconnect" href="https://cdn.jsdelivr.net" ><link rel="dns-prefetch" href="https://cdn.jsdelivr.net" ><link rel="stylesheet" href="/assets/css/jekyll-theme-chirpy.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400&family=Source+Sans+Pro:wght@400;600;700;900&display=swap"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.6.0/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tocbot@4.29.0/dist/tocbot.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/loading-attribute-polyfill@2.1.1/dist/loading-attribute-polyfill.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox@3.3.0/dist/css/glightbox.min.css"> <script type="text/javascript"> class ModeToggle { static get MODE_KEY() { return 'mode'; } static get MODE_ATTR() { return 'data-mode'; } static get DARK_MODE() { return 'dark'; } static get LIGHT_MODE() { return 'light'; } static get ID() { return 'mode-toggle'; } constructor() { let self = this;this.sysDarkPrefers.addEventListener('change', () => { if (self.hasMode) { self.clearMode(); } self.notify(); }); if (!this.hasMode) { return; } if (this.isDarkMode) { this.setDark(); } else { this.setLight(); } } get sysDarkPrefers() { return window.matchMedia('(prefers-color-scheme: dark)'); } get isPreferDark() { return this.sysDarkPrefers.matches; } get isDarkMode() { return this.mode === ModeToggle.DARK_MODE; } get hasMode() { return this.mode != null; } get mode() { return sessionStorage.getItem(ModeToggle.MODE_KEY); }get modeStatus() { if (this.hasMode) { return this.mode; } else { return this.isPreferDark ? ModeToggle.DARK_MODE : ModeToggle.LIGHT_MODE; } } setDark() { document.documentElement.setAttribute(ModeToggle.MODE_ATTR, ModeToggle.DARK_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); } setLight() { document.documentElement.setAttribute(ModeToggle.MODE_ATTR, ModeToggle.LIGHT_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); } clearMode() { document.documentElement.removeAttribute(ModeToggle.MODE_ATTR); sessionStorage.removeItem(ModeToggle.MODE_KEY); }notify() { window.postMessage( { direction: ModeToggle.ID, message: this.modeStatus }, '*' ); } flipMode() { if (this.hasMode) { this.clearMode(); } else { if (this.isPreferDark) { this.setLight(); } else { this.setDark(); } } this.notify(); } } const modeToggle = new ModeToggle(); </script><body><aside aria-label="Sidebar" id="sidebar" class="d-flex flex-column align-items-end"><header class="profile-wrapper"> <a href="/" id="avatar" class="rounded-circle"><img src="https://blogpic.smallfan.top/index/avatar.jpg" width="112" height="112" alt="avatar" onerror="this.style.display='none'"></a> <a class="site-title d-block" href="/">Smallfan</a><p class="site-subtitle fst-italic mb-0">致虚极，守静笃。</p></header><nav class="flex-column flex-grow-1 w-100 ps-0"><ul class="nav"><li class="nav-item"> <a href="/" class="nav-link"> <i class="fa-fw fas fa-home"></i> <span>首页</span> </a><li class="nav-item"> <a href="/categories/" class="nav-link"> <i class="fa-fw fas fa-stream"></i> <span>分类</span> </a><li class="nav-item"> <a href="/tags/" class="nav-link"> <i class="fa-fw fas fa-tags"></i> <span>标签</span> </a><li class="nav-item"> <a href="/archives/" class="nav-link"> <i class="fa-fw fas fa-archive"></i> <span>归档</span> </a><li class="nav-item"> <a href="/about/" class="nav-link"> <i class="fa-fw fas fa-info-circle"></i> <span>关于</span> </a></ul></nav><div class="sidebar-bottom d-flex flex-wrap align-items-center w-100"> <button type="button" class="btn btn-link nav-link" aria-label="Switch Mode" id="mode-toggle"> <i class="fas fa-adjust"></i> </button> <span class="icon-border"></span> <a href="https://github.com/Smallfan" aria-label="github" target="_blank" rel="noopener noreferrer" > <i class="fab fa-github-alt"></i> </a> <a href="javascript:location.href = 'mailto:' + ['CoderSmallfan','qq.com'].join('@')" aria-label="email" > <i class="fas fa-envelope"></i> </a> <a href="/feed.xml" aria-label="rss" > <i class="fas fa-rss"></i> </a></div></aside><div id="main-wrapper" class="d-flex justify-content-center"><div class="container d-flex flex-column px-xxl-5"><header id="topbar-wrapper" aria-label="Top Bar"><div id="topbar" class="d-flex align-items-center justify-content-between px-lg-3 h-100" ><nav id="breadcrumb" aria-label="Breadcrumb"> <span> <a href="/">首页</a> </span> <span>初探Flutter（一） Widget</span></nav><button type="button" id="sidebar-trigger" class="btn btn-link"> <i class="fas fa-bars fa-fw"></i> </button><div id="topbar-title"> 文章</div><button type="button" id="search-trigger" class="btn btn-link"> <i class="fas fa-search fa-fw"></i> </button> <search id="search" class="align-items-center ms-3 ms-lg-0"> <i class="fas fa-search fa-fw"></i> <input class="form-control" id="search-input" type="search" aria-label="search" autocomplete="off" placeholder="搜索..." > </search> <button type="button" class="btn btn-link text-decoration-none" id="search-cancel">取消</button></div></header><div class="row flex-grow-1"><main aria-label="Main Content" class="col-12 col-lg-11 col-xl-9 px-md-4"><article class="px-1" data-toc="true"><header><h1 data-toc-skip>初探Flutter（一） Widget</h1><div class="post-meta text-muted"> <span> 发表于 <time data-ts="1662317515" data-df="YYYY/MM/DD" data-bs-toggle="tooltip" data-bs-placement="bottom" > 2022/09/05 </time> </span><div class="mt-3 mb-3"> <a href="https://blogpic.smallfan.top/flutter/randerTree.jpg" class="popup img-link preview-img shimmer"><img src="https://blogpic.smallfan.top/flutter/randerTree.jpg" alt="Preview Image" width="1200" height="630" loading="lazy"></a></div><div class="d-flex justify-content-between"> <span> 作者 <em> </em> </span><div> <span class="readtime" data-bs-toggle="tooltip" data-bs-placement="bottom" title="2522 字" > <em>14 分钟</em>阅读</span></div></div></div></header><div id="toc-bar" class="d-flex align-items-center justify-content-between invisible"> <span class="label text-truncate">初探Flutter（一） Widget</span> <button type="button" class="toc-trigger btn btn-link me-1"> <i class="fa-solid fa-list-ul fa-fw"></i> </button></div><button id="toc-solo-trigger" type="button" class="toc-trigger btn btn-outline-secondary btn-sm"> <span class="label ps-2 pe-1">文章内容</span> <i class="fa-solid fa-angle-right fa-fw"></i> </button> <dialog id="toc-popup" class="p-0"><div class="header d-flex flex-row align-items-center justify-content-between"><div class="label text-truncate py-2 ms-4">初探Flutter（一） Widget</div><button id="toc-popup-close" type="button" class="btn btn-link"> <i class="fas fa-close fa-fw"></i> </button></div><div id="toc-popup-content" class="px-4 py-3 pb-4"></div></dialog><div class="content"><h1 id="一widget">一、Widget</h1><h2 id="11-canupdate方法"><span class="me-2">1.1 canUpdate方法</span><a href="#11-canupdate方法" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h2><p><code class="language-plaintext highlighter-rouge">canUpdate(...)</code>是一个静态方法，它主要用于在 widget 树重新<code class="language-plaintext highlighter-rouge">build</code>时复用旧的 widget。</p><ul><li>根本作用：是否用新的 widget 对象去更新旧UI树上所对应的<code class="language-plaintext highlighter-rouge">Element</code>对象的配置。<li>判断规则：只要<code class="language-plaintext highlighter-rouge">newWidget</code>与<code class="language-plaintext highlighter-rouge">oldWidget</code>的<code class="language-plaintext highlighter-rouge">runtimeType</code>和<code class="language-plaintext highlighter-rouge">key</code>同时相等时就会用<code class="language-plaintext highlighter-rouge">new widget</code>去更新<code class="language-plaintext highlighter-rouge">Element</code>对象的配置，否则就会创建新的<code class="language-plaintext highlighter-rouge">Element</code>。</ul><h2 id="12-flutter中的四棵树"><span class="me-2">1.2 Flutter中的四棵树</span><a href="#12-flutter中的四棵树" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h2><h3 id="121-基本联系与职责"><span class="me-2">1.2.1 基本联系与职责</span><a href="#121-基本联系与职责" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3><ol><li>根据 Widget 树生成一个 Element 树，Element 树中的节点都继承自 <code class="language-plaintext highlighter-rouge">Element</code> 类。<li>根据 Element 树生成 Render 树（渲染树），渲染树中的节点都继承自 <code class="language-plaintext highlighter-rouge">RenderObject</code> 类。<li>根据渲染树生成 Layer 树，然后上屏显示，Layer 树中的节点都继承自 <code class="language-plaintext highlighter-rouge">Layer</code> 类。</ol><ul><li>布局和渲染逻辑在 <code class="language-plaintext highlighter-rouge">Render</code> 树中。<li><code class="language-plaintext highlighter-rouge">Element</code> 是 Widget 和 RenderObject 的粘合剂。</ul><h3 id="122-例子"><span class="me-2">1.2.2 例子</span><a href="#122-例子" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3><div class="language-dart highlighter-rouge"><div class="code-header"> <span data-label-text="Dart"><i class="fas fa-code fa-fw small"></i></span> <button aria-label="copy" data-title-succeed="已复制！"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+<!doctype html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- `site.alt_lang` can specify a language different from the UI -->
+<html lang="zh-CN" >
+  <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f7f7f7">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1b1b1e">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta
+    name="viewport"
+    content="width=device-width, user-scalable=no initial-scale=1, shrink-to-fit=no, viewport-fit=cover"
+  ><!-- Setup Open Graph image -->
+
+  
+
+  <!-- Begin Jekyll SEO tag v2.8.0 -->
+<meta name="generator" content="Jekyll v4.3.4" />
+<meta property="og:title" content="初探Flutter（一） Widget" />
+<meta name="author" content="Smallfan" />
+<meta property="og:locale" content="zh_CN" />
+<meta name="description" content="一、Widget" />
+<meta property="og:description" content="一、Widget" />
+<link rel="canonical" href="http://localhost:4000/posts/flutter_widget/" />
+<meta property="og:url" content="http://localhost:4000/posts/flutter_widget/" />
+<meta property="og:site_name" content="Smallfan" />
+<meta property="og:image" content="https://blogpic.smallfan.top/flutter/randerTree.jpg" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-09-05T02:51:55+08:00" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta property="twitter:image" content="https://blogpic.smallfan.top/flutter/randerTree.jpg" />
+<meta property="twitter:title" content="初探Flutter（一） Widget" />
+<meta name="twitter:site" content="@Smallfan" />
+<meta name="twitter:creator" content="@Smallfan" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Smallfan"},"dateModified":"2022-09-05T02:51:55+08:00","datePublished":"2022-09-05T02:51:55+08:00","description":"一、Widget","headline":"初探Flutter（一） Widget","image":"https://blogpic.smallfan.top/flutter/randerTree.jpg","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/posts/flutter_widget/"},"url":"http://localhost:4000/posts/flutter_widget/"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <title>初探Flutter（一） Widget | Smallfan
+  </title>
+
+  <!--
+  The Favicons for Web, Android, Microsoft, and iOS (iPhone and iPad) Apps
+  Generated by: https://realfavicongenerator.net/
+-->
+
+
+
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicons/apple-touch-icon.png">
+<link rel="icon" type="image/x-icon" sizes="32x32" href="/assets/img/favicons/favicon-32x32.ico">
+<link rel="icon" type="image/x-icon" sizes="16x16" href="/assets/img/favicons/favicon-16x16.ico">
+
+  <link rel="manifest" href="/assets/img/favicons/site.webmanifest">
+
+<link rel="shortcut icon" href="/assets/img/favicons/favicon.ico">
+<meta name="apple-mobile-web-app-title" content="Smallfan">
+<meta name="application-name" content="Smallfan">
+<meta name="msapplication-TileColor" content="#da532c">
+<meta name="msapplication-config" content="/assets/img/favicons/browserconfig.xml">
+<meta name="theme-color" content="#ffffff">
+
+
+  <!-- Resource Hints -->
+  
+    
+      
+        <link rel="preconnect" href="https://fonts.googleapis.com" >
+      
+        <link rel="dns-prefetch" href="https://fonts.googleapis.com" >
+      
+    
+      
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      
+        <link rel="dns-prefetch" href="https://fonts.gstatic.com" >
+      
+    
+      
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" >
+      
+        <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" >
+      
+    
+  
+
+  <!-- Bootstrap -->
+  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  
+
+  <!-- Theme style -->
+  <link rel="stylesheet" href="/assets/css/jekyll-theme-chirpy.css">
+
+  <!-- Web Font -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400&family=Source+Sans+Pro:wght@400;600;700;900&display=swap">
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.6.0/css/all.min.css">
+
+  <!-- 3rd-party Dependencies -->
+
+  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tocbot@4.29.0/dist/tocbot.min.css">
+  
+
+  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/loading-attribute-polyfill@2.1.1/dist/loading-attribute-polyfill.min.css">
+  
+
+  
+    <!-- Image Popup -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox@3.3.0/dist/css/glightbox.min.css">
+  
+
+  <!-- JavaScript -->
+
+  
+    <!-- Switch the mode between dark and light. -->
+
+<script type="text/javascript">
+  class ModeToggle {
+    static get MODE_KEY() {
+      return 'mode';
+    }
+    static get MODE_ATTR() {
+      return 'data-mode';
+    }
+    static get DARK_MODE() {
+      return 'dark';
+    }
+    static get LIGHT_MODE() {
+      return 'light';
+    }
+    static get ID() {
+      return 'mode-toggle';
+    }
+
+    constructor() {
+      let self = this;this.sysDarkPrefers.addEventListener('change', () => {
+        if (self.hasMode) {
+          self.clearMode();
+        }
+        self.notify();
+      });
+
+      if (!this.hasMode) {
+        return;
+      }
+
+      if (this.isDarkMode) {
+        this.setDark();
+      } else {
+        this.setLight();
+      }
+    }
+
+    get sysDarkPrefers() {
+      return window.matchMedia('(prefers-color-scheme: dark)');
+    }
+
+    get isPreferDark() {
+      return this.sysDarkPrefers.matches;
+    }
+
+    get isDarkMode() {
+      return this.mode === ModeToggle.DARK_MODE;
+    }
+
+    get hasMode() {
+      return this.mode != null;
+    }
+
+    get mode() {
+      return sessionStorage.getItem(ModeToggle.MODE_KEY);
+    }get modeStatus() {
+      if (this.hasMode) {
+        return this.mode;
+      } else {
+        return this.isPreferDark ? ModeToggle.DARK_MODE : ModeToggle.LIGHT_MODE;
+      }
+    }
+
+    setDark() {
+      document.documentElement.setAttribute(ModeToggle.MODE_ATTR, ModeToggle.DARK_MODE);
+      sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE);
+    }
+
+    setLight() {
+      document.documentElement.setAttribute(ModeToggle.MODE_ATTR, ModeToggle.LIGHT_MODE);
+      sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE);
+    }
+
+    clearMode() {
+      document.documentElement.removeAttribute(ModeToggle.MODE_ATTR);
+      sessionStorage.removeItem(ModeToggle.MODE_KEY);
+    }notify() {
+      window.postMessage(
+        {
+          direction: ModeToggle.ID,
+          message: this.modeStatus
+        },
+        '*'
+      );
+    }
+
+    flipMode() {
+      if (this.hasMode) {
+        this.clearMode();
+      } else {
+        if (this.isPreferDark) {
+          this.setLight();
+        } else {
+          this.setDark();
+        }
+      }
+
+      this.notify();
+    }
+  }
+
+  const modeToggle = new ModeToggle();
+</script>
+
+  
+
+  <!-- A placeholder to allow defining custom metadata -->
+
+</head>
+
+
+  <body>
+    <!-- The Side Bar -->
+
+<aside aria-label="Sidebar" id="sidebar" class="d-flex flex-column align-items-end">
+  <header class="profile-wrapper">
+    <a href="/" id="avatar" class="rounded-circle"><img src="https://blogpic.smallfan.top/index/avatar.jpg" width="112" height="112" alt="avatar" onerror="this.style.display='none'"></a>
+
+    <a class="site-title d-block" href="/">Smallfan</a>
+    <p class="site-subtitle fst-italic mb-0">致虚极，守静笃。</p>
+  </header>
+  <!-- .profile-wrapper -->
+
+  <nav class="flex-column flex-grow-1 w-100 ps-0">
+    <ul class="nav">
+      <!-- home -->
+      <li class="nav-item">
+        <a href="/" class="nav-link">
+          <i class="fa-fw fas fa-home"></i>
+          <span>首页</span>
+        </a>
+      </li>
+      <!-- the real tabs -->
+      
+        <li class="nav-item">
+          <a href="/categories/" class="nav-link">
+            <i class="fa-fw fas fa-stream"></i>
+            
+
+            <span>分类</span>
+          </a>
+        </li>
+        <!-- .nav-item -->
+      
+        <li class="nav-item">
+          <a href="/tags/" class="nav-link">
+            <i class="fa-fw fas fa-tags"></i>
+            
+
+            <span>标签</span>
+          </a>
+        </li>
+        <!-- .nav-item -->
+      
+        <li class="nav-item">
+          <a href="/archives/" class="nav-link">
+            <i class="fa-fw fas fa-archive"></i>
+            
+
+            <span>归档</span>
+          </a>
+        </li>
+        <!-- .nav-item -->
+      
+        <li class="nav-item">
+          <a href="/about/" class="nav-link">
+            <i class="fa-fw fas fa-info-circle"></i>
+            
+
+            <span>关于</span>
+          </a>
+        </li>
+        <!-- .nav-item -->
+      
+    </ul>
+  </nav>
+
+  <div class="sidebar-bottom d-flex flex-wrap  align-items-center w-100">
+    
+      <button type="button" class="btn btn-link nav-link" aria-label="Switch Mode" id="mode-toggle">
+        <i class="fas fa-adjust"></i>
+      </button>
+
+      
+        <span class="icon-border"></span>
+      
+    
+
+    
+      
+
+      
+        <a
+          href="https://github.com/Smallfan"
+          aria-label="github"
+          
+
+          
+            target="_blank"
+            
+          
+
+          
+
+          
+            rel="noopener noreferrer"
+          
+        >
+          <i class="fab fa-github-alt"></i>
+        </a>
+      
+    
+      
+
+      
+        <a
+          href="javascript:location.href = 'mailto:' + ['CoderSmallfan','qq.com'].join('@')"
+          aria-label="email"
+          
+
+          
+
+          
+
+          
+        >
+          <i class="fas fa-envelope"></i>
+        </a>
+      
+    
+      
+
+      
+        <a
+          href="/feed.xml"
+          aria-label="rss"
+          
+
+          
+
+          
+
+          
+        >
+          <i class="fas fa-rss"></i>
+        </a>
+      
+    
+  </div>
+  <!-- .sidebar-bottom -->
+</aside>
+<!-- #sidebar -->
+
+
+    <div id="main-wrapper" class="d-flex justify-content-center">
+      <div class="container d-flex flex-column px-xxl-5">
+        <!-- The Top Bar -->
+
+<header id="topbar-wrapper" aria-label="Top Bar">
+  <div
+    id="topbar"
+    class="d-flex align-items-center justify-content-between px-lg-3 h-100"
+  >
+    <nav id="breadcrumb" aria-label="Breadcrumb">
+      
+
+      
+        
+          
+            <span>
+              <a href="/">首页</a>
+            </span>
+
+          
+        
+          
+        
+          
+            
+              <span>初探Flutter（一） Widget</span>
+            
+
+          
+        
+      
+    </nav>
+    <!-- endof #breadcrumb -->
+
+    <button type="button" id="sidebar-trigger" class="btn btn-link">
+      <i class="fas fa-bars fa-fw"></i>
+    </button>
+
+    <div id="topbar-title">
+      文章
+    </div>
+
+    <button type="button" id="search-trigger" class="btn btn-link">
+      <i class="fas fa-search fa-fw"></i>
+    </button>
+
+    <search id="search" class="align-items-center ms-3 ms-lg-0">
+      <i class="fas fa-search fa-fw"></i>
+      <input
+        class="form-control"
+        id="search-input"
+        type="search"
+        aria-label="search"
+        autocomplete="off"
+        placeholder="搜索..."
+      >
+    </search>
+    <button type="button" class="btn btn-link text-decoration-none" id="search-cancel">取消</button>
+  </div>
+</header>
+
+
+        <div class="row flex-grow-1">
+          <main aria-label="Main Content" class="col-12 col-lg-11 col-xl-9 px-md-4">
+            
+              <!-- Refactor the HTML structure -->
+
+
+
+<!--
+  In order to allow a wide table to scroll horizontally,
+  we suround the markdown table with `<div class="table-wrapper">` and `</div>`
+-->
+
+
+
+<!--
+  Fixed kramdown code highlight rendering:
+  https://github.com/penibelst/jekyll-compress-html/issues/101
+  https://github.com/penibelst/jekyll-compress-html/issues/71#issuecomment-188144901
+-->
+
+
+
+<!-- Change the icon of checkbox -->
+
+
+
+<!-- Handle images -->
+
+
+
+
+  
+  
+
+  
+    
+      
+      
+    
+
+    
+    
+
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+
+      
+      
+      
+
+      
+    
+      
+
+      
+      
+      
+
+      
+    
+      
+
+      
+      
+      
+
+      
+    
+      
+
+      
+      
+      
+
+      
+    
+      
+
+      
+      
+      
+
+      
+    
+
+    <!-- take out classes -->
+    
+
+    
+    
+
+    
+
+    
+      
+    
+
+    <!-- lazy-load images -->
+    
+
+    
+      <!-- make sure the `<img>` is wrapped by `<a>` -->
+      
+
+      
+        <!-- create the image wrapper -->
+        
+
+        
+        
+      
+    
+
+    <!-- combine -->
+    
+  
+    
+
+    
+    
+
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+
+      
+      
+      
+
+      
+    
+      
+
+      
+      
+      
+
+      
+    
+
+    <!-- take out classes -->
+    
+
+    
+    
+
+    
+
+    
+      
+    
+
+    <!-- lazy-load images -->
+    
+
+    
+      <!-- make sure the `<img>` is wrapped by `<a>` -->
+      
+
+      
+        <!-- create the image wrapper -->
+        
+
+        
+        
+      
+    
+
+    <!-- combine -->
+    
+  
+    
+
+    
+    
+
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+
+      
+      
+      
+
+      
+    
+      
+
+      
+      
+      
+
+      
+    
+
+    <!-- take out classes -->
+    
+
+    
+    
+
+    
+
+    
+      
+    
+
+    <!-- lazy-load images -->
+    
+
+    
+      <!-- make sure the `<img>` is wrapped by `<a>` -->
+      
+
+      
+        <!-- create the image wrapper -->
+        
+
+        
+        
+      
+    
+
+    <!-- combine -->
+    
+  
+
+  
+
+
+<!-- Add header for code snippets -->
+
+
+
+<!-- Create heading anchors -->
+
+
+
+
+
+  
+  
+
+  
+    
+    
+
+    
+      
+        
+        
+      
+
+      
+      
+
+      
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+      
+      
+
+      
+    
+
+    
+  
+
+  
+  
+
+  
+    
+    
+
+    
+      
+        
+        
+      
+
+      
+      
+
+      
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+      
+      
+
+      
+    
+
+    
+  
+
+  
+  
+
+  
+
+  
+  
+
+  
+
+
+
+
+<!-- return -->
+
+
+
+
+
+
+
+
+
+
+<article class="px-1" data-toc="true">
+  <header>
+    <h1 data-toc-skip>初探Flutter（一） Widget</h1>
+    
+
+    <div class="post-meta text-muted">
+      <!-- published date -->
+      <span>
+        发表于
+        <!--
+  Date format snippet
+  See: ${JS_ROOT}/utils/locale-dateime.js
+-->
+
+
+
+
+<time
+  
+  data-ts="1662317515"
+  data-df="YYYY/MM/DD"
+  
+    data-bs-toggle="tooltip" data-bs-placement="bottom"
+  
+>
+  2022/09/05
+</time>
+
+      </span>
+
+      <!-- lastmod date -->
+      
+
+      
+        
+        
+        
+
+        
+
+        <div class="mt-3 mb-3">
+          <a href="https://blogpic.smallfan.top/flutter/randerTree.jpg" class="popup img-link preview-img shimmer"><img src="https://blogpic.smallfan.top/flutter/randerTree.jpg"  alt="Preview Image" width="1200" height="630"  loading="lazy"></a></div>
+      
+
+      <div class="d-flex justify-content-between">
+        <!-- author(s) -->
+        <span>
+          
+
+          作者
+
+          <em>
+            
+              
+                
+                
+              
+            
+          </em>
+        </span>
+
+        <div>
+          <!-- pageviews -->
+          
+
+          <!-- read time -->
+          <!-- Calculate the post's reading time, and display the word count in tooltip -->
+
+
+
+<!-- words per minute -->
+
+
+
+
+
+
+
+
+
+
+<!-- return element -->
+<span
+  class="readtime"
+  data-bs-toggle="tooltip"
+  data-bs-placement="bottom"
+  title="2522 字"
+>
+  <em>14 分钟</em>阅读</span>
+
+        </div>
+      </div>
+    </div>
+  </header>
+
+  
+    <div id="toc-bar" class="d-flex align-items-center justify-content-between invisible">
+      <span class="label text-truncate">初探Flutter（一） Widget</span>
+      <button type="button" class="toc-trigger btn btn-link me-1">
+        <i class="fa-solid fa-list-ul fa-fw"></i>
+      </button>
+    </div>
+
+    <button id="toc-solo-trigger" type="button" class="toc-trigger btn btn-outline-secondary btn-sm">
+      <span class="label ps-2 pe-1">文章内容</span>
+      <i class="fa-solid fa-angle-right fa-fw"></i>
+    </button>
+
+    <dialog id="toc-popup" class="p-0">
+      <div class="header d-flex flex-row align-items-center justify-content-between">
+        <div class="label text-truncate py-2 ms-4">初探Flutter（一） Widget</div>
+        <button id="toc-popup-close" type="button" class="btn btn-link">
+          <i class="fas fa-close fa-fw"></i>
+        </button>
+      </div>
+      <div id="toc-popup-content" class="px-4 py-3 pb-4"></div>
+    </dialog>
+  
+
+  <div class="content">
+    <h1 id="一widget">一、Widget</h1>
+
+<h2 id="11-canupdate方法"><span class="me-2">1.1 canUpdate方法</span><a href="#11-canupdate方法" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h2>
+
+<p><code class="language-plaintext highlighter-rouge">canUpdate(...)</code>是一个静态方法，它主要用于在 widget 树重新<code class="language-plaintext highlighter-rouge">build</code>时复用旧的 widget。</p>
+<ul>
+  <li>根本作用：是否用新的 widget 对象去更新旧UI树上所对应的<code class="language-plaintext highlighter-rouge">Element</code>对象的配置。</li>
+  <li>判断规则：只要<code class="language-plaintext highlighter-rouge">newWidget</code>与<code class="language-plaintext highlighter-rouge">oldWidget</code>的<code class="language-plaintext highlighter-rouge">runtimeType</code>和<code class="language-plaintext highlighter-rouge">key</code>同时相等时就会用<code class="language-plaintext highlighter-rouge">new widget</code>去更新<code class="language-plaintext highlighter-rouge">Element</code>对象的配置，否则就会创建新的<code class="language-plaintext highlighter-rouge">Element</code>。</li>
+</ul>
+
+<h2 id="12-flutter中的四棵树"><span class="me-2">1.2 Flutter中的四棵树</span><a href="#12-flutter中的四棵树" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h2>
+
+<h3 id="121-基本联系与职责"><span class="me-2">1.2.1 基本联系与职责</span><a href="#121-基本联系与职责" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3>
+
+<ol>
+  <li>根据 Widget 树生成一个 Element 树，Element 树中的节点都继承自 <code class="language-plaintext highlighter-rouge">Element</code> 类。</li>
+  <li>根据 Element 树生成 Render 树（渲染树），渲染树中的节点都继承自 <code class="language-plaintext highlighter-rouge">RenderObject</code> 类。</li>
+  <li>根据渲染树生成 Layer 树，然后上屏显示，Layer 树中的节点都继承自 <code class="language-plaintext highlighter-rouge">Layer</code> 类。</li>
+</ol>
+
+<ul>
+  <li>布局和渲染逻辑在 <code class="language-plaintext highlighter-rouge">Render</code> 树中。</li>
+  <li><code class="language-plaintext highlighter-rouge">Element</code> 是 Widget 和 RenderObject 的粘合剂。</li>
+</ul>
+
+<h3 id="122-例子"><span class="me-2">1.2.2 例子</span><a href="#122-例子" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3>
+
+<div class="language-dart highlighter-rouge"><div class="code-header">
+        <span data-label-text="Dart"><i class="fas fa-code fa-fw small"></i></span>
+      <button aria-label="copy" data-title-succeed="已复制！"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
 4
@@ -7,7 +1211,7 @@
 7
 8
 9
-</pre><td class="rouge-code"><pre><span class="n">Container</span><span class="p">(</span> <span class="c1">// 一个容器 widget</span>
+</pre></td><td class="rouge-code"><pre><span class="n">Container</span><span class="p">(</span> <span class="c1">// 一个容器 widget</span>
   <span class="nl">color:</span> <span class="n">Colors</span><span class="o">.</span><span class="na">blue</span><span class="p">,</span> <span class="c1">// 设置容器背景色</span>
   <span class="nl">child:</span> <span class="n">Row</span><span class="p">(</span> <span class="c1">// 可以将子widget沿水平方向排列</span>
     <span class="nl">children:</span> <span class="p">[</span>
@@ -16,11 +1220,42 @@
     <span class="p">],</span>
   <span class="p">),</span>
 <span class="p">);</span>
-</pre></table></code></div></div><p>注意，如果 Container 设置了背景色，Container 内部会创建一个新的 ColoredBox 来填充背景，相关逻辑如下：</p><div class="language-dart highlighter-rouge"><div class="code-header"> <span data-label-text="Dart"><i class="fas fa-code fa-fw small"></i></span> <button aria-label="copy" data-title-succeed="已复制！"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td></tr></tbody></table></code></div></div>
+
+<!-- more -->
+
+<p>注意，如果 Container 设置了背景色，Container 内部会创建一个新的 ColoredBox 来填充背景，相关逻辑如下：</p>
+
+<div class="language-dart highlighter-rouge"><div class="code-header">
+        <span data-label-text="Dart"><i class="fas fa-code fa-fw small"></i></span>
+      <button aria-label="copy" data-title-succeed="已复制！"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
-</pre><td class="rouge-code"><pre><span class="k">if</span> <span class="p">(</span><span class="n">color</span> <span class="o">!=</span> <span class="kc">null</span><span class="p">)</span>
+</pre></td><td class="rouge-code"><pre><span class="k">if</span> <span class="p">(</span><span class="n">color</span> <span class="o">!=</span> <span class="kc">null</span><span class="p">)</span>
   <span class="n">current</span> <span class="o">=</span> <span class="n">ColoredBox</span><span class="p">(</span><span class="nl">color:</span> <span class="n">color</span><span class="o">!</span><span class="p">,</span> <span class="nl">child:</span> <span class="n">current</span><span class="p">);</span>
-</pre></table></code></div></div><ul><li>Image 内部会通过 RawImage 来渲染图片<li>Text 内部会通过 RichText 来渲染文本</ul><p><a href="https://blogpic.smallfan.top/flutter/randerTree.jpg" class="popup img-link shimmer"><img src="https://blogpic.smallfan.top/flutter/randerTree.jpg" alt="" loading="lazy"></a></p><h3 id="123-四棵树的关系"><span class="me-2">1.2.3 四棵树的关系</span><a href="#123-四棵树的关系" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3><ol><li>Widget 和 Element 是一一对应的。<li>Widget 并不和 RenderObject 一一对应。比如 <code class="language-plaintext highlighter-rouge">StatelessWidget</code> 和 <code class="language-plaintext highlighter-rouge">StatefulWidget</code> 都没有对应的 RenderObject。<li>渲染树在上屏前会生成一棵 Layer 树。</ol><h2 id="13-widget构造函数"><span class="me-2">1.3 Widget构造函数</span><a href="#13-widget构造函数" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h2><p>按照惯例，widget 的构造函数参数应使用命名参数，命名参数中的必需要传的参数要添加<code class="language-plaintext highlighter-rouge">required</code>关键字，这样有利于静态代码分析器进行检查；在继承 widget 时，第一个参数通常应该是<code class="language-plaintext highlighter-rouge">Key</code>。另外，如果 widget 需要接收子 widget ，那么<code class="language-plaintext highlighter-rouge">child</code>或<code class="language-plaintext highlighter-rouge">children</code>参数通常应被放在参数列表的最后。同样是按照惯例， widget 的属性应尽可能的被声明为<code class="language-plaintext highlighter-rouge">final</code>，防止被意外改变。</p><div class="language-dart highlighter-rouge"><div class="code-header"> <span data-label-text="Dart"><i class="fas fa-code fa-fw small"></i></span> <button aria-label="copy" data-title-succeed="已复制！"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td></tr></tbody></table></code></div></div>
+
+<ul>
+  <li>Image 内部会通过 RawImage 来渲染图片</li>
+  <li>Text 内部会通过 RichText 来渲染文本</li>
+</ul>
+
+<p><a href="https://blogpic.smallfan.top/flutter/randerTree.jpg" class="popup img-link  shimmer"><img src="https://blogpic.smallfan.top/flutter/randerTree.jpg" alt="" loading="lazy"></a></p>
+
+<h3 id="123-四棵树的关系"><span class="me-2">1.2.3 四棵树的关系</span><a href="#123-四棵树的关系" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3>
+
+<ol>
+  <li>Widget 和 Element 是一一对应的。</li>
+  <li>Widget 并不和 RenderObject 一一对应。比如 <code class="language-plaintext highlighter-rouge">StatelessWidget</code> 和 <code class="language-plaintext highlighter-rouge">StatefulWidget</code> 都没有对应的 RenderObject。</li>
+  <li>渲染树在上屏前会生成一棵 Layer 树。</li>
+</ol>
+
+<h2 id="13-widget构造函数"><span class="me-2">1.3 Widget构造函数</span><a href="#13-widget构造函数" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h2>
+
+<p>按照惯例，widget 的构造函数参数应使用命名参数，命名参数中的必需要传的参数要添加<code class="language-plaintext highlighter-rouge">required</code>关键字，这样有利于静态代码分析器进行检查；在继承 widget 时，第一个参数通常应该是<code class="language-plaintext highlighter-rouge">Key</code>。另外，如果 widget 需要接收子 widget ，那么<code class="language-plaintext highlighter-rouge">child</code>或<code class="language-plaintext highlighter-rouge">children</code>参数通常应被放在参数列表的最后。同样是按照惯例， widget 的属性应尽可能的被声明为<code class="language-plaintext highlighter-rouge">final</code>，防止被意外改变。</p>
+
+<div class="language-dart highlighter-rouge"><div class="code-header">
+        <span data-label-text="Dart"><i class="fas fa-code fa-fw small"></i></span>
+      <button aria-label="copy" data-title-succeed="已复制！"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
 4
@@ -40,7 +1275,7 @@
 18
 19
 20
-</pre><td class="rouge-code"><pre><span class="kd">class</span> <span class="nc">Echo</span> <span class="kd">extends</span> <span class="n">StatelessWidget</span>  <span class="p">{</span>
+</pre></td><td class="rouge-code"><pre><span class="kd">class</span> <span class="nc">Echo</span> <span class="kd">extends</span> <span class="n">StatelessWidget</span>  <span class="p">{</span>
   <span class="kd">const</span> <span class="n">Echo</span><span class="p">({</span>
     <span class="n">Key</span><span class="o">?</span> <span class="n">key</span><span class="p">,</span>  
     <span class="kd">required</span> <span class="k">this</span><span class="o">.</span><span class="na">text</span><span class="p">,</span>
@@ -60,11 +1295,41 @@
     <span class="p">);</span>
   <span class="p">}</span>
 <span class="p">}</span>
-</pre></table></code></div></div><h1 id="二statelesswidget">二、StatelessWidget</h1><h2 id="21-基本概念"><span class="me-2">2.1 基本概念</span><a href="#21-基本概念" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h2><p><code class="language-plaintext highlighter-rouge">StatelessWidget</code> 继承自<code class="language-plaintext highlighter-rouge">widget</code>类，重写了<code class="language-plaintext highlighter-rouge">createElement()</code>方法：</p><div class="language-dart highlighter-rouge"><div class="code-header"> <span data-label-text="Dart"><i class="fas fa-code fa-fw small"></i></span> <button aria-label="copy" data-title-succeed="已复制！"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td></tr></tbody></table></code></div></div>
+
+<h1 id="二statelesswidget">二、StatelessWidget</h1>
+
+<h2 id="21-基本概念"><span class="me-2">2.1 基本概念</span><a href="#21-基本概念" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h2>
+
+<p><code class="language-plaintext highlighter-rouge">StatelessWidget</code> 继承自<code class="language-plaintext highlighter-rouge">widget</code>类，重写了<code class="language-plaintext highlighter-rouge">createElement()</code>方法：</p>
+
+<div class="language-dart highlighter-rouge"><div class="code-header">
+        <span data-label-text="Dart"><i class="fas fa-code fa-fw small"></i></span>
+      <button aria-label="copy" data-title-succeed="已复制！"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
-</pre><td class="rouge-code"><pre><span class="nd">@override</span>
+</pre></td><td class="rouge-code"><pre><span class="nd">@override</span>
 <span class="n">StatelessElement</span> <span class="nf">createElement</span><span class="p">()</span> <span class="o">=</span><span class="p">&gt;</span> <span class="n">StatelessElement</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
-</pre></table></code></div></div><p><code class="language-plaintext highlighter-rouge">StatelessElement</code> 间接继承自<code class="language-plaintext highlighter-rouge">Element</code>类。</p><ul><li>作用：<code class="language-plaintext highlighter-rouge">StatelessWidget</code>用于不需要维护状态的场景，它通常在<code class="language-plaintext highlighter-rouge">build</code>方法中通过嵌套其他 widget 来构建UI，在构建过程中会递归的构建其嵌套的 widget 。</ul><h2 id="22-context"><span class="me-2">2.2 Context</span><a href="#22-context" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h2><p><code class="language-plaintext highlighter-rouge">build</code>方法有一个<code class="language-plaintext highlighter-rouge">context</code>参数，它是<code class="language-plaintext highlighter-rouge">BuildContext</code>类的一个实例，表示当前 widget 在 widget 树中的上下文，每一个 widget 都会对应一个 context 对象（因为每一个 widget 都是 widget 树上的一个节点）。</p><h1 id="三statefulwidget">三、StatefulWidget</h1><h2 id="31-基本概念"><span class="me-2">3.1 基本概念</span><a href="#31-基本概念" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h2><p>和<code class="language-plaintext highlighter-rouge">StatelessWidget</code>一样，<code class="language-plaintext highlighter-rouge">StatefulWidget</code>也是继承自<code class="language-plaintext highlighter-rouge">widget</code>类，并重写了<code class="language-plaintext highlighter-rouge">createElement()</code>方法，不同的是返回的<code class="language-plaintext highlighter-rouge">Element</code> 对象并不相同；另外<code class="language-plaintext highlighter-rouge">StatefulWidget</code>类中添加了一个新的接口<code class="language-plaintext highlighter-rouge">createState()</code>。</p><div class="language-dart highlighter-rouge"><div class="code-header"> <span data-label-text="Dart"><i class="fas fa-code fa-fw small"></i></span> <button aria-label="copy" data-title-succeed="已复制！"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td></tr></tbody></table></code></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">StatelessElement</code> 间接继承自<code class="language-plaintext highlighter-rouge">Element</code>类。</p>
+
+<ul>
+  <li>作用：<code class="language-plaintext highlighter-rouge">StatelessWidget</code>用于不需要维护状态的场景，它通常在<code class="language-plaintext highlighter-rouge">build</code>方法中通过嵌套其他 widget 来构建UI，在构建过程中会递归的构建其嵌套的 widget 。</li>
+</ul>
+
+<h2 id="22-context"><span class="me-2">2.2 Context</span><a href="#22-context" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h2>
+
+<p><code class="language-plaintext highlighter-rouge">build</code>方法有一个<code class="language-plaintext highlighter-rouge">context</code>参数，它是<code class="language-plaintext highlighter-rouge">BuildContext</code>类的一个实例，表示当前 widget 在 widget 树中的上下文，每一个 widget 都会对应一个 context 对象（因为每一个 widget 都是 widget 树上的一个节点）。</p>
+
+<h1 id="三statefulwidget">三、StatefulWidget</h1>
+
+<h2 id="31-基本概念"><span class="me-2">3.1 基本概念</span><a href="#31-基本概念" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h2>
+
+<p>和<code class="language-plaintext highlighter-rouge">StatelessWidget</code>一样，<code class="language-plaintext highlighter-rouge">StatefulWidget</code>也是继承自<code class="language-plaintext highlighter-rouge">widget</code>类，并重写了<code class="language-plaintext highlighter-rouge">createElement()</code>方法，不同的是返回的<code class="language-plaintext highlighter-rouge">Element</code> 对象并不相同；另外<code class="language-plaintext highlighter-rouge">StatefulWidget</code>类中添加了一个新的接口<code class="language-plaintext highlighter-rouge">createState()</code>。</p>
+
+<div class="language-dart highlighter-rouge"><div class="code-header">
+        <span data-label-text="Dart"><i class="fas fa-code fa-fw small"></i></span>
+      <button aria-label="copy" data-title-succeed="已复制！"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
 4
@@ -73,7 +1338,7 @@
 7
 8
 9
-</pre><td class="rouge-code"><pre><span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">StatefulWidget</span> <span class="kd">extends</span> <span class="n">Widget</span> <span class="p">{</span>
+</pre></td><td class="rouge-code"><pre><span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">StatefulWidget</span> <span class="kd">extends</span> <span class="n">Widget</span> <span class="p">{</span>
   <span class="kd">const</span> <span class="n">StatefulWidget</span><span class="p">({</span> <span class="n">Key</span> <span class="n">key</span> <span class="p">})</span> <span class="o">:</span> <span class="k">super</span><span class="p">(</span><span class="nl">key:</span> <span class="n">key</span><span class="p">);</span>
     
   <span class="nd">@override</span>
@@ -82,37 +1347,156 @@
   <span class="nd">@protected</span>
   <span class="n">State</span> <span class="n">createState</span><span class="p">();</span>
 <span class="p">}</span>
-</pre></table></code></div></div><p><code class="language-plaintext highlighter-rouge">StatefulElement</code>中可能会多次调用<code class="language-plaintext highlighter-rouge">createState()</code>来创建状态（State）对象。 多次调用时机：</p><ul><li>当一个 StatefulWidget 同时插入到 widget 树的多个位置时，Flutter 框架就会调用该方法为每一个位置生成一个独立的State实例，其实，本质上就是一个StatefulElement对应一个State实例。</ul><h2 id="32-三者关系"><span class="me-2">3.2 三者关系</span><a href="#32-三者关系" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h2><ul><li>当一个 StatefulWidget 同时插入到 widget 树的多个位置时，一个位置生成一个独立的State实例。<li>State 对象和<code class="language-plaintext highlighter-rouge">StatefulElement</code>具有一一对应的关系。<li>State 对象状态发生改变时，可能会重新构建新的 widget 实例。</ul><h2 id="33-state"><span class="me-2">3.3 State</span><a href="#33-state" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h2><p>State 中的保存的状态信息：</p><ol><li>在 widget 构建时可以被同步读取。<li>在 widget 生命周期中可以被改变，当State被改变时，可以手动调用其setState()方法通知Flutter 框架状态发生改变，Flutter 框架在收到消息后，会重新调用其build方法重新构建 widget 树，从而达到更新UI的目的。</ol><h3 id="331-两个属性"><span class="me-2">3.3.1 两个属性</span><a href="#331-两个属性" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3><ol><li><p><code class="language-plaintext highlighter-rouge">widget</code>，它表示与该 State 实例关联的 widget 实例，由Flutter 框架动态设置。注意，这种关联并非永久的，因为在应用生命周期中，UI树上的某一个节点的 widget 实例在重新构建时可能会变化，但State实例只会在第一次插入到树中时被创建，当在重新构建时，如果 widget 被修改了，Flutter 框架会动态设置State. widget 为新的 widget 实例。</p><li><p><code class="language-plaintext highlighter-rouge">context</code>。StatefulWidget对应的 BuildContext，作用同StatelessWidget 的BuildContext。</p></ol><h3 id="332-生命周期"><span class="me-2">3.3.2 生命周期</span><a href="#332-生命周期" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3><p>创建时：</p><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code fa-fw small"></i></span> <button aria-label="copy" data-title-succeed="已复制！"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td></tr></tbody></table></code></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">StatefulElement</code>中可能会多次调用<code class="language-plaintext highlighter-rouge">createState()</code>来创建状态（State）对象。
+多次调用时机：</p>
+
+<ul>
+  <li>当一个 StatefulWidget 同时插入到 widget 树的多个位置时，Flutter 框架就会调用该方法为每一个位置生成一个独立的State实例，其实，本质上就是一个StatefulElement对应一个State实例。</li>
+</ul>
+
+<h2 id="32-三者关系"><span class="me-2">3.2 三者关系</span><a href="#32-三者关系" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h2>
+
+<ul>
+  <li>当一个 StatefulWidget 同时插入到 widget 树的多个位置时，一个位置生成一个独立的State实例。</li>
+  <li>State 对象和<code class="language-plaintext highlighter-rouge">StatefulElement</code>具有一一对应的关系。</li>
+  <li>State 对象状态发生改变时，可能会重新构建新的 widget 实例。</li>
+</ul>
+
+<h2 id="33-state"><span class="me-2">3.3 State</span><a href="#33-state" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h2>
+
+<p>State 中的保存的状态信息：</p>
+
+<ol>
+  <li>在 widget 构建时可以被同步读取。</li>
+  <li>在 widget 生命周期中可以被改变，当State被改变时，可以手动调用其setState()方法通知Flutter 框架状态发生改变，Flutter 框架在收到消息后，会重新调用其build方法重新构建 widget 树，从而达到更新UI的目的。</li>
+</ol>
+
+<h3 id="331-两个属性"><span class="me-2">3.3.1 两个属性</span><a href="#331-两个属性" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3>
+
+<ol>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">widget</code>，它表示与该 State 实例关联的 widget 实例，由Flutter 框架动态设置。注意，这种关联并非永久的，因为在应用生命周期中，UI树上的某一个节点的 widget 实例在重新构建时可能会变化，但State实例只会在第一次插入到树中时被创建，当在重新构建时，如果 widget 被修改了，Flutter 框架会动态设置State. widget 为新的 widget 实例。</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">context</code>。StatefulWidget对应的 BuildContext，作用同StatelessWidget 的BuildContext。</p>
+  </li>
+</ol>
+
+<h3 id="332-生命周期"><span class="me-2">3.3.2 生命周期</span><a href="#332-生命周期" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3>
+
+<p>创建时：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="code-header">
+        <span data-label-text="Plaintext"><i class="fas fa-code fa-fw small"></i></span>
+      <button aria-label="copy" data-title-succeed="已复制！"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
-</pre><td class="rouge-code"><pre>I/flutter ( 5436): initState
+</pre></td><td class="rouge-code"><pre>I/flutter ( 5436): initState
 I/flutter ( 5436): didChangeDependencies
 I/flutter ( 5436): build
-</pre></table></code></div></div><p>热重载时：</p><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code fa-fw small"></i></span> <button aria-label="copy" data-title-succeed="已复制！"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td></tr></tbody></table></code></div></div>
+
+<p>热重载时：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="code-header">
+        <span data-label-text="Plaintext"><i class="fas fa-code fa-fw small"></i></span>
+      <button aria-label="copy" data-title-succeed="已复制！"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
-</pre><td class="rouge-code"><pre>I/flutter ( 5436): reassemble
+</pre></td><td class="rouge-code"><pre>I/flutter ( 5436): reassemble
 I/flutter ( 5436): didUpdateWidget 
 I/flutter ( 5436): build
-</pre></table></code></div></div><p>在 widget 树中移除，然后热重载：</p><div class="language-dart highlighter-rouge"><div class="code-header"> <span data-label-text="Dart"><i class="fas fa-code fa-fw small"></i></span> <button aria-label="copy" data-title-succeed="已复制！"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td></tr></tbody></table></code></div></div>
+
+<p>在 widget 树中移除，然后热重载：</p>
+
+<div class="language-dart highlighter-rouge"><div class="code-header">
+        <span data-label-text="Dart"><i class="fas fa-code fa-fw small"></i></span>
+      <button aria-label="copy" data-title-succeed="已复制！"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
 4
 5
 6
-</pre><td class="rouge-code"><pre> <span class="n">Widget</span> <span class="nf">build</span><span class="p">(</span><span class="n">BuildContext</span> <span class="n">context</span><span class="p">)</span> <span class="p">{</span>
+</pre></td><td class="rouge-code"><pre> <span class="n">Widget</span> <span class="nf">build</span><span class="p">(</span><span class="n">BuildContext</span> <span class="n">context</span><span class="p">)</span> <span class="p">{</span>
   <span class="c1">//移除计数器 </span>
   <span class="c1">//return CounterWidget ();</span>
   <span class="c1">//随便返回一个Text()</span>
   <span class="k">return</span> <span class="n">Text</span><span class="p">(</span><span class="s">"xxx"</span><span class="p">);</span>
 <span class="p">}</span>
-</pre></table></code></div></div><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code fa-fw small"></i></span> <button aria-label="copy" data-title-succeed="已复制！"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td></tr></tbody></table></code></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="code-header">
+        <span data-label-text="Plaintext"><i class="fas fa-code fa-fw small"></i></span>
+      <button aria-label="copy" data-title-succeed="已复制！"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
-</pre><td class="rouge-code"><pre>I/flutter ( 5436): reassemble
+</pre></td><td class="rouge-code"><pre>I/flutter ( 5436): reassemble
 I/flutter ( 5436): deactive
 I/flutter ( 5436): dispose
-</pre></table></code></div></div><h3 id="333-initstate"><span class="me-2">3.3.3 initState</span><a href="#333-initstate" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3><p>调用时机：当 widget 第一次插入到 widget 树时会被调用，对于每一个State对象，Flutter 框架只会调用一次该回调。 作用：通常在该回调中做一些一次性的操作，如状态初始化、订阅子树的事件通知等。</p><h3 id="334-didchangedependencies"><span class="me-2">3.3.4 didChangeDependencies</span><a href="#334-didchangedependencies" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3><p>调用时机：</p><ul><li>当State对象的依赖发生变化时会被调用。<li>组件第一次被创建后挂载的时候（包括重创建）对应的didChangeDependencies也会被调用。</ul><p>作用：当系统语言 Locale 或应用主题改变时，Flutter 框架会通知 widget 调用此回调。</p><h3 id="335-build"><span class="me-2">3.3.5 build</span><a href="#335-build" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3><p>调用时机：</p><ol><li>在调用initState()之后。<li>在调用didUpdateWidget()之后。<li>在调用setState()之后。<li>在调用didChangeDependencies()之后。<li>在State对象从树中一个位置移除后（会调用deactivate）又重新插入到树的其他位置之后。</ol><p>作用：主要是用于构建 widget 子树。</p><h3 id="336-didupdatewidget"><span class="me-2">3.3.6 didUpdateWidget</span><a href="#336-didupdatewidget" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3><p>调用时机：在 widget 重新构建时，Flutter 框架会调用<code class="language-plaintext highlighter-rouge">widget.canUpdate</code>来检测 widget 树中同一位置的新旧节点，然后决定是否需要更新，如果<code class="language-plaintext highlighter-rouge">widget.canUpdate</code>返回<code class="language-plaintext highlighter-rouge">true</code>则会调用此回调。 作用：节省性能开销。</p><h3 id="337-deactivate"><span class="me-2">3.3.7 deactivate</span><a href="#337-deactivate" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3><p>调用时机：当 State 对象从树中被移除时。</p><h3 id="338-dispose"><span class="me-2">3.3.8 dispose</span><a href="#338-dispose" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3><p>调用时机：当 State 对象从树中被永久移除时；如果deactivate被调用后，移除的子树没有重新插入到树中则紧接着会调用dispose()方法。 作用：通常在此回调中释放资源。</p><h2 id="34-statefulwidget-生命周期图示"><span class="me-2">3.4 StatefulWidget 生命周期图示</span><a href="#34-statefulwidget-生命周期图示" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h2><p><a href="https://blogpic.smallfan.top/flutter/stateFlow.jpg" class="popup img-link shimmer"><img src="https://blogpic.smallfan.top/flutter/stateFlow.jpg" alt="" loading="lazy"></a></p><h2 id="35-mustcallsuper"><span class="me-2">3.5 @mustCallSuper</span><a href="#35-mustcallsuper" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h2><p>在继承<code class="language-plaintext highlighter-rouge">StatefulWidget</code>重写其方法时，对于包含<code class="language-plaintext highlighter-rouge">@mustCallSuper</code>标注的父类方法，都要在子类方法中调用父类方法。</p><h1 id="四在-widget-树中获取state对象">四、在 widget 树中获取State对象</h1><h2 id="41-第一种办法通过context获取"><span class="me-2">4.1 第一种办法：通过Context获取</span><a href="#41-第一种办法通过context获取" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h2><div class="language-dart highlighter-rouge"><div class="code-header"> <span data-label-text="Dart"><i class="fas fa-code fa-fw small"></i></span> <button aria-label="copy" data-title-succeed="已复制！"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td></tr></tbody></table></code></div></div>
+
+<h3 id="333-initstate"><span class="me-2">3.3.3 initState</span><a href="#333-initstate" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3>
+
+<p>调用时机：当 widget 第一次插入到 widget 树时会被调用，对于每一个State对象，Flutter 框架只会调用一次该回调。
+作用：通常在该回调中做一些一次性的操作，如状态初始化、订阅子树的事件通知等。</p>
+
+<h3 id="334-didchangedependencies"><span class="me-2">3.3.4 didChangeDependencies</span><a href="#334-didchangedependencies" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3>
+
+<p>调用时机：</p>
+
+<ul>
+  <li>当State对象的依赖发生变化时会被调用。</li>
+  <li>组件第一次被创建后挂载的时候（包括重创建）对应的didChangeDependencies也会被调用。</li>
+</ul>
+
+<p>作用：当系统语言 Locale 或应用主题改变时，Flutter 框架会通知 widget 调用此回调。</p>
+
+<h3 id="335-build"><span class="me-2">3.3.5 build</span><a href="#335-build" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3>
+
+<p>调用时机：</p>
+
+<ol>
+  <li>在调用initState()之后。</li>
+  <li>在调用didUpdateWidget()之后。</li>
+  <li>在调用setState()之后。</li>
+  <li>在调用didChangeDependencies()之后。</li>
+  <li>在State对象从树中一个位置移除后（会调用deactivate）又重新插入到树的其他位置之后。</li>
+</ol>
+
+<p>作用：主要是用于构建 widget 子树。</p>
+
+<h3 id="336-didupdatewidget"><span class="me-2">3.3.6 didUpdateWidget</span><a href="#336-didupdatewidget" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3>
+
+<p>调用时机：在 widget 重新构建时，Flutter 框架会调用<code class="language-plaintext highlighter-rouge">widget.canUpdate</code>来检测 widget 树中同一位置的新旧节点，然后决定是否需要更新，如果<code class="language-plaintext highlighter-rouge">widget.canUpdate</code>返回<code class="language-plaintext highlighter-rouge">true</code>则会调用此回调。
+作用：节省性能开销。</p>
+
+<h3 id="337-deactivate"><span class="me-2">3.3.7 deactivate</span><a href="#337-deactivate" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3>
+
+<p>调用时机：当 State 对象从树中被移除时。</p>
+
+<h3 id="338-dispose"><span class="me-2">3.3.8 dispose</span><a href="#338-dispose" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3>
+
+<p>调用时机：当 State 对象从树中被永久移除时；如果deactivate被调用后，移除的子树没有重新插入到树中则紧接着会调用dispose()方法。
+作用：通常在此回调中释放资源。</p>
+
+<h2 id="34-statefulwidget-生命周期图示"><span class="me-2">3.4 StatefulWidget 生命周期图示</span><a href="#34-statefulwidget-生命周期图示" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h2>
+
+<p><a href="https://blogpic.smallfan.top/flutter/stateFlow.jpg" class="popup img-link  shimmer"><img src="https://blogpic.smallfan.top/flutter/stateFlow.jpg" alt="" loading="lazy"></a></p>
+
+<h2 id="35-mustcallsuper"><span class="me-2">3.5 @mustCallSuper</span><a href="#35-mustcallsuper" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h2>
+
+<p>在继承<code class="language-plaintext highlighter-rouge">StatefulWidget</code>重写其方法时，对于包含<code class="language-plaintext highlighter-rouge">@mustCallSuper</code>标注的父类方法，都要在子类方法中调用父类方法。</p>
+
+<h1 id="四在-widget-树中获取state对象">四、在 widget 树中获取State对象</h1>
+
+<h2 id="41-第一种办法通过context获取"><span class="me-2">4.1 第一种办法：通过Context获取</span><a href="#41-第一种办法通过context获取" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h2>
+
+<div class="language-dart highlighter-rouge"><div class="code-header">
+        <span data-label-text="Dart"><i class="fas fa-code fa-fw small"></i></span>
+      <button aria-label="copy" data-title-succeed="已复制！"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
 4
@@ -147,7 +1531,7 @@ I/flutter ( 5436): dispose
 33
 34
 35
-</pre><td class="rouge-code"><pre><span class="kd">class</span> <span class="nc">GetStateObjectRoute</span> <span class="kd">extends</span> <span class="n">StatefulWidget</span> <span class="p">{</span>
+</pre></td><td class="rouge-code"><pre><span class="kd">class</span> <span class="nc">GetStateObjectRoute</span> <span class="kd">extends</span> <span class="n">StatefulWidget</span> <span class="p">{</span>
   <span class="kd">const</span> <span class="n">GetStateObjectRoute</span><span class="p">({</span><span class="n">Key</span><span class="o">?</span> <span class="n">key</span><span class="p">})</span> <span class="o">:</span> <span class="k">super</span><span class="p">(</span><span class="nl">key:</span> <span class="n">key</span><span class="p">);</span>
 
   <span class="nd">@override</span>
@@ -182,7 +1566,15 @@ I/flutter ( 5436): dispose
     <span class="p">);</span>
   <span class="p">}</span>
 <span class="p">}</span>
-</pre></table></code></div></div><h2 id="42-of静态方法的约定"><span class="me-2">4.2 of静态方法的约定</span><a href="#42-of静态方法的约定" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h2><p>一般来说，如果 StatefulWidget 的状态是私有的（不应该向外部暴露），那么我们代码中就不应该去直接获取其 State 对象；如果<code class="language-plaintext highlighter-rouge">StatefulWidget</code>的状态是希望暴露出的（通常还有一些组件的操作方法），我们则可以去直接获取其<code class="language-plaintext highlighter-rouge">State</code>对象。但是通过 context.findAncestorStateOfType 获取 StatefulWidget 的状态的方法是通用的，我们并不能在语法层面指定 StatefulWidget 的状态是否私有，所以在 Flutter 开发中便有了一个默认的约定：如果 StatefulWidget 的状态是希望暴露出的，应当在 StatefulWidget 中提供一个of 静态方法来获取其 State 对象，开发者便可直接通过该方法来获取；如果 State不希望暴露，则不提供<code class="language-plaintext highlighter-rouge">of</code>方法。这个约定在 Flutter SDK 里随处可见。所以，上面示例中的<code class="language-plaintext highlighter-rouge">Scaffold</code>也提供了一个<code class="language-plaintext highlighter-rouge">of</code>方法，我们其实是可以直接调用它的：</p><div class="language-dart highlighter-rouge"><div class="code-header"> <span data-label-text="Dart"><i class="fas fa-code fa-fw small"></i></span> <button aria-label="copy" data-title-succeed="已复制！"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td></tr></tbody></table></code></div></div>
+
+<h2 id="42-of静态方法的约定"><span class="me-2">4.2 of静态方法的约定</span><a href="#42-of静态方法的约定" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h2>
+
+<p>一般来说，如果 StatefulWidget 的状态是私有的（不应该向外部暴露），那么我们代码中就不应该去直接获取其 State 对象；如果<code class="language-plaintext highlighter-rouge">StatefulWidget</code>的状态是希望暴露出的（通常还有一些组件的操作方法），我们则可以去直接获取其<code class="language-plaintext highlighter-rouge">State</code>对象。但是通过 context.findAncestorStateOfType 获取 StatefulWidget 的状态的方法是通用的，我们并不能在语法层面指定 StatefulWidget 的状态是否私有，所以在 Flutter 开发中便有了一个默认的约定：如果 StatefulWidget 的状态是希望暴露出的，应当在 StatefulWidget 中提供一个of 静态方法来获取其 State 对象，开发者便可直接通过该方法来获取；如果 State不希望暴露，则不提供<code class="language-plaintext highlighter-rouge">of</code>方法。这个约定在 Flutter SDK 里随处可见。所以，上面示例中的<code class="language-plaintext highlighter-rouge">Scaffold</code>也提供了一个<code class="language-plaintext highlighter-rouge">of</code>方法，我们其实是可以直接调用它的：</p>
+
+<div class="language-dart highlighter-rouge"><div class="code-header">
+        <span data-label-text="Dart"><i class="fas fa-code fa-fw small"></i></span>
+      <button aria-label="copy" data-title-succeed="已复制！"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
 4
@@ -193,7 +1585,7 @@ I/flutter ( 5436): dispose
 9
 10
 11
-</pre><td class="rouge-code"><pre><span class="n">Builder</span><span class="p">(</span><span class="nl">builder:</span> <span class="p">(</span><span class="n">context</span><span class="p">)</span> <span class="p">{</span>
+</pre></td><td class="rouge-code"><pre><span class="n">Builder</span><span class="p">(</span><span class="nl">builder:</span> <span class="p">(</span><span class="n">context</span><span class="p">)</span> <span class="p">{</span>
   <span class="k">return</span> <span class="n">ElevatedButton</span><span class="p">(</span>
     <span class="nl">onPressed:</span> <span class="p">()</span> <span class="p">{</span>
       <span class="c1">// 直接通过of静态方法来获取ScaffoldState</span>
@@ -204,7 +1596,11 @@ I/flutter ( 5436): dispose
     <span class="nl">child:</span> <span class="n">Text</span><span class="p">(</span><span class="s">'打开抽屉菜单2'</span><span class="p">),</span>
   <span class="p">);</span>
 <span class="p">}),</span>
-</pre></table></code></div></div><div class="language-dart highlighter-rouge"><div class="code-header"> <span data-label-text="Dart"><i class="fas fa-code fa-fw small"></i></span> <button aria-label="copy" data-title-succeed="已复制！"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td></tr></tbody></table></code></div></div>
+
+<div class="language-dart highlighter-rouge"><div class="code-header">
+        <span data-label-text="Dart"><i class="fas fa-code fa-fw small"></i></span>
+      <button aria-label="copy" data-title-succeed="已复制！"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
 4
@@ -214,7 +1610,7 @@ I/flutter ( 5436): dispose
 8
 9
 10
-</pre><td class="rouge-code"><pre><span class="n">Builder</span><span class="p">(</span><span class="nl">builder:</span> <span class="p">(</span><span class="n">context</span><span class="p">)</span> <span class="p">{</span>
+</pre></td><td class="rouge-code"><pre><span class="n">Builder</span><span class="p">(</span><span class="nl">builder:</span> <span class="p">(</span><span class="n">context</span><span class="p">)</span> <span class="p">{</span>
   <span class="k">return</span> <span class="n">ElevatedButton</span><span class="p">(</span>
     <span class="nl">onPressed:</span> <span class="p">()</span> <span class="p">{</span>
       <span class="n">ScaffoldMessenger</span><span class="o">.</span><span class="na">of</span><span class="p">(</span><span class="n">context</span><span class="p">)</span><span class="o">.</span><span class="na">showSnackBar</span><span class="p">(</span>
@@ -224,20 +1620,2298 @@ I/flutter ( 5436): dispose
     <span class="nl">child:</span> <span class="n">Text</span><span class="p">(</span><span class="s">'显示SnackBar'</span><span class="p">),</span>
   <span class="p">);</span>
 <span class="p">}),</span>
-</pre></table></code></div></div><h2 id="43-第二种办法通过globalkey"><span class="me-2">4.3 第二种办法：通过GlobalKey</span><a href="#43-第二种办法通过globalkey" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h2><h3 id="431-给目标statefulwidget添加globalkey"><span class="me-2">4.3.1 给目标StatefulWidget添加GlobalKey</span><a href="#431-给目标statefulwidget添加globalkey" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3><div class="language-dart highlighter-rouge"><div class="code-header"> <span data-label-text="Dart"><i class="fas fa-code fa-fw small"></i></span> <button aria-label="copy" data-title-succeed="已复制！"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td></tr></tbody></table></code></div></div>
+
+<h2 id="43-第二种办法通过globalkey"><span class="me-2">4.3 第二种办法：通过GlobalKey</span><a href="#43-第二种办法通过globalkey" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h2>
+
+<h3 id="431-给目标statefulwidget添加globalkey"><span class="me-2">4.3.1 给目标StatefulWidget添加GlobalKey</span><a href="#431-给目标statefulwidget添加globalkey" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3>
+
+<div class="language-dart highlighter-rouge"><div class="code-header">
+        <span data-label-text="Dart"><i class="fas fa-code fa-fw small"></i></span>
+      <button aria-label="copy" data-title-succeed="已复制！"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
 4
 5
 6
 7
-</pre><td class="rouge-code"><pre><span class="c1">//定义一个globalKey, 由于GlobalKey要保持全局唯一性，我们使用静态变量存储</span>
+</pre></td><td class="rouge-code"><pre><span class="c1">//定义一个globalKey, 由于GlobalKey要保持全局唯一性，我们使用静态变量存储</span>
 <span class="kd">static</span> <span class="n">GlobalKey</span><span class="p">&lt;</span><span class="n">ScaffoldState</span><span class="p">&gt;</span> <span class="n">_globalKey</span> <span class="o">=</span> <span class="n">GlobalKey</span><span class="p">();</span>
 <span class="p">...</span>
 <span class="n">Scaffold</span><span class="p">(</span>
     <span class="nl">key:</span> <span class="n">_globalKey</span> <span class="p">,</span> <span class="c1">//设置key</span>
     <span class="p">...</span>  
 <span class="p">)</span>
-</pre></table></code></div></div><h3 id="432-通过globalkey来获取state对象"><span class="me-2">4.3.2 通过GlobalKey来获取State对象</span><a href="#432-通过globalkey来获取state对象" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3><div class="language-dart highlighter-rouge"><div class="code-header"> <span data-label-text="Dart"><i class="fas fa-code fa-fw small"></i></span> <button aria-label="copy" data-title-succeed="已复制！"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-</pre><td class="rouge-code"><pre><span class="n">_globalKey</span><span class="o">.</span><span class="na">currentState</span><span class="o">.</span><span class="na">openDrawer</span><span class="p">()</span>
-</pre></table></code></div></div><p>GlobalKey 是 Flutter 提供的一种在整个 App 中引用 element 的机制。如果一个 widget 设置了<code class="language-plaintext highlighter-rouge">GlobalKey</code>，那么我们便可以通过<code class="language-plaintext highlighter-rouge">globalKey.currentWidget</code>获得该 widget 对象、<code class="language-plaintext highlighter-rouge">globalKey.currentElement</code>来获得 widget 对应的element对象，如果当前 widget 是<code class="language-plaintext highlighter-rouge">StatefulWidget</code>，则可以通过<code class="language-plaintext highlighter-rouge">globalKey.currentState</code>来获得该 widget 对应的state对象。</p></div><div class="post-tail-wrapper text-muted"><div class="post-meta mb-3"> <i class="far fa-folder-open fa-fw me-1"></i> <a href="/categories/%E6%8A%80%E6%9C%AF/">技术</a>, <a href="/categories/flutter/">Flutter</a></div><div class="post-tags"> <i class="fa fa-tags fa-fw me-1"></i> <a href="/tags/%E7%A7%BB%E5%8A%A8%E5%BC%80%E5%8F%91/" class="post-tag no-text-decoration" >移动开发</a> <a href="/tags/flutter/" class="post-tag no-text-decoration" >Flutter</a> <a href="/tags/hybrid/" class="post-tag no-text-decoration" >Hybrid</a></div><div class=" post-tail-bottom d-flex justify-content-between align-items-center mt-5 pb-2 " ><div class="license-wrapper"> 本文由作者按照 <a href="https://creativecommons.org/licenses/by/4.0/"> CC BY 4.0 </a> 进行授权</div><div class="share-wrapper d-flex align-items-center"> <span class="share-label text-muted">分享</span> <span class="share-icons"> <button id="copy-link" aria-label="Copy link" class="btn small" data-bs-toggle="tooltip" data-bs-placement="top" title="分享链接" data-title-succeed="链接已复制！" > <i class="fa-fw fas fa-link pe-none fs-6"></i> </button> </span></div></div></div></article></main><aside aria-label="Panel" id="panel-wrapper" class="col-xl-3 ps-2 mb-5 text-muted"><div class="access"><section id="access-lastmod"><h2 class="panel-heading">最近更新</h2><ul class="content list-unstyled ps-0 pb-1 ms-1 mt-2"><li class="text-truncate lh-lg"> <a href="/posts/gitCommon/">Git 基本构成及常见问题</a><li class="text-truncate lh-lg"> <a href="/posts/dns/">如果根DNS服务器被炸了，万维网是不是将马上瘫痪？</a><li class="text-truncate lh-lg"> <a href="/posts/ecdhe/">深入探究ECDHE算法</a><li class="text-truncate lh-lg"> <a href="/posts/removeKthFromEnd/">删除链表的倒数第 N 个结点（LeetCode No.19）</a><li class="text-truncate lh-lg"> <a href="/posts/getMiddleNode/">链表的中间结点（LeetCode No.876）</a></ul></section><section><h2 class="panel-heading">热门标签</h2><div class="d-flex flex-wrap mt-3 mb-1 me-3"> <a class="post-tag btn btn-outline-primary" href="/tags/hybrid/">Hybrid</a> <a class="post-tag btn btn-outline-primary" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">数据结构</a> <a class="post-tag btn btn-outline-primary" href="/tags/%E7%AE%97%E6%B3%95/">算法</a> <a class="post-tag btn btn-outline-primary" href="/tags/%E9%93%BE%E8%A1%A8/">链表</a> <a class="post-tag btn btn-outline-primary" href="/tags/flutter/">Flutter</a> <a class="post-tag btn btn-outline-primary" href="/tags/%E7%A7%BB%E5%8A%A8%E5%BC%80%E5%8F%91/">移动开发</a> <a class="post-tag btn btn-outline-primary" href="/tags/ios/">iOS</a> <a class="post-tag btn btn-outline-primary" href="/tags/wkwebview/">WKWebView</a> <a class="post-tag btn btn-outline-primary" href="/tags/%E7%BD%91%E7%BB%9C%E5%8E%9F%E7%90%86/">网络原理</a> <a class="post-tag btn btn-outline-primary" href="/tags/dns/">DNS</a></div></section></div><section id="toc-wrapper" class="ps-0 pe-4"><h2 class="panel-heading ps-3 mb-2">文章内容</h2><nav id="toc"></nav></section></aside></div><div class="row"><div id="tail-wrapper" class="col-12 col-lg-11 col-xl-9 px-md-4"><aside id="related-posts" aria-labelledby="related-label"><h3 class="mb-4" id="related-label">相关文章</h3><nav class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4 mb-4"><article class="col"> <a href="/posts/flutter_route/" class="post-preview card h-100"><div class="card-body"> <time data-ts="1662559211" data-df="YYYY/MM/DD" > 2022/09/07 </time><h4 class="pt-0 my-2">初探Flutter（三） 路由管理</h4><div class="text-muted"><p>一、基本概念 所谓路由管理，就是管理页面之间如何跳转，通常也可被称为导航管理。Flutter 中的路由管理和原生开发类似，无论是 Android 还是 iOS，导航管理都会维护一个路由栈，路由入栈（push）操作对应打开一个新页面，路由出栈（pop）操作对应页面关闭操作，而路由管理主要是指如何来管理路由栈。 二、MaterialPageRoute 2.1 基本定义 MaterialP...</p></div></div></a></article><article class="col"> <a href="/posts/flutter_state/" class="post-preview card h-100"><div class="card-body"> <time data-ts="1662475975" data-df="YYYY/MM/DD" > 2022/09/06 </time><h4 class="pt-0 my-2">初探Flutter（二） 状态管理</h4><div class="text-muted"><p>一、三种常见的状态管理 Widget 管理自己的状态。 Widget 管理子 Widget 状态。 混合管理（父 Widget 和子 Widget 都管理状态）。 1.1 Widget 管理自己的状态 1.1.1 适用场景 如果状态是有关界面外观效果的，例如颜色、动画，那么状态最好由 Widget 本身来管理。 1.1.2 例子 1 2 3 4 5 6 7 8 9...</p></div></div></a></article><article class="col"> <a href="/posts/localwebserver/" class="post-preview card h-100"><div class="card-body"> <time data-ts="1503477515" data-df="YYYY/MM/DD" > 2017/08/23 </time><h4 class="pt-0 my-2">基于 LocalWebServer 实现 WKWebView 离线资源加载</h4><div class="text-muted"><p>一、背景 笔者在《WKWebView》一文中提到过，WKWebView 在独立于 app 进程之外的进程中执行网络请求，请求数据不经过主进程，因此，在 WKWebView 上直接使用 NSURLProtocol 无法拦截请求。所以如果需要使用到拦截请求，有种可行地方案是使用苹果开源的 Webkit2 源码暴露的私有API（详见原文第3小节：NSURLProtocol问题）。 但使用私有AP...</p></div></div></a></article></nav></aside><nav class="post-navigation d-flex justify-content-between" aria-label="Post Navigation"> <a href="/posts/options1/" class="btn btn-outline-primary" aria-label="上一篇" ><p>认识期权（一）期权的基本概念</p></a> <a href="/posts/flutter_state/" class="btn btn-outline-primary" aria-label="下一篇" ><p>初探Flutter（二） 状态管理</p></a></nav><div id="disqus_thread"><p class="text-center text-muted small">Comments powered by <a href="https://disqus.com/">Disqus</a>.</p></div><script type="text/javascript"> var disqus_config = function () { this.page.url = '/posts/flutter_widget/'; this.page.identifier = '/posts/flutter_widget/'; };var disqus_observer = new IntersectionObserver( function (entries) { if (entries[0].isIntersecting) { (function () { var d = document, s = d.createElement('script'); s.src = 'https://smallfan.disqus.com/embed.js'; s.setAttribute('data-timestamp', +new Date()); (d.head || d.body).appendChild(s); })(); disqus_observer.disconnect(); } }, { threshold: [0] } ); disqus_observer.observe(document.getElementById('disqus_thread'));function reloadDisqus() { if (event.source === window && event.data && event.data.direction === ModeToggle.ID) {if (typeof DISQUS === 'undefined') { return; } if (document.readyState == 'complete') { DISQUS.reset({ reload: true, config: disqus_config }); } } } if (document.getElementById('mode-toggle')) { window.addEventListener('message', reloadDisqus); } </script><footer aria-label="Site Info" class=" d-flex flex-column justify-content-center text-muted flex-lg-row justify-content-lg-between align-items-lg-center pb-lg-3 " ><p>© <time>2024</time> <a href="https://github.com/Smallfan">Smallfan</a>.</p><p></p></footer></div></div><div id="search-result-wrapper" class="d-flex justify-content-center d-none"><div class="col-11 content"><div id="search-hints"><section><h2 class="panel-heading">热门标签</h2><div class="d-flex flex-wrap mt-3 mb-1 me-3"> <a class="post-tag btn btn-outline-primary" href="/tags/hybrid/">Hybrid</a> <a class="post-tag btn btn-outline-primary" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">数据结构</a> <a class="post-tag btn btn-outline-primary" href="/tags/%E7%AE%97%E6%B3%95/">算法</a> <a class="post-tag btn btn-outline-primary" href="/tags/%E9%93%BE%E8%A1%A8/">链表</a> <a class="post-tag btn btn-outline-primary" href="/tags/flutter/">Flutter</a> <a class="post-tag btn btn-outline-primary" href="/tags/%E7%A7%BB%E5%8A%A8%E5%BC%80%E5%8F%91/">移动开发</a> <a class="post-tag btn btn-outline-primary" href="/tags/ios/">iOS</a> <a class="post-tag btn btn-outline-primary" href="/tags/wkwebview/">WKWebView</a> <a class="post-tag btn btn-outline-primary" href="/tags/%E7%BD%91%E7%BB%9C%E5%8E%9F%E7%90%86/">网络原理</a> <a class="post-tag btn btn-outline-primary" href="/tags/dns/">DNS</a></div></section></div><div id="search-results" class="d-flex flex-wrap justify-content-center text-muted mt-3"></div></div></div></div><aside aria-label="Scroll to Top"> <button id="back-to-top" type="button" class="btn btn-lg btn-box-shadow"> <i class="fas fa-angle-up"></i> </button></aside></div><div id="mask"></div><aside id="notification" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-animation="true" data-bs-autohide="false" ><div class="toast-header"> <button type="button" class="btn-close ms-auto" data-bs-dismiss="toast" aria-label="Close" ></button></div><div class="toast-body text-center pt-0"><p class="px-2 mb-3">发现新版本的内容。</p><button type="button" class="btn btn-primary" aria-label="Update"> 更新 </button></div></aside><script src="https://cdn.jsdelivr.net/combine/npm/simple-jekyll-search@1.10.0/dest/simple-jekyll-search.min.js,npm/loading-attribute-polyfill@2.1.1/dist/loading-attribute-polyfill.umd.min.js,npm/glightbox@3.3.0/dist/js/glightbox.min.js,npm/clipboard@2.0.11/dist/clipboard.min.js,npm/dayjs@1.11.13/dayjs.min.js,npm/dayjs@1.11.13/locale/zh.js,npm/dayjs@1.11.13/plugin/relativeTime.js,npm/dayjs@1.11.13/plugin/localizedFormat.js,npm/tocbot@4.29.0/dist/tocbot.min.js,npm/mermaid@11.0.2/dist/mermaid.min.js"></script> <script src="/assets/js/dist/post.min.js"></script> <script src="/assets/js/data/mathjax.js"></script> <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script> <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js"></script> <script type="text/javascript"> function updateMermaid(event) { if (event.source === window && event.data && event.data.direction === ModeToggle.ID) { const mode = event.data.message; if (typeof mermaid === 'undefined') { return; } let expectedTheme = mode === ModeToggle.DARK_MODE ? 'dark' : 'default'; let config = { theme: expectedTheme };const mermaidList = document.getElementsByClassName('mermaid'); [...mermaidList].forEach((elem) => { const svgCode = elem.previousSibling.children.item(0).innerHTML; elem.innerHTML = svgCode; elem.removeAttribute('data-processed'); }); mermaid.initialize(config); mermaid.init(undefined, '.mermaid'); } } (function () { let initTheme = 'default'; const html = document.documentElement; if ( (html.hasAttribute('data-mode') && html.getAttribute('data-mode') === 'dark') || (!html.hasAttribute('data-mode') && window.matchMedia('(prefers-color-scheme: dark)').matches) ) { initTheme = 'dark'; } let mermaidConf = { theme: initTheme};const basicList = document.getElementsByClassName('language-mermaid'); [...basicList].forEach((elem) => { const svgCode = elem.textContent; const backup = elem.parentElement; backup.classList.add('d-none');let mermaid = document.createElement('pre'); mermaid.classList.add('mermaid'); const text = document.createTextNode(svgCode); mermaid.appendChild(text); backup.after(mermaid); }); mermaid.initialize(mermaidConf); window.addEventListener('message', updateMermaid); })(); </script> <script defer src="/app.min.js?baseurl=&register=true" ></script> <script defer src="https://www.googletagmanager.com/gtag/js?id=G-VEBCJX739Y"></script> <script> document.addEventListener('DOMContentLoaded', function (event) { window.dataLayer = window.dataLayer || []; function gtag() { dataLayer.push(arguments); } gtag('js', new Date()); gtag('config', 'G-VEBCJX739Y'); }); </script> <script>SimpleJekyllSearch({ searchInput: document.getElementById('search-input'), resultsContainer: document.getElementById('search-results'), json: '/assets/js/data/search.json', searchResultTemplate: '<article class="px-1 px-sm-2 px-lg-4 px-xl-0"><header><h2><a href="{url}">{title}</a></h2><div class="post-meta d-flex flex-column flex-sm-row text-muted mt-1 mb-1"> {categories} {tags}</div></header><p>{snippet}</p></article>', noResultsText: '<p class="mt-5">搜索结果为空</p>', templateMiddleware: function(prop, value, template) { if (prop === 'categories') { if (value === '') { return `${value}`; } else { return `<div class="me-sm-4"><i class="far fa-folder fa-fw"></i>${value}</div>`; } } if (prop === 'tags') { if (value === '') { return `${value}`; } else { return `<div><i class="fa fa-tag fa-fw"></i>${value}</div>`; } } } }); </script>
+</pre></td></tr></tbody></table></code></div></div>
+
+<h3 id="432-通过globalkey来获取state对象"><span class="me-2">4.3.2 通过GlobalKey来获取State对象</span><a href="#432-通过globalkey来获取state对象" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3>
+
+<div class="language-dart highlighter-rouge"><div class="code-header">
+        <span data-label-text="Dart"><i class="fas fa-code fa-fw small"></i></span>
+      <button aria-label="copy" data-title-succeed="已复制！"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="n">_globalKey</span><span class="o">.</span><span class="na">currentState</span><span class="o">.</span><span class="na">openDrawer</span><span class="p">()</span>
+</pre></td></tr></tbody></table></code></div></div>
+
+<p>GlobalKey 是 Flutter 提供的一种在整个 App 中引用 element 的机制。如果一个 widget 设置了<code class="language-plaintext highlighter-rouge">GlobalKey</code>，那么我们便可以通过<code class="language-plaintext highlighter-rouge">globalKey.currentWidget</code>获得该 widget 对象、<code class="language-plaintext highlighter-rouge">globalKey.currentElement</code>来获得 widget 对应的element对象，如果当前 widget 是<code class="language-plaintext highlighter-rouge">StatefulWidget</code>，则可以通过<code class="language-plaintext highlighter-rouge">globalKey.currentState</code>来获得该 widget 对应的state对象。</p>
+
+
+  </div>
+
+  <div class="post-tail-wrapper text-muted">
+    <!-- categories -->
+    
+      <div class="post-meta mb-3">
+        <i class="far fa-folder-open fa-fw me-1"></i>
+        
+          <a href="/categories/%E6%8A%80%E6%9C%AF/">技术</a>,
+          <a href="/categories/flutter/">Flutter</a>
+      </div>
+    
+
+    <!-- tags -->
+    
+      <div class="post-tags">
+        <i class="fa fa-tags fa-fw me-1"></i>
+        
+          <a
+            href="/tags/%E7%A7%BB%E5%8A%A8%E5%BC%80%E5%8F%91/"
+            class="post-tag no-text-decoration"
+          >移动开发</a>
+        
+          <a
+            href="/tags/flutter/"
+            class="post-tag no-text-decoration"
+          >Flutter</a>
+        
+          <a
+            href="/tags/hybrid/"
+            class="post-tag no-text-decoration"
+          >Hybrid</a>
+        
+      </div>
+    
+
+    <div
+      class="
+        post-tail-bottom
+        d-flex justify-content-between align-items-center mt-5 pb-2
+      "
+    >
+      <div class="license-wrapper">
+        
+          
+
+          本文由作者按照 
+        <a href="https://creativecommons.org/licenses/by/4.0/">
+          CC BY 4.0
+        </a>
+         进行授权
+        
+      </div>
+
+      <!-- Post sharing snippet -->
+
+<div class="share-wrapper d-flex align-items-center">
+  <span class="share-label text-muted">分享</span>
+  <span class="share-icons">
+    
+    
+    
+
+    
+
+    <button
+      id="copy-link"
+      aria-label="Copy link"
+      class="btn small"
+      data-bs-toggle="tooltip"
+      data-bs-placement="top"
+      title="分享链接"
+      data-title-succeed="链接已复制！"
+    >
+      <i class="fa-fw fas fa-link pe-none fs-6"></i>
+    </button>
+  </span>
+</div>
+
+    </div>
+    <!-- .post-tail-bottom -->
+  </div>
+  <!-- div.post-tail-wrapper -->
+</article>
+
+
+            
+          </main>
+
+          <!-- panel -->
+          <aside aria-label="Panel" id="panel-wrapper" class="col-xl-3 ps-2 mb-5 text-muted">
+            <div class="access">
+              <!-- Get 5 last posted/updated posts -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <section id="access-lastmod">
+    <h2 class="panel-heading">最近更新</h2>
+    <ul class="content list-unstyled ps-0 pb-1 ms-1 mt-2">
+      
+        
+        
+        
+        <li class="text-truncate lh-lg">
+          <a href="/posts/gitCommon/">Git 基本构成及常见问题</a>
+        </li>
+      
+        
+        
+        
+        <li class="text-truncate lh-lg">
+          <a href="/posts/dns/">如果根DNS服务器被炸了，万维网是不是将马上瘫痪？</a>
+        </li>
+      
+        
+        
+        
+        <li class="text-truncate lh-lg">
+          <a href="/posts/ecdhe/">深入探究ECDHE算法</a>
+        </li>
+      
+        
+        
+        
+        <li class="text-truncate lh-lg">
+          <a href="/posts/removeKthFromEnd/">删除链表的倒数第 N 个结点（LeetCode No.19）</a>
+        </li>
+      
+        
+        
+        
+        <li class="text-truncate lh-lg">
+          <a href="/posts/getMiddleNode/">链表的中间结点（LeetCode No.876）</a>
+        </li>
+      
+    </ul>
+  </section>
+  <!-- #access-lastmod -->
+
+
+              <!-- The trending tags list -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+      
+        
+        
+
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+      
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+      
+        
+        
+
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+      
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+      
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+      
+        
+        
+
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+      
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+      
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+      
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+      
+        
+        
+
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+      
+        
+        
+
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+      
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+      
+        
+        
+
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+      
+        
+        
+
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+      
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+      
+        
+        
+
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+      
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+      
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+      
+        
+        
+
+  
+    
+    
+    
+    
+      
+        
+        
+
+
+
+  <section>
+    <h2 class="panel-heading">热门标签</h2>
+    <div class="d-flex flex-wrap mt-3 mb-1 me-3">
+      
+        
+        <a class="post-tag btn btn-outline-primary" href="/tags/hybrid/">Hybrid</a>
+      
+        
+        <a class="post-tag btn btn-outline-primary" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">数据结构</a>
+      
+        
+        <a class="post-tag btn btn-outline-primary" href="/tags/%E7%AE%97%E6%B3%95/">算法</a>
+      
+        
+        <a class="post-tag btn btn-outline-primary" href="/tags/%E9%93%BE%E8%A1%A8/">链表</a>
+      
+        
+        <a class="post-tag btn btn-outline-primary" href="/tags/flutter/">Flutter</a>
+      
+        
+        <a class="post-tag btn btn-outline-primary" href="/tags/%E7%A7%BB%E5%8A%A8%E5%BC%80%E5%8F%91/">移动开发</a>
+      
+        
+        <a class="post-tag btn btn-outline-primary" href="/tags/ios/">iOS</a>
+      
+        
+        <a class="post-tag btn btn-outline-primary" href="/tags/wkwebview/">WKWebView</a>
+      
+        
+        <a class="post-tag btn btn-outline-primary" href="/tags/%E7%BD%91%E7%BB%9C%E5%8E%9F%E7%90%86/">网络原理</a>
+      
+        
+        <a class="post-tag btn btn-outline-primary" href="/tags/dns/">DNS</a>
+      
+    </div>
+  </section>
+
+
+            </div>
+
+            
+              
+              
+
+
+
+
+
+
+  <section id="toc-wrapper" class="ps-0 pe-4">
+    <h2 class="panel-heading ps-3 mb-2">文章内容</h2>
+    <nav id="toc"></nav>
+  </section>
+
+
+            
+          </aside>
+        </div>
+
+        <div class="row">
+          <!-- tail -->
+          <div id="tail-wrapper" class="col-12 col-lg-11 col-xl-9 px-md-4">
+            
+              
+              <!-- Recommend the other 3 posts according to the tags and categories of the current post. -->
+
+<!-- The total size of related posts -->
+
+
+<!-- An random integer that bigger than 0 -->
+
+
+<!-- Equals to TAG_SCORE / {max_categories_hierarchy} -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  <aside id="related-posts" aria-labelledby="related-label">
+    <h3 class="mb-4" id="related-label">相关文章</h3>
+    <nav class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4 mb-4">
+      
+        <article class="col">
+          <a href="/posts/flutter_route/" class="post-preview card h-100">
+            <div class="card-body">
+              <!--
+  Date format snippet
+  See: ${JS_ROOT}/utils/locale-dateime.js
+-->
+
+
+
+
+<time
+  
+  data-ts="1662559211"
+  data-df="YYYY/MM/DD"
+  
+>
+  2022/09/07
+</time>
+
+              <h4 class="pt-0 my-2">初探Flutter（三） 路由管理</h4>
+              <div class="text-muted">
+                <p>一、基本概念
+
+所谓路由管理，就是管理页面之间如何跳转，通常也可被称为导航管理。Flutter 中的路由管理和原生开发类似，无论是 Android 还是 iOS，导航管理都会维护一个路由栈，路由入栈（push）操作对应打开一个新页面，路由出栈（pop）操作对应页面关闭操作，而路由管理主要是指如何来管理路由栈。
+
+二、MaterialPageRoute
+
+2.1 基本定义
+
+MaterialP...</p>
+              </div>
+            </div>
+          </a>
+        </article>
+      
+        <article class="col">
+          <a href="/posts/flutter_state/" class="post-preview card h-100">
+            <div class="card-body">
+              <!--
+  Date format snippet
+  See: ${JS_ROOT}/utils/locale-dateime.js
+-->
+
+
+
+
+<time
+  
+  data-ts="1662475975"
+  data-df="YYYY/MM/DD"
+  
+>
+  2022/09/06
+</time>
+
+              <h4 class="pt-0 my-2">初探Flutter（二） 状态管理</h4>
+              <div class="text-muted">
+                <p>一、三种常见的状态管理
+
+
+  Widget 管理自己的状态。
+  Widget 管理子 Widget 状态。
+  混合管理（父 Widget 和子 Widget 都管理状态）。
+
+
+1.1 Widget 管理自己的状态
+
+1.1.1 适用场景
+
+如果状态是有关界面外观效果的，例如颜色、动画，那么状态最好由 Widget 本身来管理。
+
+1.1.2 例子
+
+1
+2
+3
+4
+5
+6
+7
+8
+9...</p>
+              </div>
+            </div>
+          </a>
+        </article>
+      
+        <article class="col">
+          <a href="/posts/localwebserver/" class="post-preview card h-100">
+            <div class="card-body">
+              <!--
+  Date format snippet
+  See: ${JS_ROOT}/utils/locale-dateime.js
+-->
+
+
+
+
+<time
+  
+  data-ts="1503477515"
+  data-df="YYYY/MM/DD"
+  
+>
+  2017/08/23
+</time>
+
+              <h4 class="pt-0 my-2">基于 LocalWebServer 实现 WKWebView 离线资源加载</h4>
+              <div class="text-muted">
+                <p>一、背景
+
+笔者在《WKWebView》一文中提到过，WKWebView 在独立于 app 进程之外的进程中执行网络请求，请求数据不经过主进程，因此，在 WKWebView 上直接使用 NSURLProtocol 无法拦截请求。所以如果需要使用到拦截请求，有种可行地方案是使用苹果开源的 Webkit2 源码暴露的私有API（详见原文第3小节：NSURLProtocol问题）。
+但使用私有AP...</p>
+              </div>
+            </div>
+          </a>
+        </article>
+      
+    </nav>
+  </aside>
+  <!-- #related-posts -->
+
+
+            
+              
+              <!-- Navigation buttons at the bottom of the post. -->
+
+<nav class="post-navigation d-flex justify-content-between" aria-label="Post Navigation">
+  
+  
+
+  
+    <a
+      href="/posts/options1/"
+      class="btn btn-outline-primary"
+      aria-label="上一篇"
+    >
+      <p>认识期权（一）期权的基本概念</p>
+    </a>
+  
+
+  
+    <a
+      href="/posts/flutter_state/"
+      class="btn btn-outline-primary"
+      aria-label="下一篇"
+    >
+      <p>初探Flutter（二） 状态管理</p>
+    </a>
+  
+</nav>
+
+            
+              
+              <!-- The comments switcher -->
+
+  
+  <!-- The Disqus lazy loading. -->
+
+<div id="disqus_thread">
+  <p class="text-center text-muted small">Comments powered by <a href="https://disqus.com/">Disqus</a>.</p>
+</div>
+
+<script type="text/javascript">
+  var disqus_config = function () {
+    this.page.url = 'http://localhost:4000/posts/flutter_widget/';
+    this.page.identifier = '/posts/flutter_widget/';
+  };var disqus_observer = new IntersectionObserver(
+    function (entries) {
+      if (entries[0].isIntersecting) {
+        (function () {
+          var d = document,
+            s = d.createElement('script');
+          s.src = 'https://smallfan.disqus.com/embed.js';
+          s.setAttribute('data-timestamp', +new Date());
+          (d.head || d.body).appendChild(s);
+        })();
+
+        disqus_observer.disconnect();
+      }
+    },
+    { threshold: [0] }
+  );
+
+  disqus_observer.observe(document.getElementById('disqus_thread'));function reloadDisqus() {
+    if (event.source === window && event.data && event.data.direction === ModeToggle.ID) {if (typeof DISQUS === 'undefined') {
+        return;
+      }
+
+      if (document.readyState == 'complete') {
+        DISQUS.reset({ reload: true, config: disqus_config });
+      }
+    }
+  }
+
+  if (document.getElementById('mode-toggle')) {
+    window.addEventListener('message', reloadDisqus);
+  }
+</script>
+
+
+
+            
+
+            <!-- The Footer -->
+
+<footer
+  aria-label="Site Info"
+  class="
+    d-flex flex-column justify-content-center text-muted
+    flex-lg-row justify-content-lg-between align-items-lg-center pb-lg-3
+  "
+>
+  <p>©
+    <time>2024</time>
+
+    
+      <a href="https://github.com/Smallfan">Smallfan</a>.
+    
+
+    
+  </p>
+
+  <p>
+  </p>
+</footer>
+
+          </div>
+        </div>
+
+        <!-- The Search results -->
+
+<div id="search-result-wrapper" class="d-flex justify-content-center d-none">
+  <div class="col-11 content">
+    <div id="search-hints">
+      <!-- The trending tags list -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+      
+        
+        
+
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+      
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+      
+        
+        
+
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+      
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+      
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+      
+        
+        
+
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+      
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+      
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+      
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+      
+        
+        
+
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+      
+        
+        
+
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+      
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+      
+        
+        
+
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+      
+        
+        
+
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+      
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+      
+        
+        
+
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+      
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+      
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+      
+        
+        
+
+  
+    
+    
+    
+    
+      
+        
+        
+
+
+
+  <section>
+    <h2 class="panel-heading">热门标签</h2>
+    <div class="d-flex flex-wrap mt-3 mb-1 me-3">
+      
+        
+        <a class="post-tag btn btn-outline-primary" href="/tags/hybrid/">Hybrid</a>
+      
+        
+        <a class="post-tag btn btn-outline-primary" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">数据结构</a>
+      
+        
+        <a class="post-tag btn btn-outline-primary" href="/tags/%E7%AE%97%E6%B3%95/">算法</a>
+      
+        
+        <a class="post-tag btn btn-outline-primary" href="/tags/%E9%93%BE%E8%A1%A8/">链表</a>
+      
+        
+        <a class="post-tag btn btn-outline-primary" href="/tags/flutter/">Flutter</a>
+      
+        
+        <a class="post-tag btn btn-outline-primary" href="/tags/%E7%A7%BB%E5%8A%A8%E5%BC%80%E5%8F%91/">移动开发</a>
+      
+        
+        <a class="post-tag btn btn-outline-primary" href="/tags/ios/">iOS</a>
+      
+        
+        <a class="post-tag btn btn-outline-primary" href="/tags/wkwebview/">WKWebView</a>
+      
+        
+        <a class="post-tag btn btn-outline-primary" href="/tags/%E7%BD%91%E7%BB%9C%E5%8E%9F%E7%90%86/">网络原理</a>
+      
+        
+        <a class="post-tag btn btn-outline-primary" href="/tags/dns/">DNS</a>
+      
+    </div>
+  </section>
+
+
+    </div>
+    <div id="search-results" class="d-flex flex-wrap justify-content-center text-muted mt-3"></div>
+  </div>
+</div>
+
+      </div>
+
+      <aside aria-label="Scroll to Top">
+        <button id="back-to-top" type="button" class="btn btn-lg btn-box-shadow">
+          <i class="fas fa-angle-up"></i>
+        </button>
+      </aside>
+    </div>
+
+    <div id="mask"></div>
+
+    
+      <aside
+  id="notification"
+  class="toast"
+  role="alert"
+  aria-live="assertive"
+  aria-atomic="true"
+  data-bs-animation="true"
+  data-bs-autohide="false"
+>
+  <div class="toast-header">
+    <button
+      type="button"
+      class="btn-close ms-auto"
+      data-bs-dismiss="toast"
+      aria-label="Close"
+    ></button>
+  </div>
+  <div class="toast-body text-center pt-0">
+    <p class="px-2 mb-3">发现新版本的内容。</p>
+    <button type="button" class="btn btn-primary" aria-label="Update">
+      更新
+    </button>
+  </div>
+</aside>
+
+    
+
+    <!-- JavaScripts -->
+    <!-- JS selector for site. -->
+
+<!-- commons -->
+
+
+
+<!-- layout specified -->
+
+
+  
+
+  
+    <!-- image lazy-loading & popup & clipboard -->
+    
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+    
+
+    
+
+  
+
+  
+    
+
+    
+
+  
+
+  
+    
+
+    
+
+  
+
+  
+    
+
+    
+
+  
+
+  
+    
+
+    
+
+  
+
+  
+    
+
+    
+
+  
+
+  
+    
+
+    
+
+  
+
+  
+    
+
+    
+
+  
+
+  
+    
+
+    
+
+  
+
+  
+    
+
+    
+
+  
+
+
+
+  <script src="https://cdn.jsdelivr.net/combine/npm/simple-jekyll-search@1.10.0/dest/simple-jekyll-search.min.js,npm/loading-attribute-polyfill@2.1.1/dist/loading-attribute-polyfill.umd.min.js,npm/glightbox@3.3.0/dist/js/glightbox.min.js,npm/clipboard@2.0.11/dist/clipboard.min.js,npm/dayjs@1.11.13/dayjs.min.js,npm/dayjs@1.11.13/locale/zh.js,npm/dayjs@1.11.13/plugin/relativeTime.js,npm/dayjs@1.11.13/plugin/localizedFormat.js,npm/tocbot@4.29.0/dist/tocbot.min.js,npm/mermaid@11.0.2/dist/mermaid.min.js"></script>
+
+
+
+
+
+
+
+<script src="/assets/js/dist/post.min.js"></script>
+
+
+  <!-- MathJax -->
+  <script src="/assets/js/data/mathjax.js"></script>
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js"></script>
+
+
+<!-- Pageviews -->
+
+  
+
+  
+
+
+
+  <!-- mermaid-js loader -->
+<script type="text/javascript">
+  function updateMermaid(event) {
+    if (event.source === window && event.data && event.data.direction === ModeToggle.ID) {
+      const mode = event.data.message;
+
+      if (typeof mermaid === 'undefined') {
+        return;
+      }
+
+      let expectedTheme = mode === ModeToggle.DARK_MODE ? 'dark' : 'default';
+      let config = { theme: expectedTheme };const mermaidList = document.getElementsByClassName('mermaid');
+
+      [...mermaidList].forEach((elem) => {
+        const svgCode = elem.previousSibling.children.item(0).innerHTML;
+        elem.innerHTML = svgCode;
+        elem.removeAttribute('data-processed');
+      });
+
+      mermaid.initialize(config);
+      mermaid.init(undefined, '.mermaid');
+    }
+  }
+
+  (function () {
+    let initTheme = 'default';
+    const html = document.documentElement;
+
+    if (
+      (html.hasAttribute('data-mode') && html.getAttribute('data-mode') === 'dark') ||
+      (!html.hasAttribute('data-mode') && window.matchMedia('(prefers-color-scheme: dark)').matches)
+    ) {
+      initTheme = 'dark';
+    }
+
+    let mermaidConf = {
+      theme: initTheme};const basicList = document.getElementsByClassName('language-mermaid');
+    [...basicList].forEach((elem) => {
+      const svgCode = elem.textContent;
+      const backup = elem.parentElement;
+      backup.classList.add('d-none');let mermaid = document.createElement('pre');
+      mermaid.classList.add('mermaid');
+      const text = document.createTextNode(svgCode);
+      mermaid.appendChild(text);
+      backup.after(mermaid);
+    });
+
+    mermaid.initialize(mermaidConf);
+    window.addEventListener('message', updateMermaid);
+  })();
+</script>
+
+
+
+
+
+
+    <!--
+  Jekyll Simple Search loader
+  See: <https://github.com/christian-fei/Simple-Jekyll-Search>
+-->
+
+
+
+
+
+<script>SimpleJekyllSearch({
+    searchInput: document.getElementById('search-input'),
+    resultsContainer: document.getElementById('search-results'),
+    json: '/assets/js/data/search.json',
+    searchResultTemplate: '  <article class="px-1 px-sm-2 px-lg-4 px-xl-0">    <header>      <h2><a href="{url}">{title}</a></h2>      <div class="post-meta d-flex flex-column flex-sm-row text-muted mt-1 mb-1">        {categories}        {tags}      </div>    </header>    <p>{snippet}</p>  </article>',
+    noResultsText: '<p class="mt-5">搜索结果为空</p>',
+    templateMiddleware: function(prop, value, template) {
+      if (prop === 'categories') {
+        if (value === '') {
+          return `${value}`;
+        } else {
+          return `<div class="me-sm-4"><i class="far fa-folder fa-fw"></i>${value}</div>`;
+        }
+      }
+
+      if (prop === 'tags') {
+        if (value === '') {
+          return `${value}`;
+        } else {
+          return `<div><i class="fa fa-tag fa-fw"></i>${value}</div>`;
+        }
+      }
+    }
+  });
+</script>
+
+  </body>
+</html>
+
