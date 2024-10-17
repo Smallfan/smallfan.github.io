@@ -1,0 +1,252 @@
+
+
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <id>http://localhost:4000/</id>
+  <title>Smallfan</title>
+  <subtitle></subtitle>
+  <updated>2024-10-17T11:43:19+08:00</updated>
+  <author>
+    <name>Smallfan</name>
+    <uri>http://localhost:4000/</uri>
+  </author>
+  <link rel="self" type="application/atom+xml" href="http://localhost:4000/feed.xml"/>
+  <link rel="alternate" type="text/html" hreflang="zh-CN"
+    href="http://localhost:4000/"/>
+  <generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator>
+  <rights> © 2024 Smallfan </rights>
+  <icon>/assets/img/favicons/favicon.ico</icon>
+  <logo>/assets/img/favicons/favicon-96x96.png</logo>
+
+
+  
+  <entry>
+    <title>Git 基本构成及常见问题</title>
+    <link href="http://localhost:4000/posts/gitCommon/" rel="alternate" type="text/html" title="Git 基本构成及常见问题" />
+    <published>2023-04-26T14:31:55+08:00</published>
+  
+    <updated>2023-04-26T14:31:55+08:00</updated>
+  
+    <id>http://localhost:4000/posts/gitCommon/</id>
+    <content src="http://localhost:4000/posts/gitCommon/" />
+    <author>
+      <name>Smallfan</name>
+    </author>
+
+  
+    
+    <category term="技术" />
+    
+    <category term="开发工具" />
+    
+  
+
+  <summary>本文适合人群：具备 Git 基本使用经验的软件开发工程师、测试工程师、运维工程师等
+  本文学习目的：理解 Git 中最基本原理部分，以求触类旁通，在遇到突发问题时具备自行分析能力
+  建议阅读时间：30分钟
+
+
+一、基本构成
+
+Git由 对象库（Object store） 和 索引（index） 构成。
+
+1.1 对象库
+
+主要包含4种类型原子对象 ：块（blob）、目录树（tree）、提交（commit）、标签（tag）。
+
+块: 文件的每一个版本表示为一个块, 保存文件数据, 但不包含任何关于这个文件的元数据, 连文件名都没有
+
+
+  
+    blob: ”binary large object” 二进制大对象
+  
+
+
+目录树: 代表一层目录信息, 记录blob标识符/路径名/和目录中所有文件的一些元数据, 也可以递归引用其他目录树和子树对象, 本质上为树形数据结构存储
+
+...</summary>
+
+  </entry>
+
+  
+  <entry>
+    <title>如果根DNS服务器被炸了，万维网是不是将马上瘫痪？</title>
+    <link href="http://localhost:4000/posts/dns/" rel="alternate" type="text/html" title="如果根DNS服务器被炸了，万维网是不是将马上瘫痪？" />
+    <published>2023-02-15T16:49:03+08:00</published>
+  
+    <updated>2023-02-15T16:49:03+08:00</updated>
+  
+    <id>http://localhost:4000/posts/dns/</id>
+    <content src="http://localhost:4000/posts/dns/" />
+    <author>
+      <name>Smallfan</name>
+    </author>
+
+  
+    
+    <category term="技术" />
+    
+    <category term="网络原理" />
+    
+  
+
+  <summary>前言
+
+  最近刚追完杨导的电视剧版《三体》，对人类所为对世界的影响有了一个叹为观止的新认知，虽然是一部科幻剧，对人性的揭示却是非常刻骨。很久之前曾经在知乎刷到过一个问答，标题大概是《假如有人把支付宝所有存储服务器炸了，大众在支付宝里的钱是不是就都没有了呢？》，惭愧的说，从那篇文章笔者首先是全面地了解了「如何使用各种手段对服务集群进行物理破坏」，再者才是明白了「金融系统设计者是如何用心良苦地设计一套安全体系来保护数据」。
+
+  而偶然间在查阅一段资料时访问 root-servers ，便想到了标题的这个问题。带着这个疑问，决定追溯下去…
+
+
+一、认识DNS
+
+要回答这个问题之前，本着刨根问底的精神，首先需要了解DNS的工作原理，了解根域名的管理机制。
+
+1.1 什么是 DNS
+
+熟知 TCP/IP协议 可得，网络层通过定义 IP（Internet Protocol），来进行 将数据从...</summary>
+
+  </entry>
+
+  
+  <entry>
+    <title>深入探究ECDHE算法</title>
+    <link href="http://localhost:4000/posts/ecdhe/" rel="alternate" type="text/html" title="深入探究ECDHE算法" />
+    <published>2023-02-14T16:08:55+08:00</published>
+  
+    <updated>2023-02-14T16:08:55+08:00</updated>
+  
+    <id>http://localhost:4000/posts/ecdhe/</id>
+    <content src="http://localhost:4000/posts/ecdhe/" />
+    <author>
+      <name>Smallfan</name>
+    </author>
+
+  
+    
+    <category term="技术" />
+    
+    <category term="网络原理" />
+    
+  
+
+  <summary>一、加密与数论基础
+
+在正式谈及 ECDHE 之前，需要先谈谈与之关系紧密的 RSA 算法。ECDHE 是建立在优化 RSA 部分特性的前提下诞生的。
+
+1.1 非对称加密
+
+RSA算法 常应用于非对称加密，非对称加密生成一对密钥，常见的使用场景为：
+
+
+  公钥加密，私钥解密。这个目的是为了保证数据传输安全性，因为被公钥加密的内容，其他人是无法解密的，只有持有私钥的人，才能解密出实际的内容；
+  私钥加密，公钥解密。这个目的是为了保证数据真实性，因为私钥是不可泄露的，如果公钥能正常解密出私钥加密的内容，就能证明这个消息是来源于持有私钥身份的人发送的。
+
+
+想要理解 RSA算法，首先需要从几个初等数论概念着手。
+
+
+
+1.2 素数
+
+素数又称质数，指在一个大于1的自然数中，除了1和此整数自身外，不能被其他自然数整除的数。 比如：2、3、5、7、11、13、17、19 … 而素数已被证...</summary>
+
+  </entry>
+
+  
+  <entry>
+    <title>删除链表的倒数第 N 个结点（LeetCode No.19）</title>
+    <link href="http://localhost:4000/posts/removeKthFromEnd/" rel="alternate" type="text/html" title="删除链表的倒数第 N 个结点（LeetCode No.19）" />
+    <published>2022-11-04T20:25:11+08:00</published>
+  
+    <updated>2022-11-04T20:25:11+08:00</updated>
+  
+    <id>http://localhost:4000/posts/removeKthFromEnd/</id>
+    <content src="http://localhost:4000/posts/removeKthFromEnd/" />
+    <author>
+      <name>Smallfan</name>
+    </author>
+
+  
+    
+    <category term="技术" />
+    
+    <category term="数据结构算法" />
+    
+  
+
+  <summary>一、算法思路
+
+1.1 建模
+
+本题思路上基本与 链表中倒数第k个节点（剑指offer No.22） 一致。直接采用 等距离位移法, 确认了要删除的位置 n 的前一位置，即 n + 1 位，而后就是常规的 删除单链表结点操作。
+
+核心需要：
+
+
+  定义新链表的 虚拟头结点
+  通过 等距离位移法 找到 倒数第 n + 1 位 结点 nNode
+  断开 nNode下一位结点
+
+
+1.2 注意事项
+
+
+  需要定义 虚拟头结点 chain，防止出现空指针的情况。比如：list.count == 10，n == 10，此时需要删除的目标位为第一位，需要 find 到第 11 位，如果没有头结点需要处理溢出情况。
+  单链表删除结点操作不赘述，需要可直接看代码。
+
+
+二、核心代码
+
+func removeKthFromEnd(list: SingleLinkNode&amp;amp;lt;Int&amp;amp;gt;...</summary>
+
+  </entry>
+
+  
+  <entry>
+    <title>链表的中间结点（LeetCode No.876）</title>
+    <link href="http://localhost:4000/posts/getMiddleNode/" rel="alternate" type="text/html" title="链表的中间结点（LeetCode No.876）" />
+    <published>2022-11-03T21:40:11+08:00</published>
+  
+    <updated>2022-11-03T21:40:11+08:00</updated>
+  
+    <id>http://localhost:4000/posts/getMiddleNode/</id>
+    <content src="http://localhost:4000/posts/getMiddleNode/" />
+    <author>
+      <name>Smallfan</name>
+    </author>
+
+  
+    
+    <category term="技术" />
+    
+    <category term="数据结构算法" />
+    
+  
+
+  <summary>一、算法思路
+
+1.1 建模
+
+本题类似 链表中倒数第k个节点（剑指offer No.22） 中初始思路一样，无法直接得到单链表的长度 n，所以无法在一次遍历前提下确认 n /2 个结点。 上述文章采用 等距离位移法, 确认了目标位置。而在本题中k即为n / 2，无法直接采用相同思路建模。思考下，要在一个序列中如何在遍历时同步拉开一半距离？换个角度：甲乙两人围着操场跑一圈，什么情况下当甲到达终点（即一圈）时，乙刚好跑一半？是不是乙的速度是甲的一半时，刚好具备？这不刚好就是 快慢指针 ? 快慢指针通常用于 “判断链表是否有环” ，但在本题中也适用。
+
+核心需要：
+
+
+  两个偏移指针，slow 每次偏移1步， fast 每次偏移2步
+  结束条件：fast 遍历结束
+
+
+1.2 注意事项
+
+
+  fast 指针的结束边界需要严格限定，防止溢出。
+
+
+二、核心代码
+
+func getMi...</summary>
+
+  </entry>
+
+</feed>
+
+
