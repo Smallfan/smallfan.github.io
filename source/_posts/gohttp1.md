@@ -1,0 +1,496 @@
+---
+title: 解读Go框架 - http包（一）
+date: 2021-07-24 17:42:55
+tags: ['Golang', 'HTTP', 'Web' ]
+categories:
+- 技术
+- Golang
+cover: https://blogpic.smallfan.top/gohttp/web-model.png
+---
+
+# 一、从一个简单的例子开始
+
+在《Go语言圣经》的第一章有这么一个例子：
+
+``` go
+package main
+
+import (
+	"fmt"
+	"log"
+	"net/http"
+)
+
+func sayHello(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "hello world!")
+}
+
+func main() {
+	http.HandleFunc("/", sayHello)
+	err := http.ListenAndServe(":9090", nil)
+	if err != nil {
+		log.Fatal("ListenAndServe: ", err)
+	}
+}
+```
+
+这是一个基于 HTTP 协议的 WEB 服务，通过监听 `9090端口` 来响应客户端的请求；从上面可以看出，编写一个 WEB 服务器很简单，只要调用 http 包的两个函数就可以了；并且实际上这个 WEB 服务内部支持高并发，也就是在同一时间可以响应来源多个客户端的请求；Go 大道至简的设计理念，对于长期沉浸在 C/C++ 程序员是一种极大的解放。
+
+那么，Go 是如何实现WEB高并发的？带着这个问题，开始一步步来分析。
+
+<!-- more -->
+
+# 二、Go如何使得WEB工作
+
+首先简单绘制一张 Go 实现 Web 服务的工作模式的流程图
+
+![](https://blogpic.smallfan.top/gohttp/web-model.png)
+
+inet/http包的执行过程大致分为：
+
+1. 创建 Listen Socket，开始监听指定的端口。
+
+2. 当 Listen Socket 接收到来自客户端的请求时，经过鉴权放行后，创建 Client Socket，接下来由 Client Socket 与客户端通信。
+
+3. Client Socket 读取客户端 HTTP 请求的协议头，如果是 POST 方法，继续读取 HTTP 请求的 BODY，然后交由 handler 处理。
+
+4. handler 处理完毕准备好客户端需要的数据, 通过 Client Socket 返回给客户端。
+
+   
+
+整个过程中，比较关注三个核心问题：
+
++ 监听机制
++ 如何接收多个请求
++ 如何分发
+
+接下来进行逐个源码分析。
+
+# 三、监听机制
+
+前面的例子中可以看到，Go 实际上通过一个函数 `ListenAndServe` 来实现对端口的监听，首先分析其实现：
+
+```go
+func ListenAndServe(addr string, handler Handler) error {
+  // 创建Server对象
+	server := &Server{Addr: addr, Handler: handler}
+	return server.ListenAndServe()
+}
+```
+
+在 `ListenAndServe` 函数中，初始化一个 Server 对象并调用其 `ListenAndServe` 方法，并且接收了一个 addr 字符串 和 Handler对象；继续看看 Server 这个对象的 `ListenAndServe` 方法 
+
+```go
+func (srv *Server) ListenAndServe() error {
+	if srv.shuttingDown() {
+		return ErrServerClosed
+	}
+	addr := srv.Addr
+	if addr == "" {
+		addr = ":http"
+	}
+  // 创建监听者
+	ln, err := net.Listen("tcp", addr)
+	if err != nil {
+		return err
+	}
+  // 调用Serve方法，进行轮询
+	return srv.Serve(ln)
+}
+```
+
+可以看到其调用了 `net.Listen("tcp", addr)` ，也就是这个方法作用是：用TCP协议搭建了一个监听者服务 `net.Listener`，然后监控我们设置的端口，最后将这个监听者传递给了 Server 对象的 `Serve` 方法。
+
+```go
+func (srv *Server) Serve(l net.Listener) error {
+  // 用于测试用的hook server接管，这里先忽略它
+	if fn := testHookServerServe; fn != nil {
+		fn(srv, l) // call hook with unwrapped listener
+	}
+
+	origListener := l
+  // 将tcp端口监听者转为单例
+	l = &onceCloseListener{Listener: l}
+	defer l.Close()
+
+  // 尝试配置http2.0
+	if err := srv.setupHTTP2_Serve(); err != nil {
+		return err
+	}
+
+  // 将当前tcp端口监听者添加到Server对象的被追踪map中
+	if !srv.trackListener(&l, true) {
+		return ErrServerClosed
+	}
+	defer srv.trackListener(&l, false)
+
+	baseCtx := context.Background()
+	if srv.BaseContext != nil {
+		baseCtx = srv.BaseContext(origListener)
+		if baseCtx == nil {
+			panic("BaseContext returned a nil context")
+		}
+	}
+
+  // 至此，服务监听配置完成，接下来是监听接收客户端的请求
+	...
+}
+```
+
+**小结一下：** Go 通过初始化一个 Server 对象并调用其 `ListenAndServe` 方法，创建一个监听者服务 `net.Listener` ，并将它加入到自己的追踪map中，并在接下来的监听过程中轮询 `net.Listener` 是否接收到来自客户端的请求。上述即是完成了 **第二章** 中的第一步：创建 Listen Socket。
+
+# 四、如何接收多个请求
+
+刚刚分析到  Server 对象的 `Serve` 方法通过服务监听配置，对监听者服务对象进行追踪，那么问题来了：监控之后如何接收客户端的请求呢？找寻这个问题答案之前，可以先看看 `Serve` 方法的注释
+
+```go
+// Serve accepts incoming connections on the Listener l, creating a
+// new service goroutine for each. The service goroutines read requests and
+// then call srv.Handler to reply to them.
+//
+// HTTP/2 support is only enabled if the Listener returns *tls.Conn
+// connections and they were configured with "h2" in the TLS
+// Config.NextProtos.
+//
+// Serve always returns a non-nil error and closes l.
+// After Shutdown or Close, the returned error is ErrServerClosed.
+```
+
+这里简单翻译下，核心是：**Serve 方法接收 `net.Listener` 对象传入的每个连接，为其每个创建一个 `goroutine` 新服务，每个服务读取请求内容并调用对应的 `srv.Handler` 来处理请求。**
+
+接下来继续分析 Serve 方法：
+
+```go
+func (srv *Server) Serve(l net.Listener) error {
+	...
+
+	ctx := context.WithValue(baseCtx, ServerContextKey, srv)
+  // 轮询
+	for {
+    // 从监听者总获取请求
+		rw, err := l.Accept()
+    
+   	// 获取失败的异常处理
+		if err != nil {
+			select {
+      // 请求已完成
+			case <-srv.getDoneChan():
+				return ErrServerClosed
+			default:
+			}
+			if ne, ok := err.(net.Error); ok && ne.Temporary() {
+				if tempDelay == 0 {
+					tempDelay = 5 * time.Millisecond
+				} else {
+					tempDelay *= 2
+				}
+				if max := 1 * time.Second; tempDelay > max {
+					tempDelay = max
+				}
+				srv.logf("http: Accept error: %v; retrying in %v", err, tempDelay)
+        // 设置休眠策略，休眠若干秒后再次轮询
+				time.Sleep(tempDelay)
+				continue
+			}
+			return err
+		}
+    
+		connCtx := ctx
+    // 创建请求上下文对象，用于携带请求相关的所有参数
+		if cc := srv.ConnContext; cc != nil {
+			connCtx = cc(connCtx, rw)
+			if connCtx == nil {
+				panic("ConnContext returned nil")
+			}
+		}
+		tempDelay = 0
+    // 创建一个Coon
+		c := srv.newConn(rw)
+		c.setState(c.rwc, StateNew, runHooks)
+    // 单独开了一个goroutine，把这个请求的数据当做参数传递给这个conn
+		go c.serve(connCtx)
+	}
+}
+```
+
+到这里可以发现：**用户的每一次请求都是在一个新的goroutine去服务，相互不影响；Go语言借助每个请求基于独立协程的方式，来实现高并发能力。** 而 `srv.newConn` 创建出来的 conn 对象亦是 **第二章** 中对应的 Client Socket。
+
+# 五、如何分发
+
+## 5.1 注册路由
+
+前面阐述的是 `Listen Socket` 和 `Client Socket` 的创建和数据转发过程，那么接收到请求后，又是如何具体分配到相应的函数来处理呢？
+
+在前面示例代码中：
+
+```go
+http.HandleFunc("/", sayHello)
+err := http.ListenAndServe(":9090", nil)
+```
+
+可以看到，调用了 HandleFunc 方法，将 sayHello 函数与 "/" 路径进行绑定；具体实现如下：
+
+```go
+func HandleFunc(pattern string, handler func(ResponseWriter, *Request)) {
+	DefaultServeMux.HandleFunc(pattern, handler)
+}
+```
+
+其中 `DefaultServeMux` 定义为
+
+```go
+var DefaultServeMux = &defaultServeMux
+var defaultServeMux ServeMux
+
+type ServeMux struct {
+	mu    sync.RWMutex	// 读写同步锁
+	m     map[string]muxEntry	// 路由配置map，key代表路由规则，value代表handler配置
+	es    []muxEntry // 采用slice将所有handler进行排序，暂时忽略
+	hosts bool       // 是否在任意的规则中携带host信息
+}
+
+type muxEntry struct {
+	h       Handler	// 当前路由对应的handler
+	pattern string	// 路由规则匹配字符串
+}
+```
+
+从命名上大致可以猜出，`DefaultServeMux ` 是一个默认提供的**服务路由多路复用器**，简单说就是一个路由器，用来匹配url跳转到相应的handle方法。上层业务调用 `http.HandleFunc`，实际上是将请求`/`的路由规则注册到 `DefaultServeMux` 的 `muxEntry` 中。
+
+而 `sayHello` 的方法签名为 `func(ResponseWriter, *Request)` ，在 `HandleFunc` 可以看到是对应的；但是到了
+
+`DefaultServeMux.HandleFunc` 是不是一样的呢？
+
+```go
+func (mux *ServeMux) HandleFunc(pattern string, handler func(ResponseWriter, *Request)) {
+	if handler == nil {
+		panic("http: nil handler")
+	}
+	mux.Handle(pattern, HandlerFunc(handler))
+}
+```
+
+可见，`handle` 的方法签名依旧是 `func(ResponseWriter, *Request)`，这里细心点会发现一处类型转换，即 `HandlerFunc(handler)` ，每个细节都不能放过，看看这个类型是如何定义的：
+
+```go
+type HandlerFunc func(ResponseWriter, *Request)
+
+func (f HandlerFunc) ServeHTTP(w ResponseWriter, r *Request) {
+	f(w, r)
+}
+```
+
+HandlerFunc这个类型下，存在着一个 `ServeHTTP` 方法，这个方法没有做其他事情，只是原封不动的调用了其自己，为什么要如此设计？先暂时带着这个疑问继续往下追查 `mux.Handle` ：
+
+```go
+func (mux *ServeMux) Handle(pattern string, handler Handler) {
+	mux.mu.Lock()
+	defer mux.mu.Unlock()
+
+	if pattern == "" {
+		panic("http: invalid pattern")
+	}
+	if handler == nil {
+		panic("http: nil handler")
+	}
+	if _, exist := mux.m[pattern]; exist {
+		panic("http: multiple registrations for " + pattern)
+	}
+
+	if mux.m == nil {
+		mux.m = make(map[string]muxEntry)
+	}
+	e := muxEntry{h: handler, pattern: pattern}
+	mux.m[pattern] = e
+	if pattern[len(pattern)-1] == '/' {
+		mux.es = appendSorted(mux.es, e)
+	}
+
+	if pattern[0] != '/' {
+		mux.hosts = true
+	}
+}
+```
+
+发现没有，第二个参数变成了 `Handler` 类型，而不再是 `func(ResponseWriter, *Request)`，查看 `Handler` 的定义：
+
+```go
+type Handler interface {
+	ServeHTTP(ResponseWriter, *Request)
+}
+```
+
+发现它实际上是一个接口类型，声明了 `ServeHTTP(ResponseWriter, *Request)` 方法，而这个方法就是 `HandlerFunc` 类型所实现的方法。也就是说，到 `ServeMux` 这一层，所有的handle方法通过类型转换，实际上都是遵循了 `Handler` 接口定义，即都是 `ServeHTTP` 方法。`ServeHTTP` 方法存在的意义看似为了某些一致性，但是截止现在，还不能理解具体是为了什么？先继续把 `Handle` 方法读完，可见：**转换成 Handler 对象后，生成了对应的 muxEntry 对象，存放于路由配置map中**。至此，路由配置完成。
+
+## 5.2 路由分发
+
+接下来回到 **第四章** 最后 `srv.newConn` 创建出来的 conn 对象的地方，用户的每一次请求都是在一个新的goroutine 去服务，那就对 conn 对象一探究竟，延续 **第四章** 最后的 `go c.serve(connCtx)`，看看 conn 的 serve 方法做了什么：
+
+```go
+func (c *conn) serve(ctx context.Context) {
+	...
+
+	for {
+		w, err := c.readRequest(ctx)
+		...
+
+		// HTTP cannot have multiple simultaneous active requests.[*]
+		// Until the server replies to this request, it can't read another,
+		// so we might as well run the handler in this goroutine.
+		// [*] Not strictly true: HTTP pipelining. We could let them all process
+		// in parallel even if their responses need to be serialized.
+		// But we're not going to implement HTTP pipelining because it
+		// was never deployed in the wild and the answer is HTTP/2.
+		serverHandler{c.server}.ServeHTTP(w, w.req)
+		
+    ...
+	}
+}
+
+type serverHandler struct {
+	srv *Server	// Server即是前面创建的TCP监听者
+}
+
+func (sh serverHandler) ServeHTTP(rw ResponseWriter, req *Request) {
+	handler := sh.srv.Handler	// 获取server对象的Handler成员
+	if handler == nil {
+		handler = DefaultServeMux	// 如果没有，则取DefaultServeMux
+	}
+	if req.RequestURI == "*" && req.Method == "OPTIONS" {
+		handler = globalOptionsHandler{}
+	}
+	handler.ServeHTTP(rw, req)
+}
+
+```
+
+首先会解析 request 内容，生成 `response` 对象w，并将生成的 `Request` 对象赋值给 `w.req` ；接下来通过 `c.server` 寻址到其所对应的 `Server` 对象，然后创建 `serverHandler` 结构体，而存在于 `serverHandler.ServeHTTP` 接下来被马上执行；通过上面源码可以看出，`ServeHTTP` 方法首先会获取 `server  `对象的` Handler` 成员，这个对象怎么来的呢？其实就是示例代码中第二句中方法的第二个参数：
+
+```go
+err := http.ListenAndServe(":9090", nil)
+```
+
+然而示例一开始就并未给它赋值，所以接下来会执行 `handler == nil` 中部分，即取出 `DefaultServeMux`，然后调用其 `ServeHTTP` 方法；等等，这个 `DefaultServeMux` 不就是刚刚 **5.1 章节 ** 分析过的吗？它负责管理路由规则和handler的绑定。而 `DefaultServeMux` 本身是 `ServeMux` 类型，其存在方法 `ServeHTTP` ：
+
+```go
+func (mux *ServeMux) ServeHTTP(w ResponseWriter, r *Request) {
+	if r.RequestURI == "*" {
+		if r.ProtoAtLeast(1, 1) {
+			w.Header().Set("Connection", "close")
+		}
+		w.WriteHeader(StatusBadRequest)
+		return
+	}
+	h, _ := mux.Handler(r)
+	h.ServeHTTP(w, r)
+}
+```
+
+而 `ServeHTTP` 方法内部通过 `Handler` 方法有转发调用了 私有`handler` 方法
+
+```go
+func (mux *ServeMux) Handler(r *Request) (h Handler, pattern string) {
+
+	// CONNECT requests are not canonicalized.
+	if r.Method == "CONNECT" {
+		// If r.URL.Path is /tree and its handler is not registered,
+		// the /tree -> /tree/ redirect applies to CONNECT requests
+		// but the path canonicalization does not.
+		if u, ok := mux.redirectToPathSlash(r.URL.Host, r.URL.Path, r.URL); ok {
+			return RedirectHandler(u.String(), StatusMovedPermanently), u.Path
+		}
+
+		return mux.handler(r.Host, r.URL.Path)
+	}
+
+	// All other requests have any port stripped and path cleaned
+	// before passing to mux.handler.
+	host := stripHostPort(r.Host)
+	path := cleanPath(r.URL.Path)
+
+	// If the given path is /tree and its handler is not registered,
+	// redirect for /tree/.
+	if u, ok := mux.redirectToPathSlash(host, path, r.URL); ok {
+		return RedirectHandler(u.String(), StatusMovedPermanently), u.Path
+	}
+
+	if path != r.URL.Path {
+		_, pattern = mux.handler(host, path)
+		url := *r.URL
+		url.Path = path
+		return RedirectHandler(url.String(), StatusMovedPermanently), pattern
+	}
+
+	return mux.handler(host, r.URL.Path)
+}
+```
+
+```go
+func (mux *ServeMux) handler(host, path string) (h Handler, pattern string) {
+	mux.mu.RLock()
+	defer mux.mu.RUnlock()
+
+	// 路由查找
+	if mux.hosts {
+		h, pattern = mux.match(host + path)
+	}
+	if h == nil {
+		h, pattern = mux.match(path)
+	}
+	if h == nil {
+		h, pattern = NotFoundHandler(), ""
+	}
+	return
+}
+
+func (mux *ServeMux) match(path string) (h Handler, pattern string) {
+	// 先从map找查找
+	v, ok := mux.m[path]
+	if ok {
+		return v.h, v.pattern
+	}
+
+	// 找不到时，再通过前缀继续查找
+	for _, e := range mux.es {
+		if strings.HasPrefix(path, e.pattern) {
+			return e.h, e.pattern
+		}
+	}
+	return nil, ""
+}
+```
+
+到 `handler` 方法这里，可以看到 `ServeMux` 对象通过 `match` 进行了路由规则匹配，也就通过查找自己的 路由规则map 找到对应的 `Handler` 对象，然后一路返回到 `ServeMux.ServeHTTP` 方法中，最后调用 `handler.ServeHTTP` ：
+
+```go
+func (mux *ServeMux) ServeHTTP(w ResponseWriter, r *Request) {
+	...
+	h, _ := mux.Handler(r) // 路由寻址找到对应的Handler对象
+	h.ServeHTTP(w, r)	// 调用Handler的ServeHTTP方法
+}
+```
+
+前面 **5.1 章节** 分析过，`HandleFunc` 方法在其底层会将传递进来的handle方法通过类型转换成 `HandlerFunc`类型，而 `HandlerFunc` 实现了 `Handler` 接口的方法 `ServeHTTP`， 在方法内调用业务传递进来的方法。所以，**ServeMux 通过match找到对应的Handler后，就调用了其对应的handler方法**。到这里，路由分发工作就完成了（过程中省略讲述错误判断、异常处理、https、http2.0的处理过程等）。
+
+# VI. 总结
+
+![](https://blogpic.smallfan.top/gohttp/sequence-chart.png)
+
+HTTP WEB服务的整体流程大致如下：
+
++ 调用 `http.HandleFunc` 
+  + 创建 `DefaultServeMux` 
+  + 将上层 handler 方法转换为 `HandlerFunc` 类型
+  + 将转换后的 `HandlerFunc` 类型生成 `muxEntry` 对象，然后存入map中
++ 调用 `ListenAndServe` 
+  + 创建 `net.Listener` ，并将它加入到自己的追踪map中
+  + 轮询 `net.Listener` 是否接收到来自客户端的请求
++ `net.Listener` 收到来自客户端的请求
+  + 开启一个goroutine，执行 `conn` 对象的 `serve` 方法
+  + 解析 request 内容，生成 `response` 对象
+  + `c.server` 寻址到其所对应的 `Server` 对象，找到 `Server.handler`对象（默认为DefaultServeMux）
+  + 执行 `Server` 的 `Handler` 方法，进行match工作（如果找没有路由满足，则调用 `NotFoundHandler` ）
+  + 找到对应的handle方法（实际上是通过 `HandleFunc` 包装过），执行之
+  + 处理结束后，返回对应的 `response`数据
+  + 关闭连接
+
