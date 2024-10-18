@@ -71,13 +71,13 @@ avatar:
   effect: false
 
 # Disable all banner images
-disable_top_img: false
+disable_top_img: true
 
 # If the banner of page not setting, it will show the default_top_img
 default_top_img: https://blogpic.smallfan.top/index/index_bg.jpg
 
 # The banner image of index page
-index_img: https://blogpic.smallfan.top/index/index_bg.jpg
+index_img: 
 
 # The banner image of archive page
 archive_img:
