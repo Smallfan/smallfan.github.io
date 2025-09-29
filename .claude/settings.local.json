@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep:*)",
+      "Bash(hexo clean:*)",
+      "Bash(hexo generate:*)",
+      "Bash(for:*)",
+      "Bash(head:*)",
+      "Bash(done)",
+      "Bash(do echo \"=== $file ===\")",
+      "Bash(hexo server:*)",
+      "Bash(npm install:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(pkill:*)",
+      "Bash(git branch:*)",
+      "Bash(git submodule:*)",
+      "Bash(git rm:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
