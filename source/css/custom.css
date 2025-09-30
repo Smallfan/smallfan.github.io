@@ -1,4 +1,8 @@
 /* Custom footer styles */
+#footer {
+  background-color: #ffffff !important;
+}
+
 #footer > * {
   color: #000000 !important;
 }
