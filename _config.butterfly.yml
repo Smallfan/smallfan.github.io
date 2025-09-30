@@ -19,7 +19,6 @@ nav:
 
 menu:
   # Home: / || fas fa-home
-  # 关于我: /about/ || fas fa-user
   # List||fas fa-list:
   #   About: /about/ || fas fa-music
 
@@ -285,10 +284,10 @@ aside:
     enable: true
     description:
     button:
-      enable: true
+      enable: false
       icon: fab fa-waze
-      text: 关于我
-      link: https://smallfan.top/about
+      text: Hello
+      link: https://smallfan.top
   card_announcement:
     enable: false
     content: This is my Blog
