@@ -1,0 +1,8 @@
+/* Custom footer styles */
+#footer > * {
+  color: #000000 !important;
+}
+
+#footer a {
+  color: #000000 !important;
+}
