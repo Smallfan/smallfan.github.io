@@ -105,3 +105,89 @@ The theme includes extensive customization options for:
 - Social sharing and comment systems
 - Analytics integration support
 - Image galleries and lightboxes
+
+## Custom Features
+
+### Music Player
+
+A custom music player has been implemented for the homepage with the following features:
+
+#### Location and Display
+- **Only shows on homepage** (`/` or `/index.html`)
+- **Draggable** floating player positioned at bottom-right by default
+- **Toggle minimize/expand** mode with a button
+- **Responsive design** adapts to PC, tablet, and mobile devices
+
+#### Player Controls
+- **Playback controls**: Play, Pause, Previous, Next, Replay
+- **Progress bar**: Click to seek, shows current time and duration
+- **Volume control**: Adjustable volume slider
+- **Playlist loop**: Auto-plays next track when current ends
+
+#### UI Modes
+- **Minimized mode** (default): Shows only play/pause button and song name
+- **Expanded mode**: Shows all controls, progress bar, and volume slider
+
+#### Cross-Tab Playback Control
+- **Prevents multiple playback**: Only one tab plays music at a time
+- **First tab priority**: Earliest tab continues playing; new tabs don't auto-play
+- **Auto-pause**: When one tab starts playing, others automatically pause
+- Uses `localStorage` for cross-tab communication
+
+#### Audio Source Support
+- **Remote URLs**: Supports CDN-hosted audio files (recommended)
+- **Local files**: Supports files in `source/music/` directory
+- **Mixed mode**: Can use both remote and local files in same playlist
+
+#### Configuration
+- **Playlist file**: `source/music/playlist.json`
+- **Format**:
+  ```json
+  {
+    "files": [
+      "https://cdn.example.com/song1.mp3",
+      "local-song.mp3"
+    ]
+  }
+  ```
+- Plays in the order defined in JSON (no sorting)
+
+#### Implementation Files
+- **`source/css/custom.css`**: Player styles with mobile responsive design
+- **`source/js/music-player.js`**: Player logic, autoplay, and cross-tab control
+- **`source/music/playlist.json`**: Music playlist configuration
+- **`_config.butterfly.yml`**: Inject scripts via bottom injection
+
+#### Autoplay Behavior
+- Attempts immediate autoplay (works if user previously interacted with domain)
+- Listens for user interactions (click, scroll, mousemove, keydown, touchstart)
+- Starts playback on first interaction if autoplay was blocked
+- Respects browser autoplay policies
+
+### Homepage Link Behavior
+
+All links on the homepage open in new tabs, with exceptions:
+- **Site title/logo**: Opens in current tab (preserves music playback)
+- **Anchor links** (#): Stay on current page
+- **Special links**: `mailto:`, `tel:`, `javascript:` behave normally
+
+Implementation: `source/js/homepage-links.js`
+
+## Custom Styling
+
+### Footer Customization
+The footer has custom styling applied via `source/css/custom.css`:
+- White background (`#ffffff`)
+- Black text color (`#000000`)
+- Black link color
+
+### Injection Configuration
+Custom scripts and styles are injected via `_config.butterfly.yml`:
+```yaml
+inject:
+  head:
+    - <link rel="stylesheet" href="/css/custom.css">
+  bottom:
+    - <script src="/js/music-player.js"></script>
+    - <script src="/js/homepage-links.js"></script>
+```

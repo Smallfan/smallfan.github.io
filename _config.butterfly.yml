@@ -19,6 +19,7 @@ nav:
 
 menu:
   # Home: / || fas fa-home
+  关于我: /about/ || fas fa-user
   # List||fas fa-list:
   #   About: /about/ || fas fa-music
 
@@ -284,10 +285,10 @@ aside:
     enable: true
     description:
     button:
-      enable: false
+      enable: true
       icon: fab fa-waze
-      text: Hello
-      link: https://smallfan.top
+      text: 关于我
+      link: https://smallfan.top/about
   card_announcement:
     enable: false
     content: This is my Blog
@@ -1053,7 +1054,8 @@ inject:
   head:
     - <link rel="stylesheet" href="/css/custom.css">
   bottom:
-    # - <script src="xxxx"></script>
+    - <script src="/js/music-player.js"></script>
+    - <script src="/js/homepage-links.js"></script>
 
 # CDN Settings
 # Don't modify the following settings unless you know how they work
