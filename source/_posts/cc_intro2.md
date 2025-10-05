@@ -3,8 +3,7 @@ title: ClaudeCode系列（二）：入门一篇通
 date: 2025-10-06 02:16:08
 tags:
   - ClaudeCode
-categories:
-  - Vibe Coding
+categories: [VibeCoding, ClaudeCode]
 ---
 
 # 一、前言
@@ -247,7 +246,7 @@ claude mcp remove context7
 > **介绍**
 > 由于安全性要求，CC 在每次访问目录或文件、修改文件、提交 git 操作、访问 MCP 等都会暂停当前操作并请求用户同意，一定程度上增加了使用的复杂度。因此 CC 提供了 `/permissions` 命令，让用户可以自定义规则来规定哪些允许 CC 直接操作，哪些操作禁止 CC 执行。
 >
-> 另外还有一种不推荐使用的方法（yolo 模式）：在启动 CC 时后面拼接 `--dangerously-skip-permissions` 参数，赋予 CC 最高权限，任意操作将无需再申请权限，完整命令如下：`claude --dangerously-skip-permissions`
+> - 另外还有一种不推荐使用的方法（yolo 模式）：在启动 CC 时后面拼接 `--dangerously-skip-permissions` 参数，赋予 CC 最高权限，任意操作将无需再申请权限，完整命令如下：`claude --dangerously-skip-permissions`
 
 ## 5.1 Allow
 

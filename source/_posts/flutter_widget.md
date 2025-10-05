@@ -2,7 +2,7 @@
 title: 初探Flutter（一） Widget
 date: 2022-09-04 18:51:55
 categories: [跨平台技术, Flutter]
-tags: [Flutter]
+tags: [Flutter基础]
 ---
 
 # 一、Widget

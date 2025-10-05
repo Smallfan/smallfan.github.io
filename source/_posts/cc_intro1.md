@@ -3,8 +3,7 @@ title: ClaudeCode系列（一）：付费方案对比
 date: 2025-10-06 01:56:45
 tags:
   - ClaudeCode
-categories:
-  - Vibe Coding
+categories: [VibeCoding, ClaudeCode]
 ---
 
 # 一、个人方案
