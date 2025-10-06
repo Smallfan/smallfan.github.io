@@ -1,3 +1,14 @@
+/* Remove navigation bar bottom border */
+#nav {
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+
+#page-header {
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+
 /* Custom footer styles */
 #footer {
   background-color: #ffffff !important;
