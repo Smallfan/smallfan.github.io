@@ -19,13 +19,20 @@
 }
 
 /* Center sidebar "About Me" button text */
-#aside-content .card-author .author-button {
-  text-align: center;
-  justify-content: center;
+#aside-content .card-author .author-button,
+#aside-content .card-author .author-button a {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
 }
 
 #aside-content .card-author .author-button i {
-  display: none;
+  display: none !important;
+}
+
+#aside-content .card-author .author-button .button-text {
+  margin: 0 auto !important;
 }
 
 /* Music Player Styles */
