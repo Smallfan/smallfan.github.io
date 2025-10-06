@@ -73,8 +73,6 @@ categories: [VibeCoding, ClaudeCode]
 | Anthropic API Key | 按量收费 | - | - | 否 | - | Sonnet + Opus | 不包含 CC，缺乏完整生态优势 | hard | ⭐⭐⭐ |
 | 第三方按量收费 | 按量收费 | - | - | 是 | - | Sonnet + Opus | 非常昂贵，不推荐 | medium | ⭐ |
 
-![方案对比表](https://blogpic.smallfan.top/claudeCode1/1.png)
-
 # 四、使用注意事项
 
 如果身处国内，并且选择了上述的个人方案一、方案二或方案三，还需要采用正确的"科学上网"，才能保证不被封号（屡见不鲜）。在每次启动 CC 的生命周期内，一定要保证系统当前正处于"科学上网"开启阶段，且节点需要是"合法区域内"（如US、MA 等）的。特别要小心的是：**CC 运行在命令行中的，需要 Terminal 也处在"科学上网"范围内**。
