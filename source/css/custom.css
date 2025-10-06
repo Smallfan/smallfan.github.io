@@ -18,6 +18,16 @@
   justify-content: center;
 }
 
+/* Center sidebar "About Me" button text */
+#aside-content .card-author .author-button {
+  text-align: center;
+  justify-content: center;
+}
+
+#aside-content .card-author .author-button i {
+  display: none;
+}
+
 /* Music Player Styles */
 #music-player {
   position: fixed;

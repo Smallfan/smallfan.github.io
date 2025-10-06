@@ -287,7 +287,7 @@ aside:
     description:
     button:
       enable: true
-      icon: fab fa-waze
+      icon:
       text: 关于我
       link: https://smallfan.top/about
   card_announcement:
