@@ -19,7 +19,7 @@ nav:
 
 menu:
   # Home: / || fas fa-home
-  关于我: /about/ || fas fa-user
+  # 关于我: /about/
   # List||fas fa-list:
   #   About: /about/ || fas fa-music
 

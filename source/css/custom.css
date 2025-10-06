@@ -11,6 +11,13 @@
   color: #000000 !important;
 }
 
+/* Center menu items without icons */
+#nav .menus_items .menus_item a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* Music Player Styles */
 #music-player {
   position: fixed;
