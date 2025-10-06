@@ -9,17 +9,30 @@
   box-shadow: none !important;
 }
 
-/* Custom footer styles */
-#footer {
+/* Custom footer styles for light mode */
+[data-theme="light"] #footer {
   background-color: #ffffff !important;
 }
 
-#footer > * {
+[data-theme="light"] #footer > * {
   color: #000000 !important;
 }
 
-#footer a {
+[data-theme="light"] #footer a {
   color: #000000 !important;
+}
+
+/* Custom footer styles for dark mode */
+[data-theme="dark"] #footer {
+  background-color: var(--card-bg) !important;
+}
+
+[data-theme="dark"] #footer > * {
+  color: var(--font-color) !important;
+}
+
+[data-theme="dark"] #footer a {
+  color: var(--font-color) !important;
 }
 
 /* Center menu items without icons */
