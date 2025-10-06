@@ -1054,6 +1054,7 @@ css_prefix: true
 inject:
   head:
     - <link rel="stylesheet" href="/css/custom.css">
+    - <script>!function(){var e=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches,t=localStorage.getItem("theme");document.documentElement.setAttribute("data-theme",void 0!==t&&"auto"!==t?t:e?"dark":"light")}();</script>
   bottom:
     - <script src="/js/music-player.js"></script>
     - <script src="/js/homepage-links.js"></script>
