@@ -27,12 +27,21 @@
   text-align: center !important;
 }
 
-#aside-content .card-author .author-button i {
+/* Completely remove icon and its spacing */
+#aside-content .card-author .author-button i,
+#aside-content .card-author .author-button .fa,
+#aside-content .card-author .author-button .fab,
+#aside-content .card-author .author-button .fas {
   display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
 #aside-content .card-author .author-button .button-text {
   margin: 0 auto !important;
+  width: 100% !important;
 }
 
 /* Music Player Styles */
