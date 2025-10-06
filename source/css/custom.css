@@ -19,29 +19,32 @@
 }
 
 /* Center sidebar "About Me" button text */
-#aside-content .card-author .author-button,
-#aside-content .card-author .author-button a {
+#card-info-btn {
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   text-align: center !important;
+  position: relative !important;
 }
 
-/* Completely remove icon and its spacing */
-#aside-content .card-author .author-button i,
-#aside-content .card-author .author-button .fa,
-#aside-content .card-author .author-button .fab,
-#aside-content .card-author .author-button .fas {
-  display: none !important;
+/* Completely remove icon element from layout */
+#card-info-btn i {
+  position: absolute !important;
+  left: -9999px !important;
   width: 0 !important;
   height: 0 !important;
   margin: 0 !important;
   padding: 0 !important;
+  opacity: 0 !important;
 }
 
-#aside-content .card-author .author-button .button-text {
-  margin: 0 auto !important;
+/* Make text span take full width and center */
+#card-info-btn span {
+  display: block !important;
   width: 100% !important;
+  text-align: center !important;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
 /* Music Player Styles */
