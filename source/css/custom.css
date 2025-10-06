@@ -87,6 +87,12 @@
   transition: all 0.3s ease;
 }
 
+/* Music Player Dark Mode */
+[data-theme="dark"] #music-player {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+}
+
 #music-player.minimized {
   width: 200px;
   padding: 12px;
