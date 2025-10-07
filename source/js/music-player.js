@@ -378,19 +378,29 @@
       }
     },
 
-    // Previous track
+    // Previous track (random order)
     prevTrack: function() {
       if (this.playlist.length === 0) return;
 
       this.hasUserInteracted = true;
       this.removeInteractionListeners();
 
-      this.currentIndex = (this.currentIndex - 1 + this.playlist.length) % this.playlist.length;
+      // Random previous track (avoid current track if playlist has more than 1 song)
+      if (this.playlist.length > 1) {
+        let prevIndex;
+        do {
+          prevIndex = Math.floor(Math.random() * this.playlist.length);
+        } while (prevIndex === this.currentIndex);
+        this.currentIndex = prevIndex;
+      } else {
+        this.currentIndex = 0;
+      }
+
       this.loadTrack(this.currentIndex);
       this.play();
     },
 
-    // Next track
+    // Next track (random order)
     nextTrack: function() {
       if (this.playlist.length === 0) return;
 
@@ -401,7 +411,17 @@
         this.removeInteractionListeners();
       }
 
-      this.currentIndex = (this.currentIndex + 1) % this.playlist.length;
+      // Random next track (avoid current track if playlist has more than 1 song)
+      if (this.playlist.length > 1) {
+        let nextIndex;
+        do {
+          nextIndex = Math.floor(Math.random() * this.playlist.length);
+        } while (nextIndex === this.currentIndex);
+        this.currentIndex = nextIndex;
+      } else {
+        this.currentIndex = 0;
+      }
+
       this.loadTrack(this.currentIndex);
       this.play();
     },
