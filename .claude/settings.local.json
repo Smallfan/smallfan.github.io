@@ -23,7 +23,8 @@
       "Bash([ -d source/music ])",
       "WebFetch(domain:juejin.cn)",
       "Bash(cat:*)",
-      "Bash(git log:*)"
+      "Bash(git log:*)",
+      "Bash(git checkout:*)"
     ],
     "deny": [],
     "ask": []

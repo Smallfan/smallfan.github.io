@@ -4,11 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a **Hexo blog** using the **Butterfly theme**. Hexo is a static site generator written in Node.js that transforms Markdown files into a complete blog website.
+This is a **Hexo blog** using the **Explorer theme**. Hexo is a static site generator written in Node.js that transforms Markdown files into a complete blog website.
 
 ### Key Technologies
 - **Hexo 8.0.0**: Static site generator framework
-- **Butterfly Theme**: Modern, feature-rich Hexo theme with card-based design
+- **Explorer Theme**: Modern, feature-rich Hexo theme with card-based design
 - **Node.js**: Runtime environment
 - **Markdown**: Content format for blog posts
 - **Stylus**: CSS preprocessor used by the theme
@@ -59,7 +59,7 @@ hexo publish "draft-title"
 - **`source/`**: Contains all content files
   - `source/_posts/`: Blog posts in Markdown format
   - `source/images/`: Static images and assets
-- **`themes/butterfly/`**: The Butterfly theme directory
+- **`themes/explorer/`**: The Explorer theme directory
 - **`public/`**: Generated static site files (created by `hexo generate`)
 - **`scaffolds/`**: Templates for new posts, pages, and drafts
 
@@ -68,7 +68,7 @@ hexo publish "draft-title"
   - Site metadata (title, author, URL)
   - Directory paths and URL structure
   - Plugin and theme settings
-- **`_config.butterfly.yml`**: Butterfly theme configuration
+- **`_config.explorer.yml`**: Explorer theme configuration
   - Theme appearance and behavior settings
   - Feature toggles (dark mode, comments, analytics)
   - UI components and layout options
@@ -76,14 +76,14 @@ hexo publish "draft-title"
 ### Content Organization
 - Posts are created in `source/_posts/` as Markdown files
 - Each post has YAML front matter for metadata
-- Butterfly theme supports rich features like TOC, code highlighting, and social sharing
+- Explorer theme supports rich features like TOC, code highlighting, and social sharing
 - Theme uses a card-based responsive design with customizable layouts
 
 ## Development Workflow
 
 1. **Content Creation**: Use `hexo new post` to create new blog posts
 2. **Local Development**: Run `hexo server` to preview changes locally
-3. **Theme Customization**: Modify `_config.butterfly.yml` for theme settings
+3. **Theme Customization**: Modify `_config.explorer.yml` for theme settings
 4. **Build**: Run `hexo generate` to create production-ready static files
 5. **Deployment**: Use `hexo deploy` (requires deployment configuration)
 
@@ -91,11 +91,11 @@ hexo publish "draft-title"
 
 - **No Testing Framework**: This is a static blog project without automated tests
 - **No Linting**: No ESLint or similar code quality tools configured
-- **Theme Dependencies**: Requires `hexo-renderer-pug` and `hexo-renderer-stylus` for the Butterfly theme
+- **Theme Dependencies**: Requires `hexo-renderer-pug` and `hexo-renderer-stylus` for the Explorer theme
 - **Chinese Content**: Blog is configured for Chinese content (`language: zh`)
 - **Static Site**: Final output is pure HTML/CSS/JS that can be hosted anywhere
 
-## Butterfly Theme Features
+## Explorer Theme Features
 
 The theme includes extensive customization options for:
 - Dark/light mode toggle
@@ -156,7 +156,7 @@ A custom music player has been implemented for the homepage with the following f
 - **`source/css/custom.css`**: Player styles with mobile responsive design
 - **`source/js/music-player.js`**: Player logic, autoplay, and cross-tab control
 - **`source/music/playlist.json`**: Music playlist configuration
-- **`_config.butterfly.yml`**: Inject scripts via bottom injection
+- **`_config.explorer.yml`**: Inject scripts via bottom injection
 
 #### Autoplay Behavior
 - Attempts immediate autoplay (works if user previously interacted with domain)
@@ -182,7 +182,7 @@ The footer has custom styling applied via `source/css/custom.css`:
 - Black link color
 
 ### Injection Configuration
-Custom scripts and styles are injected via `_config.butterfly.yml`:
+Custom scripts and styles are injected via `_config.explorer.yml`:
 ```yaml
 inject:
   head:

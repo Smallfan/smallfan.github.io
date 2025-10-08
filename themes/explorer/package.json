@@ -1,0 +1,22 @@
+{
+  "name": "hexo-theme-explorer",
+  "version": "5.5.0",
+  "description": "A Custom Modified Hexo Theme",
+  "main": "package.json",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "hexo",
+    "theme",
+    "explorer",
+    "Card UI Design"
+  ],
+  "dependencies": {
+    "hexo-renderer-pug": "^3.0.0",
+    "hexo-renderer-stylus": "^3.0.1",
+    "hexo-util": "^3.3.0",
+    "moment-timezone": "^0.6.0"
+  },
+  "license": "Apache-2.0"
+}

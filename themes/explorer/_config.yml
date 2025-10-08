@@ -1,4 +1,9 @@
 # --------------------------------------
+# Hexo Explorer Theme Configuration
+# Custom modified theme
+# --------------------------------------
+
+# --------------------------------------
 # Navigation Settings
 # --------------------------------------
 
@@ -8,13 +13,13 @@ nav:
   display_title: true
   display_post_title: true
   # Whether to fix navigation bar
-  fixed: true
+  fixed: false
 
 menu:
   # Home: / || fas fa-home
-  # 关于我: /about/
   # List||fas fa-list:
-  #   About: /about/ || fas fa-music
+  #   Music: /music/ || fas fa-music
+  #   Movie: /movies/ || fas fa-video
 
 # --------------------------------------
 # Code Blocks Settings
@@ -22,11 +27,11 @@ menu:
 
 code_blocks:
   # Code block theme: darker / pale night / light / ocean / false
-  theme: darker
+  theme: light
   macStyle: false
   # Code block height limit (unit: px)
-  height_limit: 2000
-  word_wrap: true
+  height_limit: false
+  word_wrap: false
 
   # Toolbar
   copy: true
@@ -39,22 +44,21 @@ code_blocks:
 # Formal:
 #   icon: link || the description || color
 social:
-  fab fa-github: https://github.com/Smallfan || Github || '#24292e'
-  fas fa-envelope: mailto:CodersSmallfan@qq.com || Email || '#24292e'
-  fab fa-weibo: https://weibo.com/fordxiao || Weibo || '#24292e'
+  # fab fa-github: https://github.com/xxxxx || Github || '#24292e'
+  # fas fa-envelope: mailto:xxxxxx@gmail.com || Email || '#4a7dbe'
 
 # --------------------------------------
 # Image Settings
 # --------------------------------------
 
-favicon: /img/favicon.ico
+favicon: /img/favicon.png
 
 avatar:
-  img: /img/avatar.png
+  img: /img/explorer-icon.png
   effect: false
 
 # Disable all banner images
-disable_top_img: true
+disable_top_img: false
 
 # If the banner of page not setting, it will show the default_top_img
 default_top_img:
@@ -90,9 +94,9 @@ background:
 
 cover:
   # Disable the cover or not
-  index_enable: false
-  aside_enable: false
-  archives_enable: false
+  index_enable: true
+  aside_enable: true
+  archives_enable: true
   # When cover is not set, the default cover is displayed
   default_cover:
     # - xxx.jpg
@@ -254,7 +258,7 @@ footer:
     since: 2025
   # Copyright of theme and framework
   copyright:
-    enable: false
+    enable: true
     version: true
   custom_text:
 
@@ -279,14 +283,14 @@ aside:
     description:
     button:
       enable: true
-      icon:
-      text: 关于我
-      link: https://smallfan.top/about
+      icon: fab fa-github
+      text: Follow Me
+      link: https://github.com/xxxxxx
   card_announcement:
-    enable: false
+    enable: true
     content: This is my Blog
   card_recent_post:
-    enable: false
+    enable: true
     # If set 0 will show all
     limit: 5
     # Sort: date / updated
@@ -300,14 +304,14 @@ aside:
     storage: 10
     avatar: true
   card_categories:
-    enable: false
+    enable: true
     # If set 0 will show all
     limit: 8
     # Choose: none / true / false
     expand: none
     sort_order:
   card_tags:
-    enable: false
+    enable: true
     # If set 0 will show all
     limit: 40
     color: false
@@ -317,7 +321,7 @@ aside:
     order: 1
     sort_order:
   card_archives:
-    enable: false
+    enable: true
     # Type: monthly / yearly
     type: monthly
     # Eg: YYYY年MM月
@@ -336,7 +340,7 @@ aside:
     # Sort of order. 1, asc for ascending; -1, desc for descending
     order: -1
   card_webinfo:
-    enable: false
+    enable: true
     post_count: true
     last_push_date: true
     sort_order:
@@ -378,7 +382,7 @@ darkmode:
   # autoChangeMode: 1  Following System Settings, if the system doesn't support dark mode, it will switch dark mode between 6 pm to 6 am
   # autoChangeMode: 2  Switch dark mode between 6 pm to 6 am
   # autoChangeMode: false
-  autoChangeMode: 1
+  autoChangeMode: false
   # Set the light mode time. The value is between 0 and 24. If not set, the default value is 6 and 18
   start:
   end:
@@ -444,7 +448,7 @@ busuanzi:
 math:
   # Choose: mathjax, katex
   # Leave it empty if you don't need math
-  use: mathjax
+  use:
   per_page: true
   hide_scrollbar: false
 
@@ -508,12 +512,12 @@ share:
   # Share.js
   # https://github.com/overtrue/share.js
   sharejs:
-    sites: wechat,weibo,qq
+    sites: facebook,twitter,wechat,weibo,qq
 
   # AddToAny
   # https://www.addtoany.com/
   addtoany:
-    item: wechat,sina_weibo,email,copy_link
+    item: facebook,twitter,wechat,sina_weibo,facebook_messenger,email,copy_link
 
 # --------------------------------------
 # Comments System
@@ -747,23 +751,23 @@ site_verification:
 # Theme color for customize
 # Notice: color value must in double quotes like "#000" or may cause error!
 
-theme_color:
-  enable: true
-  main: "#29175B"
-  paginator: "#00c4b6"
-  button_hover: "#FF7242"
-  text_selection: "#00c4b6"
-  link_color: "#99a9bf"
-  meta_color: "#858585"
-  hr_color: "#A4D8FA"
-  code_foreground: "#F47466"
-  code_background: "rgba(27, 31, 35, .05)"
-  toc_color: "#00c4b6"
-  blockquote_padding_color: "#29175B"
-  blockquote_background_color: "#29175B"
-  scrollbar_color: "#29175B"
-  meta_theme_color_light: "ffffff"
-  meta_theme_color_dark: "#0d0d0d"
+# theme_color:
+#   enable: true
+#   main: "#29175B"
+#   paginator: "#00c4b6"
+#   button_hover: "#FF7242"
+#   text_selection: "#00c4b6"
+#   link_color: "#99a9bf"
+#   meta_color: "#858585"
+#   hr_color: "#A4D8FA"
+#   code_foreground: "#F47466"
+#   code_background: "rgba(27, 31, 35, .05)"
+#   toc_color: "#00c4b6"
+#   blockquote_padding_color: "#29175B"
+#   blockquote_background_color: "#29175B"
+#   scrollbar_color: "#29175B"
+#   meta_theme_color_light: "ffffff"
+#   meta_theme_color_dark: "#0d0d0d"
 
 # The user interface setting of category and tag page
 # Choose: index - same as Homepage UI / default - same as archives UI
@@ -1045,10 +1049,9 @@ css_prefix: true
 # Insert the code to head (before '</head>' tag) and the bottom (before '</body>' tag)
 inject:
   head:
-    - <link rel="stylesheet" href="/css/custom.css">
+    # - <link rel="stylesheet" href="/xxx.css">
   bottom:
-    - <script src="/js/music-player.js"></script>
-    - <script src="/js/homepage-links.js"></script>
+    # - <script src="xxxx"></script>
 
 # CDN Settings
 # Don't modify the following settings unless you know how they work
@@ -1056,6 +1059,7 @@ CDN:
   # The CDN provider for internal and third-party scripts
   # Options for both: local/jsdelivr/unpkg/cdnjs/custom
   # Note: Dev version can only use 'local' for internal scripts
+  # Note: When setting third-party scripts to 'local', you may need to install additional packages
   internal_provider: local
   third_party_provider: jsdelivr
 

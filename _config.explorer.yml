@@ -1,4 +1,9 @@
 # --------------------------------------
+# Hexo Explorer Theme Configuration
+# Custom modified theme based on original design
+# --------------------------------------
+
+# --------------------------------------
 # Navigation Settings
 # --------------------------------------
 
@@ -1056,6 +1061,7 @@ CDN:
   # The CDN provider for internal and third-party scripts
   # Options for both: local/jsdelivr/unpkg/cdnjs/custom
   # Note: Dev version can only use 'local' for internal scripts
+  # Note: When setting third-party scripts to 'local', you may need to install additional packages
   internal_provider: local
   third_party_provider: jsdelivr
 
