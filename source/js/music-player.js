@@ -31,7 +31,10 @@
       await this.loadPlaylist();
       console.log('Playlist loaded:', this.playlist);
       this.bindEvents();
-      this.loadTrack(0);
+
+      // Randomly select first track
+      const randomIndex = this.playlist.length > 0 ? Math.floor(Math.random() * this.playlist.length) : 0;
+      this.loadTrack(randomIndex);
 
       // Setup cross-tab playback control
       this.setupCrossTabControl();
