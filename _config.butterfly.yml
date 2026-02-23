@@ -278,7 +278,7 @@ aside:
     enable: false
     description:
     button:
-      enable: true
+      enable: false
       icon:
       text: 关于我
       link: https://smallfan.top/about
