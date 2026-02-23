@@ -275,7 +275,7 @@ aside:
     tag: true
     category: true
   card_author:
-    enable: true
+    enable: false
     description:
     button:
       enable: true
