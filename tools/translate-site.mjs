@@ -631,6 +631,37 @@ function delay(milliseconds) {
   return new Promise(resolve => setTimeout(resolve, milliseconds));
 }
 
+async function translateTokenSafeRecord(provider, record) {
+  const pieces = record.input.split(/(⟦\d+⟧)/g);
+  const partRecords = [];
+
+  pieces.forEach((piece, index) => {
+    if (!containsChinese(piece)) return;
+    partRecords.push({
+      id: `${record.id}-part-${index}`,
+      kind: 'plain_text',
+      context: `${record.context} Translate this prose fragment only; surrounding markup is restored by the build script.`,
+      input: piece,
+      pieceIndex: index
+    });
+  });
+
+  if (!partRecords.length) throw new Error(`Token-safe fallback has no translatable prose for ${record.id}.`);
+  const raw = await requestOllama(provider, partRecords);
+  const translations = parseModelResponse(raw);
+
+  partRecords.forEach(part => {
+    if (!translations.has(part.id)) throw new Error(`Missing token-safe translation for ${part.id}.`);
+    const translated = translations.get(part.id);
+    if (containsChinese(translated)) {
+      throw new Error(`Token-safe translation ${part.id} still contains Chinese prose.`);
+    }
+    pieces[part.pieceIndex] = translated;
+  });
+
+  return record.restore(pieces.join(''));
+}
+
 async function requestBatch(provider, records) {
   let lastError;
 
@@ -646,7 +677,13 @@ async function requestBatch(provider, records) {
         if (containsChinese(protectedTranslation)) {
           throw new Error(`Translation ${record.id} still contains Chinese prose.`);
         }
-        output.set(record.key, record.restore(protectedTranslation));
+        try {
+          output.set(record.key, record.restore(protectedTranslation));
+        } catch (error) {
+          if (!String(error.message).includes('protected token')) throw error;
+          console.warn(`[translate] Retrying ${record.id} as token-safe prose fragments.`);
+          output.set(record.key, await translateTokenSafeRecord(provider, record));
+        }
       }
 
       return output;
