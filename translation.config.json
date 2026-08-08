@@ -7,7 +7,6 @@
     "zh-CN": "风扇叔叔",
     "en": "Smallfan"
   },
-  "ciProvider": "ollama",
-  "ollamaModel": "qwen3:8b",
-  "ollamaEndpoint": "http://127.0.0.1:11434"
+  "ciProvider": "google",
+  "googleTranslateEndpoint": "https://translate.googleapis.com/translate_a/single"
 }

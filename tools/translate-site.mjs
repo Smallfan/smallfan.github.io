@@ -15,7 +15,7 @@ const cacheDirectory = path.resolve(
   process.env.OYSTER_TRANSLATION_CACHE_DIR || path.join('.cache', 'oyster-translations')
 );
 const cachePath = path.join(cacheDirectory, 'en.json');
-const promptVersion = 'oyster-technical-translation-2026-08-09-v4';
+const promptVersion = 'oyster-technical-translation-2026-08-09-v5';
 const cjkPattern = /[\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]/;
 const blockSelector = [
   'h1',
@@ -58,6 +58,7 @@ const fixedTranslations = new Map([
 
 const config = JSON.parse(await fs.readFile(configPath, 'utf8'));
 const ollamaEndpoint = process.env.OYSTER_OLLAMA_ENDPOINT || config.ollamaEndpoint;
+const googleTranslateEndpoint = process.env.OYSTER_GOOGLE_TRANSLATE_ENDPOINT || config.googleTranslateEndpoint;
 
 if (config.enabled === false) {
   console.log('[translate] Disabled by translation.config.json.');
@@ -519,8 +520,15 @@ async function chooseProvider() {
     ''
   ).toLowerCase();
 
-  if (requested && requested !== 'ollama') {
+  if (requested && !['google', 'ollama'].includes(requested)) {
     throw new Error(`Unknown translation provider: ${requested}`);
+  }
+  if (requested === 'google') {
+    selectedProvider = {
+      type: 'google',
+      endpoint: String(googleTranslateEndpoint || 'https://translate.googleapis.com/translate_a/single')
+    };
+    return selectedProvider;
   }
   if (requested === 'ollama') {
     selectedProvider = {
@@ -530,7 +538,7 @@ async function chooseProvider() {
     return selectedProvider;
   }
   if (process.env.GITHUB_ACTIONS === 'true') {
-    throw new Error('GitHub Actions must set OYSTER_TRANSLATION_PROVIDER=ollama.');
+    throw new Error('GitHub Actions must configure an AI translation provider.');
   }
   return null;
 }
@@ -627,6 +635,68 @@ function parseModelResponse(value) {
   return new Map(parsed.translations.map(item => [item.id, String(item.text ?? '')]));
 }
 
+async function requestGoogleText(provider, input, description) {
+  const body = new URLSearchParams({
+    client: 'gtx',
+    sl: config.sourceLanguage,
+    tl: config.targetLanguage,
+    dt: 't',
+    q: input
+  });
+  const response = await fetch(provider.endpoint, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+    },
+    body
+  });
+
+  if (!response.ok) {
+    const detail = await response.text();
+    const error = new Error(`Google Translate returned ${response.status}: ${detail.slice(0, 300)}`);
+    error.status = response.status;
+    throw error;
+  }
+
+  const payload = await response.json();
+  const translated = Array.isArray(payload?.[0])
+    ? payload[0].map(part => String(part?.[0] ?? '')).join('')
+    : '';
+  if (!translated) throw new Error(`Google Translate returned no text for ${description}.`);
+  return translated;
+}
+
+async function requestGoogle(provider, records) {
+  const markers = records.map((record, index) => `⟦9${String(index).padStart(5, '0')}⟧`);
+  const input = records.map((record, index) => `${markers[index]}${record.input}`).join('\n');
+  const translated = await requestGoogleText(provider, input, `${records.length} batched segment(s)`);
+  const output = new Map();
+
+  markers.forEach((marker, index) => {
+    const occurrences = translated.split(marker).length - 1;
+    if (occurrences !== 1) {
+      throw new Error(`Google Translate changed batch marker ${marker} (found ${occurrences}, expected 1).`);
+    }
+  });
+
+  records.forEach((record, index) => {
+    const start = translated.indexOf(markers[index]) + markers[index].length;
+    const nextMarker = markers[index + 1];
+    const end = nextMarker ? translated.indexOf(nextMarker, start) : translated.length;
+    if (end < start) throw new Error(`Google Translate reordered batch marker ${markers[index]}.`);
+    output.set(record.id, translated.slice(start, end).trim());
+  });
+
+  return output;
+}
+
+async function requestProvider(provider, records) {
+  if (provider.type === 'google') return requestGoogle(provider, records);
+  const raw = await requestOllama(provider, records);
+  return parseModelResponse(raw);
+}
+
 function delay(milliseconds) {
   return new Promise(resolve => setTimeout(resolve, milliseconds));
 }
@@ -647,8 +717,7 @@ async function translateTokenSafeRecord(provider, record) {
   });
 
   if (!partRecords.length) throw new Error(`Token-safe fallback has no translatable prose for ${record.id}.`);
-  const raw = await requestOllama(provider, partRecords);
-  const translations = parseModelResponse(raw);
+  const translations = await requestProvider(provider, partRecords);
 
   partRecords.forEach(part => {
     if (!translations.has(part.id)) throw new Error(`Missing token-safe translation for ${part.id}.`);
@@ -667,8 +736,7 @@ async function requestBatch(provider, records) {
 
   for (let attempt = 1; attempt <= 4; attempt += 1) {
     try {
-      const raw = await requestOllama(provider, records);
-      const translations = parseModelResponse(raw);
+      const translations = await requestProvider(provider, records);
       const output = new Map();
 
       for (const record of records) {
@@ -690,7 +758,9 @@ async function requestBatch(provider, records) {
     } catch (error) {
       lastError = error;
       if (attempt === 4) break;
-      const waitSeconds = Math.min(2 ** attempt, 20);
+      const waitSeconds = error.status === 429
+        ? Math.min(30 * (2 ** (attempt - 1)), 120)
+        : Math.min(2 ** attempt, 20);
       console.warn(`[translate] Retry ${attempt}/3 after error: ${error.message}`);
       await delay(waitSeconds * 1000);
     }
@@ -747,6 +817,7 @@ async function resolvePendingTranslations() {
       record.applications.forEach(apply => apply(translated));
     });
     await writeCache();
+    if (provider.type === 'google') await delay(800);
 
   }
 

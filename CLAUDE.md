@@ -86,7 +86,7 @@ hexo publish "draft-title"
 ## Development Workflow
 
 1. **Content Creation**: Use `hexo new post` to create new blog posts
-2. **Local Development**: Run `npm run server` to preview the translated static build; use `npm run server:hexo` only for untranslated template watch mode
+2. **Local Development**: Run `npm run server` to preview the production-shaped static build (Chinese by default without a provider); use `npm run server:hexo` for untranslated template watch mode
 3. **Theme Customization**: Modify `_config.oyster.yml` for site-level theme settings, or `themes/oyster/` for theme implementation
 4. **Build**: Run `hexo generate` to create production-ready static files
 5. **Deployment**: Use `hexo deploy` (requires deployment configuration)
@@ -97,7 +97,7 @@ hexo publish "draft-title"
 - **No Linting**: No ESLint or similar code quality tools configured
 - **Theme Dependencies**: Oyster uses the already-declared `hexo-renderer-ejs`; legacy Pug/Stylus dependencies remain installed for Explorer
 - **Chinese Content Source**: Authors write only Chinese Markdown; production HTML defaults to English
-- **Free AI Translation**: Cache misses are translated by `qwen3:8b` through Ollama only on an ephemeral GitHub-hosted runner. Local builds skip translation and never install or download a model.
+- **Free AI Translation**: Cache misses are translated through Google's neural translation endpoint in GitHub Actions. Local builds skip translation by default, and neither local nor cloud builds download a model.
 - **Static Site**: Final output is pure HTML/CSS/JS that can be hosted anywhere
 
 ## Oyster Theme Design
@@ -134,7 +134,7 @@ Oyster follows the public Matrix67 visual system for the key reading values:
 - Semantic HTML fragments are translated with protected markup tokens. Inline code, links, formulas, identifiers and string literals remain unchanged; Highlight.js `.comment` nodes are translated separately.
 - Homepage, archive, taxonomy and search pages are English-only. Post detail and About pages contain an English copy plus the untouched Chinese rendering and load `themes/oyster/source/js/language-switch.js`.
 - English is the first-visit default. The fixed site identity is `Smallfan` in English and `风扇叔叔` in Chinese, including the About introduction.
-- Translation responses live in ignored `.cache/oyster-translations/`; GitHub Actions restores this cache plus its cloud-runner Qwen model cache. The model is never downloaded to the author's Mac or committed to Git.
+- Translation responses live in ignored `.cache/oyster-translations/`; GitHub Actions restores and incrementally saves this cache. No translation model is downloaded to the author's Mac, the runner, or Git.
 
 ### Homepage Link Behavior
 
