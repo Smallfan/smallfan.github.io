@@ -14,7 +14,7 @@
   <title><% if (documentTitle) { %><%= documentTitle %> | <% } %><%= config.title %></title>
   <%- open_graph({ type: is_post() ? 'article' : 'website' }) %>
   <% if (theme.favicon) { %>
-    <link rel="icon" href="<%- url_for(theme.favicon) %>" type="image/svg+xml">
+    <link rel="icon" href="<%- url_for(theme.favicon) %>" type="image/x-icon">
   <% } %>
   <%- css('css/style') %>
   <% if (theme.markdown_outline !== false) { %>

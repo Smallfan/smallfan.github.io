@@ -1,5 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Oyster">
-  <rect width="64" height="64" rx="14" fill="#ffffff"/>
-  <path d="M32 10C19.8 10 10 19.8 10 32s9.8 22 22 22 22-9.8 22-22S44.2 10 32 10Zm0 8c7.7 0 14 6.3 14 14s-6.3 14-14 14-14-6.3-14-14 6.3-14 14-14Z" fill="#0075c9"/>
-  <circle cx="32" cy="32" r="5" fill="#009bdf"/>
-</svg>

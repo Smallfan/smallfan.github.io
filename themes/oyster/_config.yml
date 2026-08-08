@@ -7,7 +7,7 @@ search:
   path: /search/
   index: /search.json
 
-favicon: /img/favicon.svg
+favicon: /img/favicon.ico
 
 excerpt_length: 560
 
