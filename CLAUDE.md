@@ -131,7 +131,7 @@ Oyster follows the public Matrix67 visual system for the key reading values:
 ### Automatic English Translation
 
 - `npm run build` uses npm's `postbuild` lifecycle to run `tools/translate-site.mjs` after Hexo has rendered Markdown, Highlight.js and KaTeX.
-- Semantic HTML fragments are translated with protected markup tokens. Inline code, links, formulas, identifiers and string literals remain unchanged; Highlight.js `.comment` nodes are translated separately.
+- Semantic HTML fragments are translated with protected markup tokens. Inline code, links, formulas, identifiers and syntax remain unchanged; Highlight.js comments, reader-facing strings and plaintext examples are translated as separately protected text nodes.
 - Homepage, archive, taxonomy and search pages are English-only. Post detail and About pages contain an English copy plus the untouched Chinese rendering and load `themes/oyster/source/js/language-switch.js`.
 - English is the first-visit default. The fixed site identity is `Smallfan` in English and `风扇叔叔` in Chinese, including the About introduction.
 - Translation responses live in ignored `.cache/oyster-translations/`; GitHub Actions restores and incrementally saves this cache. No translation model is downloaded to the author's Mac, the runner, or Git.

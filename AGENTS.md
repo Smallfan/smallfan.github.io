@@ -18,7 +18,7 @@
 - `themes/oyster/_config.yml`：Oyster 主题默认值。不要为了单站点配置去改主题默认值；只有修改主题默认行为时才动这里。
 - `themes/oyster/layout/`、`themes/oyster/source/`：当前主题的 EJS 页面模板、CSS 与静态资源实现。
 - `translation.config.json`：AI 翻译语言、站点中英文名称及 CI 中使用的 Google 神经翻译配置。英文站名固定为 `Smallfan`，中文站名固定为 `风扇叔叔`。
-- `tools/translate-site.mjs`：生产构建后的语义块翻译器。它保护 HTML、链接、公式与代码，只翻译正文及 Highlight.js 标记出的代码注释；缓存位于 `.cache/oyster-translations/`。
+- `tools/translate-site.mjs`：生产构建后的语义块翻译器。它保护 HTML、链接、公式与代码结构，翻译正文、Highlight.js 代码注释、面向读者的字符串及 plaintext 示例；缓存位于 `.cache/oyster-translations/`。
 - `themes/oyster/source/js/language-switch.js`：仅文章详情页和 About 页使用的中英文切换逻辑；新访问默认英文，用户选择会保存在浏览器本地。
 - `source/css/custom.css`：为切换回历史主题保留的导航、页脚和深色模式兼容样式；Oyster 的主要样式在主题自身的 `source/css/style.css` 中。
 - `source/js/homepage-links.js`：仅首页启用；文章标题与 `Read more…`、站点标题、分页、锚点及特殊协议链接在当前标签页跳转，其余链接保持新标签页打开。

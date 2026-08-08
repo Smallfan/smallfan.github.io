@@ -78,6 +78,7 @@ const sourceTermTranslations = [
   ['状态管理', 'State Management'],
   ['根 DNS 服务器', 'Root DNS Servers'],
   ['根DNS服务器', 'Root DNS Servers'],
+  ['存在的13 个根DNS服务器', 'The 13 Root DNS Servers'],
   ['根镜像', 'Root Server Mirrors'],
   ['DNS 高速缓存', 'DNS Caching'],
   ['DNS解析器', 'DNS Resolver'],
@@ -257,16 +258,30 @@ function protectPlainText(value) {
 }
 
 function protectCodeComment(value) {
+  return protectCodeHumanText(value);
+}
+
+function protectCodeHumanText(value) {
   const protector = createProtector();
   let normalizedValue = normalizeSourceTerms(value);
+  normalizedValue = normalizedValue.replace(
+    /\$\{[^}]+\}|\$[A-Za-z_]\w*|%[-+0-9.]*[A-Za-z@]|\\[nrt"'\\]|<\/?[A-Za-z][^>]*>|\b[A-Za-z_][A-Za-z0-9_.:/()#-]*\b|\b\d+(?:\.\d+)*\b|[=<>^+*/%-]+/g,
+    match => protector.protect(match)
+  );
+  normalizedValue = protectTechnicalText(normalizedValue, protector.protect);
   const prefix = normalizedValue.match(/^\s*(?:\/\/+|\/\*+|\*+|#+|<!--)\s*/)?.[0];
 
   if (prefix) normalizedValue = protector.protect(prefix) + normalizedValue.slice(prefix.length);
   const suffix = normalizedValue.match(/\s*(?:\*\/|-->)\s*$/)?.[0];
   if (suffix) normalizedValue = normalizedValue.slice(0, -suffix.length) + protector.protect(suffix);
 
+  const quotePrefix = normalizedValue.match(/^\s*@?["'`]+/)?.[0];
+  if (quotePrefix) normalizedValue = protector.protect(quotePrefix) + normalizedValue.slice(quotePrefix.length);
+  const quoteSuffix = normalizedValue.match(/["'`]+\s*$/)?.[0];
+  if (quoteSuffix) normalizedValue = normalizedValue.slice(0, -quoteSuffix.length) + protector.protect(quoteSuffix);
+
   return {
-    input: protectTechnicalText(normalizedValue, protector.protect),
+    input: normalizedValue,
     restore: translated => protector.restore(translated)
   };
 }
@@ -300,11 +315,18 @@ function queueTranslation(value, options) {
     ? protectHtmlFragment(source)
     : options.kind === 'code_comment'
       ? protectCodeComment(source)
-      : protectPlainText(source);
+      : options.kind === 'code_text'
+        ? protectCodeHumanText(source)
+        : protectPlainText(source);
+  const terminologySignature = sourceTermTranslations
+    .filter(([term]) => source.includes(term))
+    .map(([term, translation]) => `${term}=${translation}`)
+    .join('|');
   const key = sha256([
     promptVersion,
     options.kind,
     options.context || '',
+    terminologySignature,
     source
   ].join('\n'));
 
@@ -409,6 +431,23 @@ function collectVisibleTranslations($, scope) {
       kind: 'code_comment',
       context: `Comment inside ${language.replace(/\s+/g, ' ')}. Translate only the human-language comment text.`,
       apply: translated => item.text(translated)
+    });
+  });
+
+  scope.find('.highlight .code .line').each((lineIndex, lineElement) => {
+    const line = $(lineElement);
+    const language = line.closest('figure.highlight').attr('class') || 'code';
+    line.find('*').addBack().contents().each((nodeIndex, node) => {
+      if (node.type !== 'text' || !containsChinese(node.data)) return;
+      if ($(node).parents('.comment').length) return;
+      const source = node.data;
+      queueTranslation(source, {
+        kind: 'code_text',
+        context: `Human-language text inside ${language.replace(/\s+/g, ' ')}. Preserve code syntax, delimiters, identifiers, interpolation, and technical tokens.`,
+        apply: translated => {
+          node.data = translated;
+        }
+      });
     });
   });
 }
@@ -1008,6 +1047,12 @@ function validateTranslatedPages(pages) {
       : $('.highlight .comment');
     if (containsChinese(englishComments.text())) {
       throw new Error(`English code comments still contain Chinese prose: ${relativePath}`);
+    }
+    const englishCode = bilingual
+      ? $('[data-language-content="en"] .highlight')
+      : $('.highlight');
+    if (containsChinese(englishCode.text())) {
+      throw new Error(`English code blocks still contain Chinese prose: ${relativePath}`);
     }
   });
 }
