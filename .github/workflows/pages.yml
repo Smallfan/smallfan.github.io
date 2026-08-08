@@ -12,40 +12,44 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 300
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           # If your repository depends on submodule, please see: https://github.com/actions/checkout
           submodules: recursive
-      - name: Use Node.js 20
-        uses: actions/setup-node@v4
+      - name: Use Node.js 22
+        uses: actions/setup-node@v7
         with:
           # Examples: 20, 18.19, >=16.20.2, lts/Iron, lts/Hydrogen, *, latest, current, node
           # Ref: https://github.com/actions/setup-node#supported-version-syntax
           node-version: "22"
       - name: Cache NPM dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: node_modules
           key: ${{ runner.OS }}-npm-cache
           restore-keys: |
             ${{ runner.OS }}-npm-cache
       - name: Cache AI translations
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: .cache/oyster-translations
           key: ${{ runner.OS }}-oyster-translations-${{ hashFiles('source/**/*.md', 'tools/translate-site.mjs', 'translation.config.json') }}
           restore-keys: |
             ${{ runner.OS }}-oyster-translations-
       - name: Cache Qwen model on the GitHub runner
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ${{ runner.temp }}/oyster-ollama-models
           key: ${{ runner.OS }}-${{ runner.arch }}-ollama-qwen3-8b-v1
       - name: Install Dependencies
         run: npm install
       - name: Install Ollama on the GitHub runner
-        run: curl -fsSL https://ollama.com/download/ollama-linux-amd64.tar.zst | sudo tar -x -C /usr
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y zstd
+          curl -fsSL https://ollama.com/download/ollama-linux-amd64.tar.zst | zstd -d | sudo tar -xf - -C /usr
+          ollama --version
       - name: Build the translated site
         env:
           OLLAMA_MODELS: ${{ runner.temp }}/oyster-ollama-models
@@ -68,7 +72,7 @@ jobs:
           ollama pull qwen3:8b
           npm run build
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: ./public
   deploy:
@@ -83,4 +87,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
