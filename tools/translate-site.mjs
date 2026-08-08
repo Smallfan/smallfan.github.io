@@ -15,7 +15,7 @@ const cacheDirectory = path.resolve(
   process.env.OYSTER_TRANSLATION_CACHE_DIR || path.join('.cache', 'oyster-translations')
 );
 const cachePath = path.join(cacheDirectory, 'en.json');
-const promptVersion = 'oyster-technical-translation-2026-08-09-v7';
+const promptVersion = 'oyster-technical-translation-2026-08-09-v8';
 const cjkPattern = /[\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]/;
 const blockSelector = [
   'h1',
@@ -215,6 +215,7 @@ function makeToken(index) {
 
 function createProtector() {
   const values = [];
+  const hintedRanges = [];
 
   function protect(value) {
     const token = makeToken(values.length);
@@ -222,11 +223,21 @@ function createProtector() {
     return token;
   }
 
+  function protectWithHint(value, hint) {
+    const startToken = makeToken(values.length);
+    values.push(null);
+    const endToken = makeToken(values.length);
+    values.push(null);
+    hintedRanges.push({ startToken, endToken, original: String(value), hint: String(hint) });
+    return `${startToken}${hint}${endToken}`;
+  }
+
   function restore(value) {
     let result = String(value || '');
 
     for (let index = values.length - 1; index >= 0; index -= 1) {
       const original = values[index];
+      if (original === null) continue;
       const token = makeToken(index);
       const occurrences = result.split(token).length - 1;
       if (occurrences !== 1) {
@@ -235,10 +246,29 @@ function createProtector() {
       result = result.replace(token, original);
     }
 
+    for (let index = hintedRanges.length - 1; index >= 0; index -= 1) {
+      const range = hintedRanges[index];
+      const startOccurrences = result.split(range.startToken).length - 1;
+      const endOccurrences = result.split(range.endToken).length - 1;
+      const start = result.indexOf(range.startToken);
+      const end = result.indexOf(range.endToken, start + range.startToken.length);
+      if (startOccurrences !== 1 || endOccurrences !== 1 || start === -1 || end < start) {
+        throw new Error(
+          `The model changed protected token range ${range.startToken}/${range.endToken} ` +
+          `(found ${startOccurrences}/${endOccurrences}, expected 1/1 in order).`
+        );
+      }
+      const hintedText = normalizeWhitespace(result.slice(start + range.startToken.length, end));
+      if (range.hint && !hintedText) {
+        throw new Error(`The model moved text outside protected token range ${range.startToken}/${range.endToken}.`);
+      }
+      result = result.slice(0, start) + range.original + result.slice(end + range.endToken.length);
+    }
+
     return result;
   }
 
-  return { protect, restore };
+  return { protect, protectWithHint, restore };
 }
 
 function protectTechnicalText(value, protect) {
@@ -270,7 +300,11 @@ function protectHtmlFragment(fragment) {
 
   topLevelProtectedElements.forEach(element => {
     const item = fragmentDocument(element);
-    item.replaceWith(protector.protect(fragmentDocument.html(element)));
+    const hint = normalizeWhitespace(item.text());
+    const protectedElement = hint
+      ? protector.protectWithHint(fragmentDocument.html(element), hint)
+      : protector.protect(fragmentDocument.html(element));
+    item.replaceWith(protectedElement);
   });
 
   let value = root.html() || '';
