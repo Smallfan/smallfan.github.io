@@ -18,7 +18,7 @@
 - `themes/oyster/_config.yml`：Oyster 主题默认值。不要为了单站点配置去改主题默认值；只有修改主题默认行为时才动这里。
 - `themes/oyster/layout/`、`themes/oyster/source/`：当前主题的 EJS 页面模板、CSS 与静态资源实现。
 - `translation.config.json`：AI 翻译语言、站点中英文名称及 CI 中使用的 Google 神经翻译配置。英文站名固定为 `Smallfan`，中文站名固定为 `风扇叔叔`。
-- `tools/translate-site.mjs`：生产构建后的语义块翻译器。它保护 HTML、链接、公式与代码结构，翻译正文、Highlight.js 代码注释、面向读者的字符串及 plaintext 示例；缓存位于 `.cache/oyster-translations/`。
+- `tools/translate-site.mjs`：生产构建后的语义块翻译器。它把完整行内 HTML 元素作为不可拆分单元来保护，保留链接、公式与代码结构，并翻译正文、中文行内代码、Highlight.js 代码注释、面向读者的字符串及 plaintext 示例；缓存位于 `.cache/oyster-translations/`。
 - `themes/oyster/source/js/language-switch.js`：仅文章详情页和 About 页使用的中英文切换逻辑；新访问默认英文，用户选择会保存在浏览器本地。
 - `source/css/custom.css`：为切换回历史主题保留的导航、页脚和深色模式兼容样式；Oyster 的主要样式在主题自身的 `source/css/style.css` 中。
 - `source/js/homepage-links.js`：仅首页启用；文章标题与 `Read more…`、站点标题、分页、锚点及特殊协议链接在当前标签页跳转，其余链接保持新标签页打开。
@@ -54,7 +54,7 @@ npm run deploy       # 调用 hexo deploy；当前 _config.yml 的 deploy 配置
 1. 阅读本文件、相关源码和配置，执行 `git status --short --branch`，确认任务边界与用户已有修改。
 2. 内容修改放在 `source/`；站点级开关优先改 `_config.oyster.yml`，共享自定义功能改 `source/css` / `source/js`，Oyster 的模板和视觉能力改 `themes/oyster/`。
 3. 使用最小范围修改，保留现有中文文风、Front Matter、链接和 `<!-- more -->` 位置，除非任务要求调整。
-4. 至少运行 `npm run build`。本地默认只验证中文原始构建；完整英文输出以 GitHub Actions 的 Google 翻译构建为准。若变更涉及主题、样式或交互，应在发布后检查首页英文输出、文章/关于双语切换、移动端、代码注释和数学公式。
+4. 至少运行 `npm run build`。本地默认只验证中文原始构建；完整英文输出以 GitHub Actions 的 Google 翻译构建为准。若变更涉及主题、样式或交互，应在发布后检查首页英文输出、文章/关于双语切换、移动端、正文及行内代码无中文残留、代码块与数学公式结构一致。
 5. 对主题和自定义静态资源，确认构建后存在 `public/css/style.css`、`public/css/custom.css`、`public/js/markdown-outline.js`、`public/js/language-switch.js`、`public/js/homepage-links.js`、`public/js/search.js`、`public/search.json`、`public/search/index.html` 和 `public/about/index.html`；不要只确认源文件存在。音乐播放器已经移除，不应再生成 `public/js/music-player.js` 或 `public/music/playlist.json`。
 6. 最终说明改了什么、如何验证、是否仍有未验证项，并明确区分本次改动与用户原有工作区修改。
 

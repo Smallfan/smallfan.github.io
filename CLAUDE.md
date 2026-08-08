@@ -74,8 +74,8 @@ hexo publish "draft-title"
 - **`_config.oyster.yml`**: Active Oyster site-level theme configuration
   - Search routes, excerpt length, Markdown outline behavior and footer start year
   - Site custom CSS and JavaScript injection
-- **`translation.config.json`**: Translation languages, fixed `风扇叔叔`/`Smallfan` identity mapping and free AI provider models
-- **`tools/translate-site.mjs`**: Cached post-build translator for prose, metadata and highlighted code comments
+- **`translation.config.json`**: Translation languages, fixed `风扇叔叔`/`Smallfan` identity mapping and free cloud translation provider settings
+- **`tools/translate-site.mjs`**: Cached post-build translator for prose, metadata, inline code text and highlighted code comments
 
 ### Content Organization
 - Posts are created in `source/_posts/` as Markdown files
@@ -131,7 +131,7 @@ Oyster follows the public Matrix67 visual system for the key reading values:
 ### Automatic English Translation
 
 - `npm run build` uses npm's `postbuild` lifecycle to run `tools/translate-site.mjs` after Hexo has rendered Markdown, Highlight.js and KaTeX.
-- Semantic HTML fragments are translated with protected markup tokens. Inline code, links, formulas, identifiers and syntax remain unchanged; Highlight.js comments, reader-facing strings and plaintext examples are translated as separately protected text nodes.
+- Human text inside inline elements is translated first, then each complete inline HTML element is protected as one atomic token while its containing paragraph is translated. Chinese reader-facing inline code, Highlight.js comments, strings and plaintext examples are translated; links, formulas, identifiers and code syntax remain structurally intact.
 - Homepage, archive, taxonomy and search pages are English-only. Post detail and About pages contain an English copy plus the untouched Chinese rendering and load `themes/oyster/source/js/language-switch.js`.
 - English is the first-visit default. The fixed site identity is `Smallfan` in English and `风扇叔叔` in Chinese, including the About introduction.
 - Translation responses live in ignored `.cache/oyster-translations/`; GitHub Actions restores and incrementally saves this cache. No translation model is downloaded to the author's Mac, the runner, or Git.

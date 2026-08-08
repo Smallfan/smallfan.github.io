@@ -15,7 +15,7 @@ const cacheDirectory = path.resolve(
   process.env.OYSTER_TRANSLATION_CACHE_DIR || path.join('.cache', 'oyster-translations')
 );
 const cachePath = path.join(cacheDirectory, 'en.json');
-const promptVersion = 'oyster-technical-translation-2026-08-09-v6';
+const promptVersion = 'oyster-technical-translation-2026-08-09-v7';
 const cjkPattern = /[\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]/;
 const blockSelector = [
   'h1',
@@ -39,6 +39,18 @@ const excludedSelector = [
   'svg',
   'pre',
   'code',
+  '.highlight',
+  '.katex',
+  '.MathJax',
+  'math',
+  '[data-no-translate]',
+  '[data-language-content="zh"]'
+].join(',');
+const inlineExcludedSelector = [
+  'script',
+  'style',
+  'svg',
+  'pre',
   '.highlight',
   '.katex',
   '.MathJax',
@@ -212,17 +224,17 @@ function protectHtmlFragment(fragment) {
     false
   );
   const root = fragmentDocument('oyster-fragment');
-  const protectedElements = 'code,kbd,pre,math,.katex,svg,img,video,audio,iframe';
+  const untranslatedElements = 'code,kbd,pre,math,.katex,svg,img,video,audio,iframe';
 
   root.find('*').addBack().contents().each((index, node) => {
     if (node.type !== 'text') return;
-    if (fragmentDocument(node).parents(protectedElements).length) return;
+    if (fragmentDocument(node).parents(untranslatedElements).length) return;
     node.data = normalizeSourceTerms(node.data);
   });
 
-  const topLevelProtectedElements = root.find(protectedElements).toArray().filter(element => {
-    return fragmentDocument(element).parents(protectedElements).length === 0;
-  });
+  // Keep every direct child element atomic. The translator may move an inline element
+  // for natural English word order, but it can no longer separate or invert its tags.
+  const topLevelProtectedElements = root.children().toArray();
 
   topLevelProtectedElements.forEach(element => {
     const item = fragmentDocument(element);
@@ -357,10 +369,10 @@ function queueTranslation(value, options) {
   });
 }
 
-function hasExcludedAncestor($, element, scopeNode) {
+function hasExcludedAncestor($, element, scopeNode, selector = excludedSelector) {
   let current = element;
   while (current && current !== scopeNode) {
-    if (current.type === 'tag' && $(current).is(excludedSelector)) return true;
+    if (current.type === 'tag' && $(current).is(selector)) return true;
     current = current.parent;
   }
   return false;
@@ -375,9 +387,9 @@ function hasSelectedAncestor(element, selected, scopeNode) {
   return false;
 }
 
-function collectVisibleTranslations($, scope) {
+function selectTranslatableBlocks($, scope) {
   const scopeNode = scope.get(0);
-  if (!scopeNode) return;
+  if (!scopeNode) return new Set();
 
   const selected = new Set();
   const candidates = scope.find(blockSelector).addBack(blockSelector).toArray();
@@ -391,13 +403,50 @@ function collectVisibleTranslations($, scope) {
       parent = parent.parent;
     }
 
+    selected.add(element);
+  });
+
+  return selected;
+}
+
+function collectInlineTextTranslations($, scope) {
+  const scopeNode = scope.get(0);
+  if (!scopeNode) return;
+  const selected = selectTranslatableBlocks($, scope);
+
+  scope.find('*').addBack().contents().each((index, node) => {
+    if (node.type !== 'text' || !containsChinese(node.data)) return;
+    const parent = node.parent;
+    if (!parent || hasExcludedAncestor($, parent, scopeNode, inlineExcludedSelector)) return;
+
+    let block = parent;
+    while (block && block !== scopeNode && !selected.has(block)) block = block.parent;
+    if (!block || block === scopeNode || block === parent) return;
+
+    const parentName = parent.name || 'inline element';
+    queueTranslation(node.data, {
+      kind: 'inline_text',
+      context: `Text inside an inline ${parentName} element in a technical article. Preserve technical terms and meaning.`,
+      apply: translated => {
+        node.data = translated;
+      }
+    });
+  });
+}
+
+function collectVisibleTranslations($, scope) {
+  const scopeNode = scope.get(0);
+  if (!scopeNode) return;
+
+  const selected = selectTranslatableBlocks($, scope);
+
+  selected.forEach(element => {
     const item = $(element);
     const html = item.html() || '';
     if (!containsChinese(item.text())) return;
-    selected.add(element);
     queueTranslation(html, {
       kind: 'html_fragment',
-      context: 'Rendered technical article prose. Preserve every protected HTML token exactly.',
+      context: 'Rendered technical article prose. Every protected token is one complete inline HTML element; preserve each token exactly once.',
       apply: translated => item.html(translated)
     });
   });
@@ -561,10 +610,7 @@ function preparePage(file, html) {
     ? $('[data-language-content="en"]').toArray().map(element => $(element))
     : [$('#main')];
 
-  scopes.forEach(scope => {
-    formatEnglishDates($, scope);
-    collectVisibleTranslations($, scope);
-  });
+  scopes.forEach(scope => formatEnglishDates($, scope));
 
   const originalTitle = $('title').text();
   if (bilingual) htmlElement.attr('data-title-zh', originalTitle);
@@ -1036,7 +1082,6 @@ function validateTranslatedPages(pages) {
       'style',
       'svg',
       'pre',
-      'code',
       '.highlight',
       '.katex',
       '.MathJax',
@@ -1076,8 +1121,16 @@ async function main() {
     pages.push(preparePage(file, html));
   }
 
-  const translated = await resolvePendingTranslations();
-  if (translated === false) return;
+  pages.forEach(page => {
+    page.scopes.forEach(scope => collectInlineTextTranslations(page.$, scope));
+  });
+  const inlineTranslated = await resolvePendingTranslations();
+  if (inlineTranslated === false) return;
+
+  pages.forEach(page => {
+    page.scopes.forEach(scope => collectVisibleTranslations(page.$, scope));
+  });
+  await resolvePendingTranslations();
 
   pages.forEach(page => {
     page.scopes.forEach(scope => collectAttributeTranslations(page.$, scope));
