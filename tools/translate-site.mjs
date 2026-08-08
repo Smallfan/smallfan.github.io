@@ -755,20 +755,18 @@ async function requestGoogle(provider, records) {
   const translated = await requestGoogleText(provider, input, `${records.length} batched segment(s)`);
   const output = new Map();
 
-  [...markers, ...boundaries].forEach(marker => {
-    const count = translated.split(marker).length - 1;
-    if (count !== 1) throw new Error(`Google Translate changed batch marker ${marker} (found ${count}, expected 1).`);
-  });
-
   records.forEach((record, index) => {
-    const start = translated.indexOf(markers[index]) + markers[index].length;
-    const end = translated.indexOf(boundaries[index], start);
-    if (end < start) throw new Error(`Google Translate reordered batch marker ${markers[index]}.`);
-    const segment = translated.slice(start, end).trim();
-    if (!segment.endsWith('.')) {
-      throw new Error(`Google Translate changed boundary punctuation for ${record.id}.`);
-    }
-    output.set(record.id, segment.slice(0, -1).trimEnd());
+    const marker = markers[index];
+    const boundary = boundaries[index];
+    const markerIndex = translated.indexOf(marker);
+    if (markerIndex === -1) throw new Error(`Google Translate removed batch marker ${marker}.`);
+    const start = markerIndex + marker.length;
+    const end = translated.indexOf(boundary, start);
+    if (end < start) throw new Error(`Google Translate removed or reordered batch boundary ${boundary}.`);
+    let segment = translated.slice(start, end).split(marker).join('').trim();
+    if (segment.endsWith('.')) segment = segment.slice(0, -1).trimEnd();
+    if (!segment) throw new Error(`Google Translate returned an empty batched segment for ${record.id}.`);
+    output.set(record.id, segment);
   });
 
   return output;
