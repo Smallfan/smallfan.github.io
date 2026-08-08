@@ -16,4 +16,4 @@ show_title: false
 
 # 联系方式
 
-+ 如果想要联系我，请优先使用邮件方式。
++ **邮箱**：Q29kZXJTbWFsbGZhbkBxcS5jb20= （请解码 Base64 后查看❤️）
