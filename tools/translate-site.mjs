@@ -69,16 +69,17 @@ const fixedTranslations = new Map([
   ['公因子', 'common factor'],
   ['互质关系（coprime）', 'coprime'],
   ['互质关系', 'coprime'],
+  ['不是质数也可以构成互质关系', 'Non-prime numbers can also be coprime'],
   ['IP地址', 'IP address'],
-  ['域名（Domain Name）', 'domain name'],
-  ['有格式字符串', 'formatted string'],
+  ['域名（Domain Name）', 'domain names'],
+  ['有格式字符串', 'formatted strings'],
   ['越靠右', 'farther to the right'],
   ['越高', 'higher'],
   ['根 DNS', 'Root DNS'],
-  ['根 DNS 服务器', 'Root DNS Server'],
+  ['根 DNS 服务器', 'Root DNS Servers'],
   ['根 DNS 服务器信息', 'Root DNS Server information'],
-  ['顶级域服务器', 'TLD server'],
-  ['权威DNS服务器', 'authoritative DNS server'],
+  ['顶级域服务器', 'TLD servers'],
+  ['权威DNS服务器', 'authoritative DNS servers'],
   ['顶级域 (Top-level Domain, 简称TLD)', 'top-level domain (TLD)'],
   ['动态', 'ephemeral'],
   ['可靠', 'secure'],
@@ -594,6 +595,14 @@ function collectAttributeTranslations($, scope) {
 }
 
 function normalizeEnglishInlineSpacing($, scope) {
+  scope.find('*').addBack().contents().each((index, node) => {
+    if (node.type !== 'text') return;
+    node.data = node.data
+      .replace(/Modular Multiplicative Inversed/g, 'modular multiplicative inverse')
+      .replace(/(Euler['’]s Totient Function)(?=φ)/g, '$1 ')
+      .replace(/\bDDOS\b/g, 'DDoS');
+  });
+
   const parents = scope.find(`${blockSelector},strong,em,b,i,u,a,span`).addBack(blockSelector).toArray();
 
   parents.forEach(parent => {
