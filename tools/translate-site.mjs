@@ -1016,9 +1016,16 @@ async function requestBatch(provider, records) {
 
       for (const record of records) {
         if (!translations.has(record.id)) throw new Error(`Missing translation for ${record.id}.`);
-        const protectedTranslation = translations.get(record.id);
+        let protectedTranslation = translations.get(record.id);
         if (containsChinese(protectedTranslation)) {
-          throw new Error(`Translation ${record.id} still contains Chinese prose.`);
+          if (provider.type === 'google') {
+            console.warn(`[translate] Retrying partially untranslated segment ${record.id} individually.`);
+            protectedTranslation = await requestGoogleText(provider, record.input, record.id);
+          }
+          if (containsChinese(protectedTranslation)) {
+            const preview = normalizeWhitespace(record.source).slice(0, 160);
+            throw new Error(`Translation ${record.id} still contains Chinese prose. Source: ${preview}`);
+          }
         }
         try {
           output.set(record.key, record.restore(protectedTranslation));
