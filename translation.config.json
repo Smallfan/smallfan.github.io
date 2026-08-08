@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "sourceLanguage": "zh-CN",
+  "targetLanguage": "en",
+  "defaultLanguage": "en",
+  "siteTitle": {
+    "zh-CN": "风扇叔叔",
+    "en": "Smallfan"
+  },
+  "ciProvider": "ollama",
+  "ollamaModel": "qwen3:8b",
+  "ollamaEndpoint": "http://127.0.0.1:11434"
+}

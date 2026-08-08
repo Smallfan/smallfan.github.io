@@ -14,6 +14,14 @@
   }
 %>
 <article id="<%= post.layout || 'post' %>-<%= post.slug || post._id %>" class="hentry <%= index ? 'post-summary' : 'post-detail' %>" itemscope itemtype="https://schema.org/BlogPosting">
+  <% if (!index && theme.language_switch !== false) { %>
+    <nav class="language-switch" aria-label="Language" data-language-switch data-no-translate hidden>
+      <button type="button" data-language-option="en" aria-pressed="true">EN</button>
+      <span aria-hidden="true">/</span>
+      <button type="button" data-language-option="zh" aria-pressed="false">中文</button>
+    </nav>
+  <% } %>
+
   <header class="entry-header">
     <% if (showTitle) { %>
       <h1 class="entry-title" itemprop="headline">

@@ -1,5 +1,5 @@
 <% if (post.prev || post.next) { %>
-  <nav class="navigation post-navigation" aria-label="文章导航">
+  <nav class="navigation post-navigation" aria-label="Article navigation">
     <div class="nav-links post-nav-links">
       <% if (post.prev) { %>
         <a class="nav-previous" href="<%- url_for(post.prev.path) %>" title="<%= post.prev.title %>">NEWER</a>

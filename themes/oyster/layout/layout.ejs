@@ -17,5 +17,8 @@
     <% (theme.custom_js || []).forEach(function (src) { %>
       <script src="<%- url_for(src) %>"></script>
     <% }) %>
+    <% if (theme.language_switch !== false) { %>
+      <script src="<%- url_for('/js/language-switch.js') %>"></script>
+    <% } %>
   </body>
 </html>

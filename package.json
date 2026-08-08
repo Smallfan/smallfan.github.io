@@ -4,14 +4,18 @@
   "private": true,
   "scripts": {
     "build": "hexo generate",
+    "postbuild": "node tools/translate-site.mjs",
     "clean": "hexo clean",
     "deploy": "hexo deploy",
-    "server": "hexo server"
+    "server": "npm run build && hexo server --static",
+    "server:hexo": "hexo server",
+    "translate": "node tools/translate-site.mjs"
   },
   "hexo": {
     "version": "8.1.2"
   },
   "dependencies": {
+    "cheerio": "^1.2.0",
     "hexo": "^8.1.2",
     "hexo-deployer-git": "^4.0.0",
     "hexo-generator-archive": "^2.0.0",

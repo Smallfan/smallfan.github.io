@@ -304,6 +304,46 @@ figure {
   margin: 0 0 3em;
 }
 
+.post-detail {
+  position: relative;
+}
+
+.language-switch {
+  display: flex;
+  min-height: 1.8em;
+  margin: 0 0 0.35em;
+  gap: 0.45em;
+  align-items: center;
+  justify-content: flex-end;
+  color: var(--oyster-muted);
+  font-size: 13px;
+}
+
+.language-switch button {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--oyster-muted);
+  font: inherit;
+  cursor: pointer;
+}
+
+.language-switch button:hover,
+.language-switch button:focus,
+.language-switch button.is-active,
+.language-switch button[aria-pressed="true"] {
+  color: var(--oyster-link-hover);
+}
+
+.language-switch[hidden] {
+  display: none;
+}
+
+[data-language-content][hidden] {
+  display: none !important;
+}
+
 .post-summary {
   margin-bottom: 2.75em;
   padding-bottom: 2.75em;

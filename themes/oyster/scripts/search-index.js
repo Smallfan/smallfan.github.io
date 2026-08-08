@@ -51,12 +51,16 @@ hexo.extend.generator.register('oyster-search-index', function (locals) {
 
     return {
       title: toPlainText(post.title),
+      titleZh: toPlainText(post.title),
       url: root + String(post.path || '').replace(/^\/+/, ''),
       date: published.iso,
       dateText: published.text,
       excerpt,
+      excerptZh: excerpt,
       content,
-      taxonomy: categories.concat(tags).join(' ')
+      contentZh: content,
+      taxonomy: categories.concat(tags).join(' '),
+      taxonomyZh: categories.concat(tags).join(' ')
     };
   });
 

@@ -13,7 +13,7 @@
   var indexUrl = page.dataset.searchIndex;
 
   function normalize(value) {
-    return String(value || '').toLocaleLowerCase('zh-CN');
+    return String(value || '').toLocaleLowerCase('en-US');
   }
 
   function countOccurrences(source, term) {
@@ -76,7 +76,12 @@
     var title = normalize(item.title);
     var taxonomy = normalize(item.taxonomy);
     var content = normalize(item.content);
-    var haystack = title + '\n' + taxonomy + '\n' + content;
+    var chinese = normalize([
+      item.titleZh,
+      item.taxonomyZh,
+      item.contentZh
+    ].join('\n'));
+    var haystack = title + '\n' + taxonomy + '\n' + content + '\n' + chinese;
 
     if (!terms.every(function (term) { return haystack.includes(term); })) return null;
 
@@ -133,21 +138,21 @@
   function setHeading(value) {
     heading.textContent = '';
     if (!value) {
-      heading.textContent = '搜索';
+      heading.textContent = 'Search';
       return;
     }
 
     var keyword = document.createElement('span');
     keyword.textContent = value;
     heading.appendChild(keyword);
-    heading.appendChild(document.createTextNode(' 的搜索结果'));
-    document.title = value + ' 的搜索结果 | ' + page.dataset.siteTitle;
+    heading.appendChild(document.createTextNode(' — Search results'));
+    document.title = 'Search results for ' + value + ' | ' + page.dataset.siteTitle;
   }
 
   form.addEventListener('submit', function (event) {
     if (!input.value.trim()) {
       event.preventDefault();
-      status.textContent = '请输入搜索关键词。';
+      status.textContent = 'Enter at least one search term.';
       input.focus();
     }
   });
@@ -160,7 +165,7 @@
     return;
   }
 
-  status.textContent = '正在搜索…';
+  status.textContent = 'Searching…';
   var terms = normalize(query).split(/\s+/).filter(Boolean);
 
   fetch(indexUrl, { headers: { Accept: 'application/json' } })
@@ -179,21 +184,21 @@
       results.textContent = '';
 
       if (!matches.length) {
-        status.textContent = '没有找到相关文章。';
+        status.textContent = 'No matching articles found.';
         var empty = document.createElement('p');
         empty.className = 'search-empty';
-        empty.textContent = '可以尝试更短或不同的关键词。';
+        empty.textContent = 'Try a shorter or different search term.';
         results.appendChild(empty);
         return;
       }
 
-      status.textContent = '找到 ' + matches.length + ' 篇文章。';
+      status.textContent = matches.length + (matches.length === 1 ? ' article found.' : ' articles found.');
       matches.forEach(function (match) {
         results.appendChild(createResult(match.item, terms));
       });
     })
     .catch(function () {
       results.textContent = '';
-      status.textContent = '搜索索引加载失败，请稍后重试。';
+      status.textContent = 'The search index could not be loaded. Please try again later.';
     });
 })();

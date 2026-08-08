@@ -1,7 +1,7 @@
 <% if (page.type === 'categories') { %>
   <article class="hentry taxonomy-page">
     <header class="entry-header">
-      <h1 class="entry-title">分类</h1>
+      <h1 class="entry-title">Categories</h1>
     </header>
     <div class="entry-content taxonomy-list">
       <%- list_categories({ show_count: true, style: 'list' }) %>
@@ -10,7 +10,7 @@
 <% } else if (page.type === 'tags') { %>
   <article class="hentry taxonomy-page">
     <header class="entry-header">
-      <h1 class="entry-title">标签</h1>
+      <h1 class="entry-title">Tags</h1>
     </header>
     <div class="entry-content tag-cloud">
       <%- tagcloud({ min_font: 14, max_font: 14, amount: 999, orderby: 'name' }) %>

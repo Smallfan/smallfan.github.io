@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This is a **Hexo blog** using the local **Oyster theme**. Hexo is a static site generator written in Node.js that transforms Markdown files into a complete blog website.
 
 ### Key Technologies
-- **Hexo 8.1.1**: Static site generator framework metadata used by this checkout
+- **Hexo 8.1.2**: Static site generator framework metadata used by this checkout
 - **Oyster Theme**: Minimal, reading-first local theme using Matrix67-inspired typography and colors with a wider responsive layout
 - **Node.js**: Runtime environment
 - **Markdown**: Content format for blog posts
@@ -21,9 +21,11 @@ This is a **Hexo blog** using the local **Oyster theme**. Hexo is a static site 
 # Install dependencies
 npm install
 
-# Start development server (watch mode with hot reload)
-hexo server
-# Alternative: npm run server
+# Build the translated site and serve the generated static output
+npm run server
+
+# Raw Chinese Hexo watch server for template debugging only
+npm run server:hexo
 
 # Generate static files for production
 hexo generate
@@ -61,7 +63,7 @@ hexo publish "draft-title"
   - `source/images/`: Static images and assets
 - **`themes/oyster/`**: The active Oyster theme directory
 - **`themes/explorer/`**: Retained legacy Explorer theme; it is not loaded while `_config.yml` uses `theme: oyster`
-- **`public/`**: Generated static site files (created by `hexo generate`)
+- **`public/`**: Generated static site files (created by Hexo, then translated by `tools/translate-site.mjs`)
 - **`scaffolds/`**: Templates for new posts, pages, and drafts
 
 ### Configuration Files
@@ -72,6 +74,8 @@ hexo publish "draft-title"
 - **`_config.oyster.yml`**: Active Oyster site-level theme configuration
   - Search routes, excerpt length, Markdown outline behavior and footer start year
   - Site custom CSS and JavaScript injection
+- **`translation.config.json`**: Translation languages, fixed `风扇叔叔`/`Smallfan` identity mapping and free AI provider models
+- **`tools/translate-site.mjs`**: Cached post-build translator for prose, metadata and highlighted code comments
 
 ### Content Organization
 - Posts are created in `source/_posts/` as Markdown files
@@ -82,7 +86,7 @@ hexo publish "draft-title"
 ## Development Workflow
 
 1. **Content Creation**: Use `hexo new post` to create new blog posts
-2. **Local Development**: Run `hexo server` to preview changes locally
+2. **Local Development**: Run `npm run server` to preview the translated static build; use `npm run server:hexo` only for untranslated template watch mode
 3. **Theme Customization**: Modify `_config.oyster.yml` for site-level theme settings, or `themes/oyster/` for theme implementation
 4. **Build**: Run `hexo generate` to create production-ready static files
 5. **Deployment**: Use `hexo deploy` (requires deployment configuration)
@@ -92,7 +96,8 @@ hexo publish "draft-title"
 - **No Testing Framework**: This is a static blog project without automated tests
 - **No Linting**: No ESLint or similar code quality tools configured
 - **Theme Dependencies**: Oyster uses the already-declared `hexo-renderer-ejs`; legacy Pug/Stylus dependencies remain installed for Explorer
-- **Chinese Content**: Blog is configured for Chinese content (`language: zh`)
+- **Chinese Content Source**: Authors write only Chinese Markdown; production HTML defaults to English
+- **Free AI Translation**: Cache misses are translated by `qwen3:8b` through Ollama only on an ephemeral GitHub-hosted runner. Local builds skip translation and never install or download a model.
 - **Static Site**: Final output is pure HTML/CSS/JS that can be hosted anywhere
 
 ## Oyster Theme Design
@@ -122,6 +127,14 @@ Oyster follows the public Matrix67 visual system for the key reading values:
 - `source/search/index.md` uses `themes/oyster/layout/search.ejs` for the search results shell.
 - `themes/oyster/scripts/search-index.js` generates `public/search.json` from post titles, categories, tags and plain-text content at build time.
 - `themes/oyster/source/js/search.js` ranks local matches, renders dated Oyster-style summaries, highlights keywords and handles empty/error states without an external search service.
+
+### Automatic English Translation
+
+- `npm run build` uses npm's `postbuild` lifecycle to run `tools/translate-site.mjs` after Hexo has rendered Markdown, Highlight.js and KaTeX.
+- Semantic HTML fragments are translated with protected markup tokens. Inline code, links, formulas, identifiers and string literals remain unchanged; Highlight.js `.comment` nodes are translated separately.
+- Homepage, archive, taxonomy and search pages are English-only. Post detail and About pages contain an English copy plus the untouched Chinese rendering and load `themes/oyster/source/js/language-switch.js`.
+- English is the first-visit default. The fixed site identity is `Smallfan` in English and `风扇叔叔` in Chinese, including the About introduction.
+- Translation responses live in ignored `.cache/oyster-translations/`; GitHub Actions restores this cache plus its cloud-runner Qwen model cache. The model is never downloaded to the author's Mac or committed to Git.
 
 ### Homepage Link Behavior
 

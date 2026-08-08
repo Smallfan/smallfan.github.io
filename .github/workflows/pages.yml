@@ -7,7 +7,10 @@ on:
 
 jobs:
   build:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
+    timeout-minutes: 300
     steps:
       - uses: actions/checkout@v4
         with:
@@ -27,10 +30,43 @@ jobs:
           key: ${{ runner.OS }}-npm-cache
           restore-keys: |
             ${{ runner.OS }}-npm-cache
+      - name: Cache AI translations
+        uses: actions/cache@v4
+        with:
+          path: .cache/oyster-translations
+          key: ${{ runner.OS }}-oyster-translations-${{ hashFiles('source/**/*.md', 'tools/translate-site.mjs', 'translation.config.json') }}
+          restore-keys: |
+            ${{ runner.OS }}-oyster-translations-
+      - name: Cache Qwen model on the GitHub runner
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/oyster-ollama-models
+          key: ${{ runner.OS }}-${{ runner.arch }}-ollama-qwen3-8b-v1
       - name: Install Dependencies
         run: npm install
-      - name: Build
-        run: npm run build
+      - name: Install Ollama on the GitHub runner
+        run: curl -fsSL https://ollama.com/download/ollama-linux-amd64.tar.zst | sudo tar -x -C /usr
+      - name: Build the translated site
+        env:
+          OLLAMA_MODELS: ${{ runner.temp }}/oyster-ollama-models
+          OYSTER_TRANSLATION_PROVIDER: ollama
+          OYSTER_TRANSLATION_REQUIRED: "1"
+        run: |
+          ollama serve > "$RUNNER_TEMP/oyster-ollama.log" 2>&1 &
+          ollama_pid=$!
+          trap 'kill "$ollama_pid" 2>/dev/null || true' EXIT
+          for attempt in {1..30}; do
+            if curl -fsS http://127.0.0.1:11434/api/tags >/dev/null; then
+              break
+            fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:11434/api/tags >/dev/null || {
+            tail -100 "$RUNNER_TEMP/oyster-ollama.log"
+            exit 1
+          }
+          ollama pull qwen3:8b
+          npm run build
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:

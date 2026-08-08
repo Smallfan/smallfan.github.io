@@ -13,6 +13,8 @@ excerpt_length: 560
 
 markdown_outline: true
 
+language_switch: true
+
 footer:
   since: 2025
 

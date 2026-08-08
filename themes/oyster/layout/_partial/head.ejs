@@ -1,10 +1,10 @@
 <%
   var documentTitle = page.title;
-  if (is_archive()) documentTitle = '归档';
-  if (is_category()) documentTitle = '分类：' + page.category;
-  if (is_tag()) documentTitle = '标签：' + page.tag;
-  if (page.type === 'categories') documentTitle = '分类';
-  if (page.type === 'tags') documentTitle = '标签';
+  if (is_archive()) documentTitle = 'Archives';
+  if (is_category()) documentTitle = 'Category: ' + page.category;
+  if (is_tag()) documentTitle = 'Tag: ' + page.tag;
+  if (page.type === 'categories') documentTitle = 'Categories';
+  if (page.type === 'tags') documentTitle = 'Tags';
 %>
 <head>
   <meta charset="utf-8">
