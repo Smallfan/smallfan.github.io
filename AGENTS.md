@@ -17,7 +17,7 @@
 - `themes/oyster/_config.yml`：Oyster 主题默认值。不要为了单站点配置去改主题默认值；只有修改主题默认行为时才动这里。
 - `themes/oyster/layout/`、`themes/oyster/source/`：当前主题的 EJS 页面模板、CSS 与静态资源实现。
 - `source/css/custom.css`：为切换回历史主题保留的导航、页脚和深色模式兼容样式；Oyster 的主要样式在主题自身的 `source/css/style.css` 中。
-- `source/js/homepage-links.js`：仅首页启用，将大多数链接改为新标签页打开；站点标题、锚点及特殊协议链接例外。
+- `source/js/homepage-links.js`：仅首页启用；文章标题与 `Read more…`、站点标题、分页、锚点及特殊协议链接在当前标签页跳转，其余链接保持新标签页打开。
 - `source/about/index.md`：关于页面；页面本身不显示标题和日期，入口位于 Footer 的 `About Me` 链接。
 - `source/search/index.md`：静态搜索结果页入口。搜索索引由 `themes/oyster/scripts/search-index.js` 在构建时生成，浏览器端匹配与渲染位于 `themes/oyster/source/js/search.js`。
 - `scaffolds/`：新建 post、draft、page 时使用的 Front Matter 模板。

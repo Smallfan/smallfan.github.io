@@ -126,6 +126,7 @@ Oyster follows the public Matrix67 visual system for the key reading values:
 ### Homepage Link Behavior
 
 All links on the homepage open in new tabs, with exceptions:
+- **Post title and Read more links**: Open the article in the current tab
 - **Site title/logo**: Opens in current tab
 - **Pagination links**: Stay in the current tab for chronological navigation
 - **Anchor links** (#): Stay on current page
