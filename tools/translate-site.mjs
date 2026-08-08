@@ -65,7 +65,24 @@ const fixedTranslations = new Map([
   ['分类', 'Categories'],
   ['标签', 'Tags'],
   ['标签：', 'Tags:'],
-  ['脚注', 'Footnotes']
+  ['脚注', 'Footnotes'],
+  ['公因子', 'common factor'],
+  ['互质关系（coprime）', 'coprime'],
+  ['互质关系', 'coprime'],
+  ['IP地址', 'IP address'],
+  ['域名（Domain Name）', 'domain name'],
+  ['有格式字符串', 'formatted string'],
+  ['越靠右', 'farther to the right'],
+  ['越高', 'higher'],
+  ['根 DNS', 'Root DNS'],
+  ['根 DNS 服务器', 'Root DNS Server'],
+  ['根 DNS 服务器信息', 'Root DNS Server information'],
+  ['顶级域服务器', 'TLD server'],
+  ['权威DNS服务器', 'authoritative DNS server'],
+  ['顶级域 (Top-level Domain, 简称TLD)', 'top-level domain (TLD)'],
+  ['动态', 'ephemeral'],
+  ['可靠', 'secure'],
+  ['离散', 'decentralized']
 ]);
 const sourceTermTranslations = [
   ['ClaudeCode系列（二）：入门一篇通', 'Claude Code Series (2): A Practical Getting-Started Guide'],
@@ -94,6 +111,21 @@ const sourceTermTranslations = [
   ['根镜像', 'Root Server Mirrors'],
   ['DNS 高速缓存', 'DNS Caching'],
   ['DNS解析器', 'DNS Resolver'],
+  ['DNS缓存感染', 'DNS Cache Poisoning'],
+  ['DNS污染', 'DNS Poisoning'],
+  ['DNS劫持', 'DNS Hijacking'],
+  ['DDOS', 'DDoS'],
+  ['负债均衡', 'load balancing'],
+  ['负载均衡', 'load balancing'],
+  ['肉鸡', 'compromised hosts'],
+  ['挂马', 'malware distribution'],
+  ['任播', 'Anycast'],
+  ['离散对数', 'Discrete Logarithm'],
+  ['质因数分解', 'prime factorization'],
+  ['椭圆曲线', 'elliptic curve'],
+  ['有限域', 'finite field'],
+  ['会话密钥', 'session key'],
+  ['对称加密密钥', 'symmetric encryption key'],
   ['自我介绍', 'About Me'],
   ['联系方式', 'Contact'],
   ['初出茅驴', 'First Attempt'],
@@ -490,13 +522,16 @@ function collectVisibleTranslations($, scope) {
   scope.find('.highlight .code .line').each((lineIndex, lineElement) => {
     const line = $(lineElement);
     const language = line.closest('figure.highlight').attr('class') || 'code';
+    const readerFacingProse = /\b(?:plaintext|text|markdown|md)\b/.test(language);
     line.find('*').addBack().contents().each((nodeIndex, node) => {
       if (node.type !== 'text' || !containsChinese(node.data)) return;
       if ($(node).parents('.comment').length) return;
       const source = node.data;
       queueTranslation(source, {
-        kind: 'code_text',
-        context: `Human-language text inside ${language.replace(/\s+/g, ' ')}. Preserve code syntax, delimiters, identifiers, interpolation, and technical tokens.`,
+        kind: readerFacingProse ? 'code_prose' : 'code_text',
+        context: readerFacingProse
+          ? `Reader-facing prose inside ${language.replace(/\s+/g, ' ')}. Translate it naturally while preserving commands, URLs, and technical names.`
+          : `Human-language text inside ${language.replace(/\s+/g, ' ')}. Preserve code syntax, delimiters, identifiers, interpolation, and technical tokens.`,
         apply: translated => {
           node.data = translated;
         }
@@ -521,6 +556,28 @@ function collectAttributeTranslations($, scope) {
         apply: translated => item.attr(attribute, translated)
       });
     });
+  });
+}
+
+function normalizeEnglishInlineSpacing($, scope) {
+  const parents = scope.find(`${blockSelector},strong,em,b,i,u,a,span`).addBack(blockSelector).toArray();
+
+  parents.forEach(parent => {
+    if ($(parent).closest('pre,.highlight,.katex,.MathJax,math,[data-no-translate]').length) return;
+    const children = $(parent).contents().toArray();
+
+    for (let index = 1; index < children.length; index += 1) {
+      const left = children[index - 1];
+      const right = children[index];
+      const leftText = left.type === 'text' ? left.data : $(left).text();
+      const rightText = right.type === 'text' ? right.data : $(right).text();
+      if (!/[A-Za-z0-9)\]]$/.test(leftText || '') || !/^[A-Za-z0-9([]/.test(rightText || '')) continue;
+      if (/\s$/.test(leftText || '') || /^\s/.test(rightText || '')) continue;
+
+      if (right.type === 'text') right.data = ` ${right.data}`;
+      else if (left.type === 'text') left.data = `${left.data} `;
+      else $(right).before(' ');
+    }
   });
 }
 
@@ -1144,6 +1201,10 @@ async function main() {
     page.scopes.forEach(scope => collectAttributeTranslations(page.$, scope));
   });
   await resolvePendingTranslations();
+
+  pages.forEach(page => {
+    page.scopes.forEach(scope => normalizeEnglishInlineSpacing(page.$, scope));
+  });
 
   const pagesByPath = new Map(pages.map(page => [path.normalize(page.file), page]));
   await updateSearchIndex(pagesByPath);
