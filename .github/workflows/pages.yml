@@ -30,15 +30,17 @@ jobs:
           key: ${{ runner.OS }}-npm-cache
           restore-keys: |
             ${{ runner.OS }}-npm-cache
-      - name: Cache AI translations
-        uses: actions/cache@v6
+      - name: Restore AI translations
+        id: translation-cache
+        uses: actions/cache/restore@v6
         with:
           path: .cache/oyster-translations
           key: ${{ runner.OS }}-oyster-translations-${{ hashFiles('source/**/*.md', 'tools/translate-site.mjs', 'translation.config.json') }}
           restore-keys: |
             ${{ runner.OS }}-oyster-translations-
-      - name: Cache Qwen model on the GitHub runner
-        uses: actions/cache@v6
+      - name: Restore Qwen model on the GitHub runner
+        id: qwen-cache
+        uses: actions/cache/restore@v6
         with:
           path: ${{ runner.temp }}/oyster-ollama-models
           key: ${{ runner.OS }}-${{ runner.arch }}-ollama-qwen3-8b-v1
@@ -50,6 +52,30 @@ jobs:
           sudo apt-get install --no-install-recommends -y zstd
           curl -fsSL https://ollama.com/download/ollama-linux-amd64.tar.zst | zstd -d | sudo tar -xf - -C /usr
           ollama --version
+      - name: Download Qwen on the GitHub runner
+        env:
+          OLLAMA_MODELS: ${{ runner.temp }}/oyster-ollama-models
+        run: |
+          ollama serve > "$RUNNER_TEMP/oyster-ollama.log" 2>&1 &
+          ollama_pid=$!
+          trap 'kill "$ollama_pid" 2>/dev/null || true' EXIT
+          for attempt in {1..30}; do
+            if curl -fsS http://127.0.0.1:11434/api/tags >/dev/null; then
+              break
+            fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:11434/api/tags >/dev/null || {
+            tail -100 "$RUNNER_TEMP/oyster-ollama.log"
+            exit 1
+          }
+          ollama pull qwen3:8b
+      - name: Save Qwen model cache
+        if: always() && steps.qwen-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: ${{ runner.temp }}/oyster-ollama-models
+          key: ${{ runner.OS }}-${{ runner.arch }}-ollama-qwen3-8b-v1
       - name: Build the translated site
         env:
           OLLAMA_MODELS: ${{ runner.temp }}/oyster-ollama-models
@@ -69,8 +95,13 @@ jobs:
             tail -100 "$RUNNER_TEMP/oyster-ollama.log"
             exit 1
           }
-          ollama pull qwen3:8b
           npm run build
+      - name: Save AI translation cache
+        if: always() && steps.translation-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: .cache/oyster-translations
+          key: ${{ runner.OS }}-oyster-translations-${{ hashFiles('source/**/*.md', 'tools/translate-site.mjs', 'translation.config.json') }}
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5
         with:

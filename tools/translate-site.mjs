@@ -662,7 +662,7 @@ async function requestBatch(provider, records) {
   throw lastError;
 }
 
-function makeBatches(records, characterLimit = 24000, itemLimit = 80) {
+function makeBatches(records, characterLimit = 12000, itemLimit = 40) {
   const batches = [];
   let current = [];
   let currentSize = 0;
@@ -857,6 +857,14 @@ async function main() {
 }
 
 main().catch(error => {
-  console.error(`[translate] ${error.stack || error.message}`);
+  const detail = String(error.stack || error.message || error);
+  console.error(`[translate] ${detail}`);
+  if (process.env.GITHUB_ACTIONS === 'true') {
+    const annotation = detail
+      .replace(/%/g, '%25')
+      .replace(/\r/g, '%0D')
+      .replace(/\n/g, '%0A');
+    console.error(`::error title=Oyster translation failed::${annotation}`);
+  }
   process.exitCode = 1;
 });
