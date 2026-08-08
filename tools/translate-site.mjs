@@ -330,6 +330,10 @@ function queueTranslation(value, options) {
       : options.kind === 'code_text'
         ? protectCodeHumanText(source)
         : protectPlainText(source);
+  if (!containsChinese(protectedValue.input)) {
+    options.apply(protectedValue.restore(protectedValue.input));
+    return;
+  }
   const terminologySignature = sourceTermTranslations
     .filter(([term]) => source.includes(term))
     .map(([term, translation]) => `${term}=${translation}`)
@@ -840,7 +844,8 @@ async function requestGoogle(provider, records) {
   const translated = await requestGoogleText(provider, input, `${records.length} batched segment(s)`);
   const output = new Map();
 
-  records.forEach((record, index) => {
+  for (let index = 0; index < records.length; index += 1) {
+    const record = records[index];
     const marker = markers[index];
     const boundary = boundaries[index];
     const markerIndex = translated.indexOf(marker);
@@ -850,9 +855,12 @@ async function requestGoogle(provider, records) {
     if (end < start) throw new Error(`Google Translate removed or reordered batch boundary ${boundary}.`);
     let segment = translated.slice(start, end).split(marker).join('').trim();
     if (segment.endsWith('.')) segment = segment.slice(0, -1).trimEnd();
-    if (!segment) throw new Error(`Google Translate returned an empty batched segment for ${record.id}.`);
+    if (!segment) {
+      console.warn(`[translate] Retrying empty batched segment ${record.id} individually.`);
+      segment = (await requestGoogleText(provider, record.input, record.id)).trim();
+    }
     output.set(record.id, segment);
-  });
+  }
 
   return output;
 }
