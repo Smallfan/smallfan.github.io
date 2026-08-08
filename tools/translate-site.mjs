@@ -76,9 +76,9 @@ const sourceTermTranslations = [
   ['路由传值', 'Passing Data Between Routes'],
   ['路由管理', 'Route Management'],
   ['状态管理', 'State Management'],
+  ['存在的13 个根DNS服务器', 'The 13 Root DNS Servers'],
   ['根 DNS 服务器', 'Root DNS Servers'],
   ['根DNS服务器', 'Root DNS Servers'],
-  ['存在的13 个根DNS服务器', 'The 13 Root DNS Servers'],
   ['根镜像', 'Root Server Mirrors'],
   ['DNS 高速缓存', 'DNS Caching'],
   ['DNS解析器', 'DNS Resolver'],
@@ -837,7 +837,17 @@ async function translateTokenSafeRecord(provider, record) {
   });
 
   if (!partRecords.length) throw new Error(`Token-safe fallback has no translatable prose for ${record.id}.`);
-  const translations = await requestProvider(provider, partRecords);
+  const translations = new Map();
+  if (provider.type === 'google') {
+    for (const part of partRecords) {
+      const translated = await requestGoogleText(provider, part.input, part.id);
+      translations.set(part.id, translated.trim());
+      await delay(200);
+    }
+  } else {
+    const providerTranslations = await requestProvider(provider, partRecords);
+    providerTranslations.forEach((translated, id) => translations.set(id, translated));
+  }
 
   partRecords.forEach(part => {
     if (!translations.has(part.id)) throw new Error(`Missing token-safe translation for ${part.id}.`);
