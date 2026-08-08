@@ -1,0 +1,6 @@
+<%
+  var archiveTitle = '归档';
+  if (page.year) archiveTitle += '：' + page.year;
+  if (page.month) archiveTitle += ' / ' + page.month;
+%>
+<%- partial('_partial/archive-list', { title: archiveTitle }) %>

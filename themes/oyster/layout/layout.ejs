@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="<%= config.language || 'zh-CN' %>">
+  <%- partial('_partial/head') %>
+  <body class="<%= is_home() ? 'home blog' : (is_post() ? 'single post-page' : 'inner-page') %>">
+    <div id="page" class="hfeed site">
+      <%- partial('_partial/header') %>
+
+      <div id="content" class="site-content">
+        <main id="main" class="site-main" role="main">
+          <%- body %>
+        </main>
+      </div>
+
+      <%- partial('_partial/footer') %>
+    </div>
+
+    <% (theme.custom_js || []).forEach(function (src) { %>
+      <script src="<%- url_for(src) %>"></script>
+    <% }) %>
+  </body>
+</html>

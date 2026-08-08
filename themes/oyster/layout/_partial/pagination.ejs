@@ -1,0 +1,16 @@
+<% if (page.total > 1) { %>
+  <nav class="navigation paging-navigation" aria-label="分页导航">
+    <div class="nav-links">
+      <% if (page.next) { %>
+        <div class="nav-previous">
+          <a href="<%- url_for(page.next_link) %>">OLDER</a>
+        </div>
+      <% } %>
+      <% if (page.prev) { %>
+        <div class="nav-next">
+          <a href="<%- url_for(page.prev_link) %>">NEWER</a>
+        </div>
+      <% } %>
+    </div>
+  </nav>
+<% } %>

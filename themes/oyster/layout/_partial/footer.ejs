@@ -1,0 +1,12 @@
+<%
+  var currentYear = Number(date(new Date(), 'YYYY'));
+  var sinceYear = Number(theme.footer && theme.footer.since) || currentYear;
+  var yearText = sinceYear < currentYear ? sinceYear + ' - ' + currentYear : String(currentYear);
+%>
+<footer id="colophon" class="site-footer" role="contentinfo">
+  <div class="site-info">
+    <a href="<%- url_for('/about/') %>">About Me</a>
+    <span class="sep"> | </span>
+    &copy;&nbsp;<%= yearText %> By <%= config.author || config.title %>
+  </div>
+</footer>

@@ -1,0 +1,11 @@
+<section class="archive-view">
+  <header class="entry-header archive-header">
+    <h1 class="entry-title"><%= title %></h1>
+  </header>
+
+  <% page.posts.each(function (post) { %>
+    <%- partial('article', { post: post, index: true }) %>
+  <% }) %>
+
+  <%- partial('pagination') %>
+</section>

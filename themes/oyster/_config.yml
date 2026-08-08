@@ -1,0 +1,23 @@
+# Oyster theme defaults
+
+menu: {}
+
+search:
+  enabled: true
+  path: /search/
+  index: /search.json
+
+favicon: /img/favicon.svg
+
+excerpt_length: 560
+
+markdown_outline: true
+
+footer:
+  since: 2025
+
+custom_css:
+  - /css/custom.css
+
+custom_js:
+  - /js/homepage-links.js

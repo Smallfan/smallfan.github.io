@@ -47,6 +47,9 @@ importers:
       hexo-theme-landscape:
         specifier: ^1.0.0
         version: 1.1.0
+      marked-footnote:
+        specifier: ^1.4.0
+        version: 1.4.0(marked@15.0.12)
 
 packages:
 
@@ -688,6 +691,11 @@ packages:
   luxon@3.7.2:
     resolution: {integrity: sha512-vtEhXh/gNjI9Yg1u4jX/0YVPMvxzHuGgCm6tC5kZyb08yjGWGnqAjGJvcXbqQR2P3MyMEFnRbpcdFS6PBcLqew==}
     engines: {node: '>=12'}
+
+  marked-footnote@1.4.0:
+    resolution: {integrity: sha512-fZTxAhI1TcLEs5UOjCfYfTHpyKGaWQevbxaGTEA68B51l7i87SctPFtHETYqPkEN0ka5opvy4Dy1l/yXVC+hmg==}
+    peerDependencies:
+      marked: '>=7.0.0'
 
   marked@15.0.12:
     resolution: {integrity: sha512-8dD6FusOQSrpv9Z1rdNMdlSgQOIP880DHqnohobOmYLElGEqAL/JvxvuxZO16r4HtjTlfPRDC1hbvxC9dPN2nA==}
@@ -1853,6 +1861,10 @@ snapshots:
   lru-cache@10.4.3: {}
 
   luxon@3.7.2: {}
+
+  marked-footnote@1.4.0(marked@15.0.12):
+    dependencies:
+      marked: 15.0.12
 
   marked@15.0.12: {}
 

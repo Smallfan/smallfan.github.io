@@ -4,15 +4,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a **Hexo blog** using the **Explorer theme**. Hexo is a static site generator written in Node.js that transforms Markdown files into a complete blog website.
+This is a **Hexo blog** using the local **Oyster theme**. Hexo is a static site generator written in Node.js that transforms Markdown files into a complete blog website.
 
 ### Key Technologies
-- **Hexo 8.0.0**: Static site generator framework
-- **Explorer Theme**: Modern, feature-rich Hexo theme with card-based design
+- **Hexo 8.1.1**: Static site generator framework metadata used by this checkout
+- **Oyster Theme**: Minimal, reading-first local theme using Matrix67-inspired typography and colors with a wider responsive layout
 - **Node.js**: Runtime environment
 - **Markdown**: Content format for blog posts
-- **Stylus**: CSS preprocessor used by the theme
-- **Pug**: Template engine for HTML generation
+- **EJS**: Template engine used by Oyster
+- **CSS**: Native theme styling; the legacy Explorer theme still contains Stylus and Pug files
 
 ## Essential Commands
 
@@ -59,7 +59,8 @@ hexo publish "draft-title"
 - **`source/`**: Contains all content files
   - `source/_posts/`: Blog posts in Markdown format
   - `source/images/`: Static images and assets
-- **`themes/explorer/`**: The Explorer theme directory
+- **`themes/oyster/`**: The active Oyster theme directory
+- **`themes/explorer/`**: Retained legacy Explorer theme; it is not loaded while `_config.yml` uses `theme: oyster`
 - **`public/`**: Generated static site files (created by `hexo generate`)
 - **`scaffolds/`**: Templates for new posts, pages, and drafts
 
@@ -68,22 +69,21 @@ hexo publish "draft-title"
   - Site metadata (title, author, URL)
   - Directory paths and URL structure
   - Plugin and theme settings
-- **`_config.explorer.yml`**: Explorer theme configuration
-  - Theme appearance and behavior settings
-  - Feature toggles (dark mode, comments, analytics)
-  - UI components and layout options
+- **`_config.oyster.yml`**: Active Oyster site-level theme configuration
+  - Search routes, excerpt length, Markdown outline behavior and footer start year
+  - Site custom CSS and JavaScript injection
 
 ### Content Organization
 - Posts are created in `source/_posts/` as Markdown files
 - Each post has YAML front matter for metadata
-- Explorer theme supports rich features like TOC, code highlighting, and social sharing
-- Theme uses a card-based responsive design with customizable layouts
+- Oyster provides a single-column responsive reading layout, archive/category/tag/page templates, code highlighting styles and mobile handling
+- The active theme intentionally omits Explorer's card sidebar and dark-mode controls
 
 ## Development Workflow
 
 1. **Content Creation**: Use `hexo new post` to create new blog posts
 2. **Local Development**: Run `hexo server` to preview changes locally
-3. **Theme Customization**: Modify `_config.explorer.yml` for theme settings
+3. **Theme Customization**: Modify `_config.oyster.yml` for site-level theme settings, or `themes/oyster/` for theme implementation
 4. **Build**: Run `hexo generate` to create production-ready static files
 5. **Deployment**: Use `hexo deploy` (requires deployment configuration)
 
@@ -91,83 +91,43 @@ hexo publish "draft-title"
 
 - **No Testing Framework**: This is a static blog project without automated tests
 - **No Linting**: No ESLint or similar code quality tools configured
-- **Theme Dependencies**: Requires `hexo-renderer-pug` and `hexo-renderer-stylus` for the Explorer theme
+- **Theme Dependencies**: Oyster uses the already-declared `hexo-renderer-ejs`; legacy Pug/Stylus dependencies remain installed for Explorer
 - **Chinese Content**: Blog is configured for Chinese content (`language: zh`)
 - **Static Site**: Final output is pure HTML/CSS/JS that can be hosted anywhere
 
-## Explorer Theme Features
+## Oyster Theme Design
 
-The theme includes extensive customization options for:
-- Dark/light mode toggle
-- Multiple layout styles for post listings
-- Code highlighting with multiple themes
-- Built-in search functionality
-- Social sharing and comment systems
-- Analytics integration support
-- Image galleries and lightboxes
+Oyster follows the public Matrix67 visual system for the key reading values:
+- System font stack: `Helvetica Neue`, Arial, `Hiragino Sans GB`, `Microsoft YaHei`, sans-serif
+- Body text `#404040`, titles `#333333`, links `#0075c9`, hover state `#009bdf`, metadata `#c8c8c8`
+- Article titles at 24px; homepage titles at 28px (25px on mobile), with excerpt H1 reduced to 21px for a clear hierarchy
+- A centered fluid content width capped at 1040px, with a 90% mobile layout
+- Minimal single-column pages and a centered footer
+- H1/H2/H3 and their following body sections use progressively deeper indentation; the mobile step is reduced to preserve readable width
+- GFM-compatible Markdown with tables, task lists, description lists and footnotes
+- Server-rendered KaTeX compatibility for legacy math delimiters and a locally adapted Highlight.js StackOverflow Light palette for common programming languages; code blocks use 12px text, fixed-width line-number gutters and horizontal scrolling for long lines
 
 ## Custom Features
 
-### Music Player
+### Navigation
 
-A custom music player has been implemented for the homepage with the following features:
+- The site title remains the homepage entry point.
+- The former **分类** and **关于** header links are hidden; archive, category and tag pages are still generated for taxonomy links.
+- The top-right header control is an expanding search field inspired by Matrix67.
+- The About page source is `source/about/index.md`; its visible entry is the Footer's `About Me` link.
+- The former homepage music player, playlist and injected script have been removed.
 
-#### Location and Display
-- **Only shows on homepage** (`/` or `/index.html`)
-- **Draggable** floating player positioned at bottom-right by default
-- **Toggle minimize/expand** mode with a button
-- **Responsive design** adapts to PC, tablet, and mobile devices
+### Static Search
 
-#### Player Controls
-- **Playback controls**: Play, Pause, Previous, Next, Replay
-- **Progress bar**: Click to seek, shows current time and duration
-- **Volume control**: Adjustable volume slider
-- **Playlist loop**: Auto-plays next track when current ends
-
-#### UI Modes
-- **Minimized mode** (default): Shows only play/pause button and song name
-- **Expanded mode**: Shows all controls, progress bar, and volume slider
-
-#### Cross-Tab Playback Control
-- **Prevents multiple playback**: Only one tab plays music at a time
-- **First tab priority**: Earliest tab continues playing; new tabs don't auto-play
-- **Auto-pause**: When one tab starts playing, others automatically pause
-- Uses `localStorage` for cross-tab communication
-
-#### Audio Source Support
-- **Remote URLs**: Supports CDN-hosted audio files (recommended)
-- **Local files**: Supports files in `source/music/` directory
-- **Mixed mode**: Can use both remote and local files in same playlist
-
-#### Configuration
-- **Playlist file**: `source/music/playlist.json`
-- **Format**:
-  ```json
-  {
-    "files": [
-      "https://cdn.example.com/song1.mp3",
-      "local-song.mp3"
-    ]
-  }
-  ```
-- Plays in the order defined in JSON (no sorting)
-
-#### Implementation Files
-- **`source/css/custom.css`**: Player styles with mobile responsive design
-- **`source/js/music-player.js`**: Player logic, autoplay, and cross-tab control
-- **`source/music/playlist.json`**: Music playlist configuration
-- **`_config.explorer.yml`**: Inject scripts via bottom injection
-
-#### Autoplay Behavior
-- Attempts immediate autoplay (works if user previously interacted with domain)
-- Listens for user interactions (click, scroll, mousemove, keydown, touchstart)
-- Starts playback on first interaction if autoplay was blocked
-- Respects browser autoplay policies
+- `source/search/index.md` uses `themes/oyster/layout/search.ejs` for the search results shell.
+- `themes/oyster/scripts/search-index.js` generates `public/search.json` from post titles, categories, tags and plain-text content at build time.
+- `themes/oyster/source/js/search.js` ranks local matches, renders dated Oyster-style summaries, highlights keywords and handles empty/error states without an external search service.
 
 ### Homepage Link Behavior
 
 All links on the homepage open in new tabs, with exceptions:
-- **Site title/logo**: Opens in current tab (preserves music playback)
+- **Site title/logo**: Opens in current tab
+- **Pagination links**: Stay in the current tab for chronological navigation
 - **Anchor links** (#): Stay on current page
 - **Special links**: `mailto:`, `tel:`, `javascript:` behave normally
 
@@ -182,12 +142,11 @@ The footer has custom styling applied via `source/css/custom.css`:
 - Black link color
 
 ### Injection Configuration
-Custom scripts and styles are injected via `_config.explorer.yml`:
+Custom scripts and styles are loaded through `_config.oyster.yml`:
 ```yaml
-inject:
-  head:
-    - <link rel="stylesheet" href="/css/custom.css">
-  bottom:
-    - <script src="/js/music-player.js"></script>
-    - <script src="/js/homepage-links.js"></script>
+custom_css:
+  - /css/custom.css
+
+custom_js:
+  - /js/homepage-links.js
 ```

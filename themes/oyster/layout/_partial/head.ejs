@@ -1,0 +1,26 @@
+<%
+  var documentTitle = page.title;
+  if (is_archive()) documentTitle = '归档';
+  if (is_category()) documentTitle = '分类：' + page.category;
+  if (is_tag()) documentTitle = '标签：' + page.tag;
+  if (page.type === 'categories') documentTitle = '分类';
+  if (page.type === 'tags') documentTitle = '标签';
+%>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="author" content="<%= config.author || '' %>">
+  <title><% if (documentTitle) { %><%= documentTitle %> | <% } %><%= config.title %></title>
+  <%- open_graph({ type: is_post() ? 'article' : 'website' }) %>
+  <% if (theme.favicon) { %>
+    <link rel="icon" href="<%- url_for(theme.favicon) %>" type="image/svg+xml">
+  <% } %>
+  <%- css('css/style') %>
+  <% if (theme.markdown_outline !== false) { %>
+    <script src="<%- url_for('/js/markdown-outline.js') %>" defer></script>
+  <% } %>
+  <% (theme.custom_css || []).forEach(function (href) { %>
+    <link rel="stylesheet" href="<%- url_for(href) %>">
+  <% }) %>
+</head>

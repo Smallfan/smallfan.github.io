@@ -46,6 +46,9 @@ console.log('[Homepage Links] Script file loaded!');
     if (link.classList.contains('site-name')) return false;
     if (link.closest('.nav-site-title')) return false;
 
+    // Pagination should move backward/forward in the current tab.
+    if (link.closest('.paging-navigation')) return false;
+
     // Check if already processed
     if (link.getAttribute('data-new-tab-processed')) return false;
 
@@ -152,7 +155,7 @@ console.log('[Homepage Links] Script file loaded!');
     if (link) {
       const href = link.getAttribute('href');
       // Only process if it's a valid link and not already processed
-      if (href && !href.startsWith('#') && !href.startsWith('mailto:') && !href.startsWith('tel:') && !href.startsWith('javascript:')) {
+      if (href && !href.startsWith('#') && !href.startsWith('mailto:') && !href.startsWith('tel:') && !href.startsWith('javascript:') && !link.closest('.paging-navigation')) {
         if (!link.getAttribute('target')) {
           link.setAttribute('target', '_blank');
           link.setAttribute('rel', 'noopener noreferrer');

@@ -1,0 +1,31 @@
+<header id="masthead" class="site-header" role="banner">
+  <div class="site-branding">
+    <h1 class="site-title">
+      <a href="<%- url_for('/') %>" rel="home"><%= config.title %></a>
+    </h1>
+    <% if (config.subtitle) { %>
+      <p class="site-description"><%= config.subtitle %></p>
+    <% } %>
+  </div>
+
+  <% if (theme.menu && Object.keys(theme.menu).length) { %>
+    <nav class="site-navigation" aria-label="主导航">
+      <% Object.keys(theme.menu).forEach(function (label) { %>
+        <a href="<%- url_for(theme.menu[label]) %>"><%= label %></a>
+      <% }) %>
+    </nav>
+  <% } %>
+
+  <% if (theme.search && theme.search.enabled !== false) { %>
+    <form class="site-search" role="search" method="get" action="<%- url_for(theme.search.path || '/search/') %>">
+      <label class="screen-reader-text" for="site-search-field">搜索文章</label>
+      <input id="site-search-field" class="search-field" type="search" name="q" placeholder="搜索…" autocomplete="off" required>
+      <button class="search-submit" type="submit" aria-label="搜索">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <circle cx="11" cy="11" r="6.5"></circle>
+          <path d="m16 16 4 4"></path>
+        </svg>
+      </button>
+    </form>
+  <% } %>
+</header>

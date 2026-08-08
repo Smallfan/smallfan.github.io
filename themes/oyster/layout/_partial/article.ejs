@@ -1,0 +1,82 @@
+<%
+  var categories = post.categories && post.categories.toArray ? post.categories.toArray() : [];
+  var tags = post.tags && post.tags.toArray ? post.tags.toArray() : [];
+  var showDate = Boolean(post.date && post.show_date !== false);
+  var showTitle = Boolean(post.title && post.show_title !== false);
+  var hasExcerpt = Boolean(post.excerpt && post.excerpt.trim());
+  var fallbackText = '';
+
+  if (index && !hasExcerpt) {
+    fallbackText = strip_html(post.content || '').replace(/\s+/g, ' ').trim();
+    if (fallbackText.length > theme.excerpt_length) {
+      fallbackText = fallbackText.slice(0, theme.excerpt_length).trim() + '…';
+    }
+  }
+%>
+<article id="<%= post.layout || 'post' %>-<%= post.slug || post._id %>" class="hentry <%= index ? 'post-summary' : 'post-detail' %>" itemscope itemtype="https://schema.org/BlogPosting">
+  <header class="entry-header">
+    <% if (showTitle) { %>
+      <h1 class="entry-title" itemprop="headline">
+        <% if (index) { %>
+          <a href="<%- url_for(post.path) %>" rel="bookmark"><%= post.title %></a>
+        <% } else { %>
+          <%= post.title %>
+        <% } %>
+      </h1>
+    <% } %>
+
+    <% if (index && showDate) { %>
+      <div class="entry-meta">
+        <span class="posted-on">
+          <time datetime="<%= date_xml(post.date) %>" itemprop="datePublished"><%= date(post.date, 'YYYY 年 M 月 D 日') %></time>
+        </span>
+      </div>
+    <% } %>
+  </header>
+
+  <div class="entry-content" itemprop="articleBody">
+    <% if (index) { %>
+      <% if (hasExcerpt) { %>
+        <%- post.excerpt %>
+      <% } else { %>
+        <p><%= fallbackText %></p>
+      <% } %>
+      <p class="article-more-link"><a class="more-link" href="<%- url_for(post.path) %><%= hasExcerpt ? '#more' : '' %>">Read more…</a></p>
+    <% } else { %>
+      <%- post.content %>
+    <% } %>
+  </div>
+
+  <% if (!index && (showDate || categories.length || tags.length)) { %>
+    <footer class="entry-footer">
+      <% if (tags.length) { %>
+        <div class="tag-links">
+          <span class="tag-label">标签：</span>
+          <% tags.forEach(function (tag, tagIndex) { %>
+            <% if (tagIndex) { %><span class="tag-separator"> · </span><% } %>
+            <a href="<%- url_for(tag.path) %>"><%= tag.name %></a>
+          <% }) %>
+        </div>
+      <% } %>
+
+      <% if (showDate || categories.length) { %>
+        <div class="entry-meta">
+          <% if (showDate) { %>
+            <span class="posted-on">
+              <time datetime="<%= date_xml(post.date) %>" itemprop="datePublished"><%= date(post.date, 'YYYY 年 M 月 D 日') %></time>
+            </span>
+          <% } %>
+          <% if (showDate && categories.length) { %><span class="meta-separator"> / </span><% } %>
+          <% if (categories.length) { %>
+            <span class="category-links">
+              <% categories.forEach(function (category, categoryIndex) { %>
+                <% if (categoryIndex) { %><span class="category-separator"> · </span><% } %>
+                <a href="<%- url_for(category.path) %>"><%= category.name %></a>
+              <% }) %>
+            </span>
+          <% } %>
+        </div>
+      <% } %>
+    </footer>
+  <% } %>
+</article>
