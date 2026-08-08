@@ -588,8 +588,8 @@ async function requestOllama(provider, records) {
     keep_alive: '30m',
     options: {
       temperature: 0,
-      num_ctx: 32768,
-      num_predict: 16000
+      num_ctx: 8192,
+      num_predict: 4096
     },
     messages: [
       { role: 'system', content: translationSystemPrompt() },
@@ -662,7 +662,7 @@ async function requestBatch(provider, records) {
   throw lastError;
 }
 
-function makeBatches(records, characterLimit = 12000, itemLimit = 40) {
+function makeBatches(records, characterLimit = 4500, itemLimit = 20) {
   const batches = [];
   let current = [];
   let currentSize = 0;
