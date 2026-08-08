@@ -15,7 +15,7 @@ const cacheDirectory = path.resolve(
   process.env.OYSTER_TRANSLATION_CACHE_DIR || path.join('.cache', 'oyster-translations')
 );
 const cachePath = path.join(cacheDirectory, 'en.json');
-const promptVersion = 'oyster-technical-translation-2026-08-09-v5';
+const promptVersion = 'oyster-technical-translation-2026-08-09-v6';
 const cjkPattern = /[\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]/;
 const blockSelector = [
   'h1',
@@ -55,6 +55,65 @@ const fixedTranslations = new Map([
   ['标签：', 'Tags:'],
   ['脚注', 'Footnotes']
 ]);
+const sourceTermTranslations = [
+  ['ClaudeCode系列（二）：入门一篇通', 'Claude Code Series (2): A Practical Getting-Started Guide'],
+  ['ClaudeCode系列（一）：付费方案对比', 'Claude Code Series (1): Comparing Paid Plans'],
+  ['如果根DNS服务器被炸了，万维网是不是将马上瘫痪？', 'If the Root DNS Servers Were Destroyed, Would the Web Immediately Collapse?'],
+  ['基于 LocalWebServer 实现 WKWebView 离线资源加载', 'Loading Offline Resources in WKWebView with a Local Web Server'],
+  ['关于 WKWebView 适配', 'Adapting to WKWebView'],
+  ['深入探究ECDHE算法', 'A Deep Dive into the ECDHE Algorithm'],
+  ['初探Flutter（三） 路由管理', 'A First Look at Flutter (3): Route Management'],
+  ['初探Flutter（二） 状态管理', 'A First Look at Flutter (2): State Management'],
+  ['初探Flutter（一） Widget', 'A First Look at Flutter (1): Widgets'],
+  ['模反元素', 'Modular Multiplicative Inverse'],
+  ['欧拉函数', "Euler's Totient Function"],
+  ['互质关系', 'Coprimality'],
+  ['前向安全性', 'Forward Secrecy'],
+  ['四次握手', 'Four-Message Handshake'],
+  ['密钥协商', 'Key Agreement'],
+  ['非命名路由传值', 'Passing Data with Anonymous Routes'],
+  ['命名路由传值', 'Passing Data with Named Routes'],
+  ['路由传值', 'Passing Data Between Routes'],
+  ['路由管理', 'Route Management'],
+  ['状态管理', 'State Management'],
+  ['根 DNS 服务器', 'Root DNS Servers'],
+  ['根DNS服务器', 'Root DNS Servers'],
+  ['根镜像', 'Root Server Mirrors'],
+  ['DNS 高速缓存', 'DNS Caching'],
+  ['DNS解析器', 'DNS Resolver'],
+  ['自我介绍', 'About Me'],
+  ['联系方式', 'Contact'],
+  ['初出茅驴', 'First Attempt'],
+  ['CS基础', 'Computer Science Fundamentals'],
+  ['网络相关', 'Networking'],
+  ['移动端技术', 'Mobile Development'],
+  ['跨平台技术', 'Cross-Platform Development'],
+  ['网络基础', 'Networking Fundamentals'],
+  ['网络安全', 'Network Security'],
+  ['密码学', 'Cryptography'],
+  ['Flutter基础', 'Flutter Fundamentals'],
+  ['扩展知识一：', 'Supplement 1: '],
+  ['扩展知识二：', 'Supplement 2: '],
+  ['方案一：', 'Option 1: '],
+  ['方案二：', 'Option 2: '],
+  ['方案三：', 'Option 3: '],
+  ['方案四：', 'Option 4: '],
+  ['方式一：', 'Method 1: '],
+  ['方式二：', 'Method 2: '],
+  ['功能一：', 'Feature 1: '],
+  ['功能二：', 'Feature 2: '],
+  ['一、', '1. '],
+  ['二、', '2. '],
+  ['三、', '3. '],
+  ['四、', '4. '],
+  ['五、', '5. '],
+  ['六、', '6. '],
+  ['七、', '7. '],
+  ['八、', '8. '],
+  ['九、', '9. '],
+  ['十、', '10. '],
+  ['关于', 'About']
+];
 
 const config = JSON.parse(await fs.readFile(configPath, 'utf8'));
 const ollamaEndpoint = process.env.OYSTER_OLLAMA_ENDPOINT || config.ollamaEndpoint;
@@ -81,6 +140,28 @@ function containsChinese(value) {
 
 function normalizeWhitespace(value) {
   return String(value || '').replace(/\s+/g, ' ').trim();
+}
+
+function normalizeSourceTerms(value) {
+  let result = String(value).split(sourceSiteTitle).join(targetSiteTitle);
+  sourceTermTranslations.forEach(([source, target]) => {
+    result = result.split(source).join(target);
+  });
+  return result;
+}
+
+const englishDateFormatter = new Intl.DateTimeFormat('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+  timeZone: 'UTC'
+});
+
+function formatEnglishCalendarDate(value) {
+  const match = String(value || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!match) return '';
+  const date = new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3])));
+  return englishDateFormatter.format(date);
 }
 
 function makeToken(index) {
@@ -124,14 +205,19 @@ function protectTechnicalText(value, protect) {
 
 function protectHtmlFragment(fragment) {
   const protector = createProtector();
-  const normalizedFragment = String(fragment).split(sourceSiteTitle).join(targetSiteTitle);
   const fragmentDocument = cheerio.load(
-    `<oyster-fragment>${normalizedFragment}</oyster-fragment>`,
+    `<oyster-fragment>${String(fragment)}</oyster-fragment>`,
     { decodeEntities: false },
     false
   );
   const root = fragmentDocument('oyster-fragment');
   const protectedElements = 'code,kbd,pre,math,.katex,svg,img,video,audio,iframe';
+
+  root.find('*').addBack().contents().each((index, node) => {
+    if (node.type !== 'text') return;
+    if (fragmentDocument(node).parents(protectedElements).length) return;
+    node.data = normalizeSourceTerms(node.data);
+  });
 
   const topLevelProtectedElements = root.find(protectedElements).toArray().filter(element => {
     return fragmentDocument(element).parents(protectedElements).length === 0;
@@ -163,7 +249,7 @@ function protectHtmlFragment(fragment) {
 
 function protectPlainText(value) {
   const protector = createProtector();
-  const normalizedValue = String(value).split(sourceSiteTitle).join(targetSiteTitle);
+  const normalizedValue = normalizeSourceTerms(value);
   return {
     input: protectTechnicalText(normalizedValue, protector.protect),
     restore: translated => protector.restore(translated)
@@ -172,7 +258,7 @@ function protectPlainText(value) {
 
 function protectCodeComment(value) {
   const protector = createProtector();
-  let normalizedValue = String(value).split(sourceSiteTitle).join(targetSiteTitle);
+  let normalizedValue = normalizeSourceTerms(value);
   const prefix = normalizedValue.match(/^\s*(?:\/\/+|\/\*+|\*+|#+|<!--)\s*/)?.[0];
 
   if (prefix) normalizedValue = protector.protect(prefix) + normalizedValue.slice(prefix.length);
@@ -386,17 +472,10 @@ function duplicateForLanguages($, selector) {
 }
 
 function formatEnglishDates($, scope) {
-  const formatter = new Intl.DateTimeFormat('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    timeZone: 'Asia/Shanghai'
-  });
-
   scope.find('time[datetime]').addBack('time[datetime]').each((index, element) => {
     const item = $(element);
-    const value = new Date(item.attr('datetime'));
-    if (!Number.isNaN(value.getTime())) item.text(formatter.format(value));
+    const formatted = formatEnglishCalendarDate(item.attr('datetime'));
+    if (formatted) item.text(formatted);
   });
 }
 
@@ -669,23 +748,27 @@ async function requestGoogleText(provider, input, description) {
 
 async function requestGoogle(provider, records) {
   const markers = records.map((record, index) => `⟦9${String(index).padStart(5, '0')}⟧`);
-  const input = records.map((record, index) => `${markers[index]}${record.input}`).join('\n');
+  const boundaries = records.map((record, index) => `⟦8${String(index).padStart(5, '0')}⟧`);
+  const input = records.map((record, index) => {
+    return `${markers[index]}${record.input}\n.\n${boundaries[index]}`;
+  }).join('\n');
   const translated = await requestGoogleText(provider, input, `${records.length} batched segment(s)`);
   const output = new Map();
 
-  markers.forEach((marker, index) => {
-    const occurrences = translated.split(marker).length - 1;
-    if (occurrences !== 1) {
-      throw new Error(`Google Translate changed batch marker ${marker} (found ${occurrences}, expected 1).`);
-    }
+  [...markers, ...boundaries].forEach(marker => {
+    const count = translated.split(marker).length - 1;
+    if (count !== 1) throw new Error(`Google Translate changed batch marker ${marker} (found ${count}, expected 1).`);
   });
 
   records.forEach((record, index) => {
     const start = translated.indexOf(markers[index]) + markers[index].length;
-    const nextMarker = markers[index + 1];
-    const end = nextMarker ? translated.indexOf(nextMarker, start) : translated.length;
+    const end = translated.indexOf(boundaries[index], start);
     if (end < start) throw new Error(`Google Translate reordered batch marker ${markers[index]}.`);
-    output.set(record.id, translated.slice(start, end).trim());
+    const segment = translated.slice(start, end).trim();
+    if (!segment.endsWith('.')) {
+      throw new Error(`Google Translate changed boundary punctuation for ${record.id}.`);
+    }
+    output.set(record.id, segment.slice(0, -1).trimEnd());
   });
 
   return output;
@@ -842,13 +925,6 @@ async function updateSearchIndex(pagesByPath) {
     throw error;
   }
 
-  const formatter = new Intl.DateTimeFormat('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    timeZone: 'Asia/Shanghai'
-  });
-
   (payload.posts || []).forEach(item => {
     const page = pagesByPath.get(path.normalize(publicPathForUrl(item.url)));
     if (!page) return;
@@ -872,8 +948,8 @@ async function updateSearchIndex(pagesByPath) {
       item.excerpt = content.slice(0, 280).trim();
     }
     item.taxonomy = taxonomy;
-    const date = new Date(item.date);
-    if (!Number.isNaN(date.getTime())) item.dateText = formatter.format(date);
+    const formattedDate = formatEnglishCalendarDate(item.date);
+    if (formattedDate) item.dateText = formattedDate;
   });
 
   await fs.writeFile(searchPath, JSON.stringify(payload));
