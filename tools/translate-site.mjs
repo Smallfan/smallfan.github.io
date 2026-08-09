@@ -652,24 +652,29 @@ function collectAttributeTranslations($, scope) {
   });
 }
 
-function normalizeEnglishText(value) {
+function normalizeFullWidthPunctuation(value) {
   return String(value)
-    .replace(/Modular Multiplicative Inversed/g, 'modular multiplicative inverse')
-    .replace(/(Euler['’]s Totient Function)(?=φ)/g, '$1 ')
-    .replace(/\bDDOS\b/g, 'DDoS')
-    .replace(/\bis re-build\b/gi, 'is rebuilt')
-    .replace(/\bto re[ -]build\b/gi, 'to rebuild')
+    .replace(/(?<=[A-Za-z0-9])（/g, ' (')
+    .replace(/（/g, '(')
+    .replace(/）/g, ')')
     .replace(/，/g, ',')
     .replace(/。/g, '.')
     .replace(/；/g, ';')
     .replace(/：/g, ':')
     .replace(/？/g, '?')
     .replace(/！/g, '!')
-    .replace(/（/g, '(')
-    .replace(/）/g, ')')
     .replace(/【/g, '[')
     .replace(/】/g, ']')
-    .replace(/、\s*/g, ', ')
+    .replace(/、\s*/g, ', ');
+}
+
+function normalizeEnglishText(value) {
+  return normalizeFullWidthPunctuation(value)
+    .replace(/Modular Multiplicative Inversed/g, 'modular multiplicative inverse')
+    .replace(/(Euler['’]s Totient Function)(?=φ)/g, '$1 ')
+    .replace(/\bDDOS\b/g, 'DDoS')
+    .replace(/\bis re-build\b/gi, 'is rebuilt')
+    .replace(/\bto re[ -]build\b/gi, 'to rebuild')
     .replace(/[ \t]+([,.;:!?])/g, '$1')
     .replace(/([,;:!?])(?=[A-Za-z0-9])/g, '$1 ');
 }
@@ -738,6 +743,12 @@ function capitalizeEnglishBlockStart($, element) {
 function normalizeEnglishInlineSpacing($, scope) {
   scope.find('*').addBack().contents().each((index, node) => {
     if (node.type !== 'text') return;
+    if ($(node).parents('code,kbd,samp,var').length) {
+      if (!$(node).parents('pre,.highlight').length) {
+        node.data = normalizeFullWidthPunctuation(node.data);
+      }
+      return;
+    }
     if ($(node).parents(englishTypographyExcludedSelector).length) return;
     node.data = normalizeEnglishText(node.data);
   });
@@ -1361,7 +1372,14 @@ function validateTranslatedPages(pages) {
       throw new Error(`English page still contains visible Chinese prose: ${relativePath} (${context})`);
     }
     if (/[，。；：？！（）【】]/.test(visibleEnglishText)) {
-      throw new Error(`English page still contains full-width Chinese punctuation: ${relativePath}`);
+      const punctuationIndex = visibleEnglishText.search(/[，。；：？！（）【】]/);
+      const context = normalizeWhitespace(visibleEnglishText.slice(
+        Math.max(0, punctuationIndex - 80),
+        punctuationIndex + 160
+      ));
+      throw new Error(
+        `English page still contains full-width Chinese punctuation: ${relativePath} (${context})`
+      );
     }
 
     const lowercaseStarts = [];
@@ -1462,6 +1480,7 @@ function runTypographySelfTest() {
       <p id="brand">iOS remains lowercase.</p>
       <p id="variable">p is an integer greater than 1.</p>
       <p id="code"><code>builder</code> is a callback.</p>
+      <p id="inline-punctuation"><code>IP（Internet Protocol）</code></p>
       <p id="markup"><code>StatelessWidget</code> Same,<code>StatefulWidget</code> Also</p>
       <table><tbody><tr><td id="duration">4.13 s</td></tr></tbody></table>
     </main>
@@ -1475,6 +1494,7 @@ function runTypographySelfTest() {
   assert.equal($('#brand').text(), 'iOS remains lowercase.');
   assert.equal($('#variable').text(), 'p is an integer greater than 1.');
   assert.equal($('#code').text(), 'builder is a callback.');
+  assert.equal($('#inline-punctuation').text(), 'IP (Internet Protocol)');
   assert.equal($('#markup').text(), 'StatelessWidget Same, StatefulWidget Also');
   assert.equal($('#duration').text(), '4.13 s');
   console.log('[translate] English typography self-test passed.');
