@@ -462,6 +462,16 @@ function protectCodeHumanText(value) {
   };
 }
 
+function findFixedTranslation(value, allowTrimmedMatch = false) {
+  const source = String(value ?? '');
+  if (fixedTranslations.has(source)) return fixedTranslations.get(source);
+  if (allowTrimmedMatch) {
+    const trimmed = source.trim();
+    if (fixedTranslations.has(trimmed)) return fixedTranslations.get(trimmed);
+  }
+  return undefined;
+}
+
 function validateCodeComment(source, translated) {
   const prefix = String(source).match(/^\s*(?:\/\/+|\/\*+|\*+|#+|<!--)/)?.[0];
   const suffix = String(source).match(/(?:\*\/|-->)\s*$/)?.[0];
@@ -476,7 +486,7 @@ function validateCodeComment(source, translated) {
 
 function queueTranslation(value, options) {
   const source = String(value ?? '');
-  const fixed = fixedTranslations.get(source);
+  const fixed = findFixedTranslation(source, options.kind === 'html_fragment');
 
   if (!containsChinese(source)) {
     options.apply(source);
@@ -590,6 +600,7 @@ function collectInlineTextTranslations($, scope) {
     let block = parent;
     while (block && block !== scopeNode && !selected.has(block)) block = block.parent;
     if (!block || block === scopeNode || block === parent) return;
+    if (findFixedTranslation($(block).html() || '', true) !== undefined) return;
 
     const parentName = parent.name || 'inline element';
     queueTranslation(node.data, {
@@ -731,7 +742,8 @@ function normalizeEnglishText(value) {
     .replace(/\balternative root server operating mechanism mechanisms\b/gi,
       'alternative root server operator mechanisms')
     .replace(/\bAPP\b/g, 'app')
-    .replace(/[ \t]+([,.;:!?])/g, '$1')
+    .replace(/[ \t]+([,;:!?])/g, '$1')
+    .replace(/[ \t]+\.(?=\s|$)/g, '.')
     .replace(/([,;:!?])(?=[A-Za-z0-9])/g, '$1 ');
 }
 
@@ -1545,6 +1557,19 @@ function runTypographySelfTest() {
     }
   });
   assert.match(reviewedTranslation, /^Like <code>StatelessWidget<\/code>/);
+
+  queueTranslation(
+    '\n<p><code>Future push(BuildContext context, Route route)</code><br>' +
+      '将给定的路由入栈（即打开新的页面），返回值是一个<code>Future</code>对象，' +
+      '用以接收新路由出栈（即关闭）时的返回数据。</p>\n',
+    {
+      kind: 'html_fragment',
+      apply: translated => {
+        reviewedTranslation = translated;
+      }
+    }
+  );
+  assert.match(reviewedTranslation, /^<p><code>Future push/);
   assert.equal(pendingRecords.size, 0);
 
   const $ = cheerio.load(`
@@ -1557,6 +1582,7 @@ function runTypographySelfTest() {
       <p id="variable">p is an integer greater than 1.</p>
       <p id="code"><code>builder</code> is a callback.</p>
       <p id="inline-punctuation"><code>IP（Internet Protocol）</code></p>
+      <p id="domain-suffix">Access the .cn domain.</p>
       <figure class="highlight javascript"><span class="string" id="code-string">'Perfect！'</span></figure>
       <p id="markup"><code>StatelessWidget</code> Same,<code>StatefulWidget</code> Also</p>
       <table><tbody><tr><td id="duration">4.13 s</td></tr></tbody></table>
@@ -1572,6 +1598,7 @@ function runTypographySelfTest() {
   assert.equal($('#variable').text(), 'p is an integer greater than 1.');
   assert.equal($('#code').text(), 'builder is a callback.');
   assert.equal($('#inline-punctuation').text(), 'IP (Internet Protocol)');
+  assert.equal($('#domain-suffix').text(), 'Access the .cn domain.');
   assert.equal($('#code-string').text(), "'Perfect!'");
   assert.equal($('#markup').text(), 'StatelessWidget Same, StatefulWidget Also');
   assert.equal($('#duration').text(), '4.13 s');
