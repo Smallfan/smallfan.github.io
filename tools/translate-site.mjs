@@ -63,6 +63,8 @@ const fixedTranslations = new Map([
   ['风扇叔叔', 'Smallfan'],
   ['我是风扇叔叔，一名移动端/服务端架构师，略懂点音乐（编曲 & 古典器乐）。',
     'I am Smallfan, a mobile and server-side architect with an interest in music, including arranging and classical instruments.'],
+  ['我是风扇叔叔，一名移动端/服务端架构师，略懂点音乐（编曲 &amp; 古典器乐）。',
+    'I am Smallfan, a mobile and server-side architect with an interest in music, including arranging and classical instruments.'],
   ['现居中国广州。', 'Currently lives in Guangzhou, China.'],
   ['持续关注架构演进 、性能调优、Vibe Coding。',
     'Continually exploring architecture evolution, performance optimization, and Vibe Coding.'],
@@ -753,6 +755,11 @@ function normalizeEnglishInlineSpacing($, scope) {
     node.data = normalizeEnglishText(node.data);
   });
 
+  scope.find('.highlight .comment, .highlight .string').contents().each((index, node) => {
+    if (node.type !== 'text') return;
+    node.data = normalizeFullWidthPunctuation(node.data);
+  });
+
   const parents = scope.find(`${blockSelector},strong,em,b,i,u,a,span`).addBack(blockSelector).toArray();
 
   parents.forEach(parent => {
@@ -1407,6 +1414,10 @@ function validateTranslatedPages(pages) {
     if (containsChinese(englishCode.text())) {
       throw new Error(`English code blocks still contain Chinese prose: ${relativePath}`);
     }
+    const englishHumanCode = englishCode.find('.comment, .string').text();
+    if (/[，。；：？！（）【】]/.test(englishHumanCode)) {
+      throw new Error(`English code comments or strings still contain full-width punctuation: ${relativePath}`);
+    }
   });
 }
 
@@ -1458,6 +1469,17 @@ function runTypographySelfTest() {
   });
   assert.equal(reviewedTranslation, 'Currently lives in Guangzhou, China.');
 
+  queueTranslation(
+    '我是风扇叔叔，一名移动端/服务端架构师，略懂点音乐（编曲 &amp; 古典器乐）。',
+    {
+      kind: 'html_fragment',
+      apply: translated => {
+        reviewedTranslation = translated;
+      }
+    }
+  );
+  assert.match(reviewedTranslation, /^I am Smallfan, a mobile and server-side architect/);
+
   const reviewedHtml = '和<code>StatelessWidget</code>一样，<code>StatefulWidget</code>也是继承自' +
     '<code>widget</code>类，并重写了<code>createElement()</code>方法，不同的是返回的' +
     '<code>Element</code> 对象并不相同；另外<code>StatefulWidget</code>类中添加了一个新的接口' +
@@ -1481,6 +1503,7 @@ function runTypographySelfTest() {
       <p id="variable">p is an integer greater than 1.</p>
       <p id="code"><code>builder</code> is a callback.</p>
       <p id="inline-punctuation"><code>IP（Internet Protocol）</code></p>
+      <figure class="highlight javascript"><span class="string" id="code-string">'Perfect！'</span></figure>
       <p id="markup"><code>StatelessWidget</code> Same,<code>StatefulWidget</code> Also</p>
       <table><tbody><tr><td id="duration">4.13 s</td></tr></tbody></table>
     </main>
@@ -1495,6 +1518,7 @@ function runTypographySelfTest() {
   assert.equal($('#variable').text(), 'p is an integer greater than 1.');
   assert.equal($('#code').text(), 'builder is a callback.');
   assert.equal($('#inline-punctuation').text(), 'IP (Internet Protocol)');
+  assert.equal($('#code-string').text(), "'Perfect!'");
   assert.equal($('#markup').text(), 'StatelessWidget Same, StatefulWidget Also');
   assert.equal($('#duration').text(), '4.13 s');
   console.log('[translate] English typography self-test passed.');
