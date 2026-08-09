@@ -661,8 +661,8 @@ pre code {
 }
 
 .highlight .gutter {
-  width: auto;
-  min-width: 3.75em;
+  width: 1%;
+  min-width: 0;
   border-right: 1px solid var(--oyster-code-border);
   background: var(--oyster-code-gutter-bg);
   color: var(--oyster-code-gutter-text);
@@ -671,7 +671,7 @@ pre code {
 }
 
 .highlight .gutter pre {
-  padding: 1.5em 0.85em;
+  padding: 1.5em 0.55em;
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
