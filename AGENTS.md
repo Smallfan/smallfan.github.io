@@ -18,7 +18,7 @@
 - `themes/oyster/_config.yml`：Oyster 主题默认值。不要为了单站点配置去改主题默认值；只有修改主题默认行为时才动这里。
 - `themes/oyster/layout/`、`themes/oyster/source/`：当前主题的 EJS 页面模板、CSS 与静态资源实现。
 - `translation.config.json`：AI 翻译语言、站点中英文名称及 CI 中使用的 Google 神经翻译配置。英文站名固定为 `Smallfan`，中文站名固定为 `风扇叔叔`。
-- `tools/translate-site.mjs`：生产构建后的语义块翻译器。它把完整行内 HTML 元素作为不可拆分单元来保护，保留链接、公式与代码结构，并翻译正文、中文行内代码、Highlight.js 代码注释、面向读者的字符串及 plaintext 示例；缓存位于 `.cache/oyster-translations/`。
+- `tools/translate-site.mjs`：生产构建后的语义块翻译器。它把完整行内 HTML 元素作为不可拆分单元来保护，保留链接、公式与代码结构，并翻译正文、中文行内代码、Highlight.js 代码注释、面向读者的字符串及 plaintext 示例；翻译后会统一英文句首、标点和行内间距，同时保留 `iOS`、`npm`、方法名、变量与单位的原始大小写；缓存位于 `.cache/oyster-translations/`。
 - `themes/oyster/source/js/language-switch.js`：仅文章详情页和 About 页使用的中英文切换逻辑；新访问默认英文，用户选择会保存在浏览器本地。
 - `source/css/custom.css`：为切换回历史主题保留的导航、页脚和深色模式兼容样式；Oyster 的主要样式在主题自身的 `source/css/style.css` 中。
 - `source/js/homepage-links.js`：仅首页启用；文章标题与 `Read more…`、站点标题、分页、锚点及特殊协议链接在当前标签页跳转，其余链接保持新标签页打开。
@@ -45,6 +45,7 @@ npm run build        # 生成 public/，随后自动翻译并写入双语/英文
 npm run translate    # 对现有 public/ 单独运行翻译后处理
 npm run clean        # 清理 Hexo 缓存和生成物，仅在需要排除缓存影响时使用
 npm run deploy       # 调用 hexo deploy；当前 _config.yml 的 deploy 配置被注释，不是现行线上发布路径
+OYSTER_TRANSLATION_SELF_TEST=1 node tools/translate-site.mjs  # 不联网，验证英文句首/标点规范化
 ```
 
 本地默认不配置翻译 Provider；翻译后处理会安全跳过并保留 Hexo 中文原始构建。GitHub Actions 在 `master` 分支 push 后使用 Node.js 22，通过免费的 Google 神经翻译入口强制运行翻译，缓存译文后发布 `public/`。全流程不在本机或 Runner 下载翻译模型；不要无故变更翻译提示词版本或清空缓存。

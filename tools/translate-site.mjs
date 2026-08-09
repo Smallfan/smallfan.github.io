@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { createHash } from 'node:crypto';
+import assert from 'node:assert/strict';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -60,12 +61,34 @@ const inlineExcludedSelector = [
 ].join(',');
 const fixedTranslations = new Map([
   ['风扇叔叔', 'Smallfan'],
+  ['我是风扇叔叔，一名移动端/服务端架构师，略懂点音乐（编曲 & 古典器乐）。',
+    'I am Smallfan, a mobile and server-side architect with an interest in music, including arranging and classical instruments.'],
+  ['现居中国广州。', 'Currently lives in Guangzhou, China.'],
+  ['持续关注架构演进 、性能调优、Vibe Coding。',
+    'Continually exploring architecture evolution, performance optimization, and Vibe Coding.'],
+  ['<code>build</code>方法有一个<code>context</code>参数，它是<code>BuildContext</code>类的一个实例，表示当前 widget 在 widget 树中的上下文，每一个 widget 都会对应一个 context 对象（因为每一个 widget 都是 widget 树上的一个节点）。',
+    'The <code>build</code> method takes a <code>context</code> parameter, an instance of <code>BuildContext</code> that represents the current widget\'s position in the widget tree. Each widget has a corresponding context object because every widget is a node in that tree.'],
+  ['和<code>StatelessWidget</code>一样，<code>StatefulWidget</code>也是继承自<code>widget</code>类，并重写了<code>createElement()</code>方法，不同的是返回的<code>Element</code> 对象并不相同；另外<code>StatefulWidget</code>类中添加了一个新的接口<code>createState()</code>。',
+    'Like <code>StatelessWidget</code>, <code>StatefulWidget</code> extends the <code>Widget</code> class and overrides <code>createElement()</code>. It returns a different type of <code>Element</code> and introduces a new method, <code>createState()</code>.'],
+  ['在继承<code>StatefulWidget</code>重写其方法时，对于包含<code>@mustCallSuper</code>标注的父类方法，都要在子类方法中调用父类方法。',
+    'When overriding methods in a class that extends <code>StatefulWidget</code>, every superclass method annotated with <code>@mustCallSuper</code> must be called from the subclass implementation.'],
+  ['解决方案：<br>通过在<code>completionHandler</code>里<code>retain``WKWebView</code>防止<code>completionHandler</code>被过早释放。',
+    'Solution:<br>Retain <code>WKWebView</code> inside <code>completionHandler</code> to prevent the handler from being released too early.'],
   ['关于', 'About'],
   ['归档', 'Archives'],
   ['分类', 'Categories'],
   ['标签', 'Tags'],
   ['标签：', 'Tags:'],
   ['脚注', 'Footnotes'],
+  ['次数', 'Run'],
+  ['关于WKWebView特性：', 'Key WKWebView Features:'],
+  ['在性能、稳定性、功能方面有很大提升；',
+    'Significant improvements in performance, stability, and functionality;'],
+  ['支持了更多的HTML5特性；', 'Supports more HTML5 features;'],
+  ['采用使用国外免费公用的DNS服务器解决。例如OpenDNS（208.67.222.222）或GoogleDNS（8.8.8.8）。',
+    'Use a free public DNS resolver outside the affected network, such as OpenDNS (208.67.222.222) or Google Public DNS (8.8.8.8).'],
+  ['也就等于', 'Which is equivalent to'],
+  ['椭圆曲线示例图：', 'Example elliptic curve:'],
   ['公因子', 'common factor'],
   ['互质关系（coprime）', 'coprime'],
   ['互质关系', 'coprime'],
@@ -86,6 +109,11 @@ const fixedTranslations = new Map([
   ['离散', 'decentralized']
 ]);
 const sourceTermTranslations = [
+  ['我是风扇叔叔，一名移动端/服务端架构师，略懂点音乐（编曲 & 古典器乐）。',
+    'I am Smallfan, a mobile and server-side architect with an interest in music, including arranging and classical instruments.'],
+  ['现居中国广州。', 'Currently lives in Guangzhou, China.'],
+  ['持续关注架构演进 、性能调优、Vibe Coding。',
+    'Continually exploring architecture evolution, performance optimization, and Vibe Coding.'],
   ['ClaudeCode系列（二）：入门一篇通', 'Claude Code Series (2): A Practical Getting-Started Guide'],
   ['ClaudeCode系列（一）：付费方案对比', 'Claude Code Series (1): Comparing Paid Plans'],
   ['如果根DNS服务器被炸了，万维网是不是将马上瘫痪？', 'If the Root DNS Servers Were Destroyed, Would the Web Immediately Collapse?'],
@@ -97,7 +125,6 @@ const sourceTermTranslations = [
   ['初探Flutter（一） Widget', 'A First Look at Flutter (1): Widgets'],
   ['模反元素', 'Modular Multiplicative Inverse'],
   ['欧拉函数', "Euler's Totient Function"],
-  ['互质关系', 'Coprimality'],
   ['前向安全性', 'Forward Secrecy'],
   ['四次握手', 'Four-Message Handshake'],
   ['密钥协商', 'Key Agreement'],
@@ -106,6 +133,7 @@ const sourceTermTranslations = [
   ['路由传值', 'Passing Data Between Routes'],
   ['路由管理', 'Route Management'],
   ['状态管理', 'State Management'],
+  ['of静态方法的约定', 'Convention for Static of Methods'],
   ['存在的13 个根DNS服务器', 'The 13 Root DNS Servers'],
   ['根 DNS 服务器', 'Root DNS Servers'],
   ['根DNS服务器', 'Root DNS Servers'],
@@ -160,6 +188,36 @@ const sourceTermTranslations = [
   ['十、', '10. '],
   ['关于', 'About']
 ];
+
+const intentionalLowercaseStarts = new Set([
+  'ccundo',
+  'clear',
+  'compact',
+  'git',
+  'hexo',
+  'init',
+  'iOS',
+  'macOS',
+  'npm',
+  'npx',
+  'pnpm'
+]);
+const englishTypographyExcludedSelector = [
+  'script',
+  'style',
+  'svg',
+  'pre',
+  'code',
+  'kbd',
+  'samp',
+  'var',
+  '.highlight',
+  '.katex',
+  '.MathJax',
+  'math',
+  '[data-no-translate]',
+  '[data-language-content="zh"]'
+].join(',');
 
 const config = JSON.parse(await fs.readFile(configPath, 'utf8'));
 const ollamaEndpoint = process.env.OYSTER_OLLAMA_ENDPOINT || config.ollamaEndpoint;
@@ -594,13 +652,94 @@ function collectAttributeTranslations($, scope) {
   });
 }
 
+function normalizeEnglishText(value) {
+  return String(value)
+    .replace(/Modular Multiplicative Inversed/g, 'modular multiplicative inverse')
+    .replace(/(Euler['’]s Totient Function)(?=φ)/g, '$1 ')
+    .replace(/\bDDOS\b/g, 'DDoS')
+    .replace(/\bis re-build\b/gi, 'is rebuilt')
+    .replace(/\bto re[ -]build\b/gi, 'to rebuild')
+    .replace(/，/g, ',')
+    .replace(/。/g, '.')
+    .replace(/；/g, ';')
+    .replace(/：/g, ':')
+    .replace(/？/g, '?')
+    .replace(/！/g, '!')
+    .replace(/（/g, '(')
+    .replace(/）/g, ')')
+    .replace(/【/g, '[')
+    .replace(/】/g, ']')
+    .replace(/、\s*/g, ', ')
+    .replace(/[ \t]+([,.;:!?])/g, '$1')
+    .replace(/([,;:!?])(?=[A-Za-z0-9])/g, '$1 ');
+}
+
+function firstProseTextNode($, element) {
+  function visit(node) {
+    if (node.type === 'text') {
+      const letter = String(node.data || '').match(/[A-Za-z]/);
+      return letter ? { node, letterIndex: letter.index } : null;
+    }
+    if (node.type !== 'tag') return null;
+
+    const item = $(node);
+    if (item.is('.headerlink')) return null;
+    if (item.is(englishTypographyExcludedSelector)) {
+      return normalizeWhitespace(item.text()) ? { blocked: true } : null;
+    }
+
+    for (const child of node.children || []) {
+      const result = visit(child);
+      if (result) return result;
+    }
+    return null;
+  }
+
+  for (const child of element.children || []) {
+    const result = visit(child);
+    if (result) return result;
+  }
+  return null;
+}
+
+function capitalizeEnglishBlockStart($, element) {
+  const first = firstProseTextNode($, element);
+  if (!first || first.blocked) return false;
+
+  const value = String(first.node.data || '');
+  const rest = value.slice(first.letterIndex);
+  const wordMatch = rest.match(/^[A-Za-z][A-Za-z0-9_-]*/);
+  if (!wordMatch) return false;
+
+  const word = wordMatch[0];
+  const firstLetter = word[0];
+  const before = value.slice(0, first.letterIndex);
+  const after = rest.slice(word.length);
+  const isSingleLetterVariable = word.length === 1 && word !== 'a';
+  const isCamelCaseIdentifier = /[A-Z]/.test(word.slice(1));
+  const isPathOrDomain = /[\/@.]\s*$/.test(before);
+  const isMeasurement = /\d/.test(before) && /^(?:s|ms|us|ns|kb|mb|gb|tb)$/i.test(word);
+  const isAssignment = word.length === 1 && /^\s*(?:=|<|>|≤|≥|∈)/.test(after);
+
+  if (
+    !/[a-z]/.test(firstLetter) ||
+    intentionalLowercaseStarts.has(word) ||
+    isSingleLetterVariable ||
+    isCamelCaseIdentifier ||
+    isPathOrDomain ||
+    isMeasurement ||
+    isAssignment
+  ) return false;
+
+  first.node.data = value.slice(0, first.letterIndex) + firstLetter.toUpperCase() + rest.slice(1);
+  return true;
+}
+
 function normalizeEnglishInlineSpacing($, scope) {
   scope.find('*').addBack().contents().each((index, node) => {
     if (node.type !== 'text') return;
-    node.data = node.data
-      .replace(/Modular Multiplicative Inversed/g, 'modular multiplicative inverse')
-      .replace(/(Euler['’]s Totient Function)(?=φ)/g, '$1 ')
-      .replace(/\bDDOS\b/g, 'DDoS');
+    if ($(node).parents(englishTypographyExcludedSelector).length) return;
+    node.data = normalizeEnglishText(node.data);
   });
 
   const parents = scope.find(`${blockSelector},strong,em,b,i,u,a,span`).addBack(blockSelector).toArray();
@@ -614,13 +753,23 @@ function normalizeEnglishInlineSpacing($, scope) {
       const right = children[index];
       const leftText = left.type === 'text' ? left.data : $(left).text();
       const rightText = right.type === 'text' ? right.data : $(right).text();
-      if (!/[A-Za-z0-9)\]]$/.test(leftText || '') || !/^[A-Za-z0-9([]/.test(rightText || '')) continue;
       if (/\s$/.test(leftText || '') || /^\s/.test(rightText || '')) continue;
+
+      const needsWordBoundarySpace = /[A-Za-z0-9)\]]$/.test(leftText || '') &&
+        /^[A-Za-z0-9([]/.test(rightText || '');
+      const needsPunctuationSpace = /[,;:.!?)]$/.test(leftText || '') &&
+        /^[A-Za-z0-9([]/.test(rightText || '');
+      if (!needsWordBoundarySpace && !needsPunctuationSpace) continue;
 
       if (right.type === 'text') right.data = ` ${right.data}`;
       else if (left.type === 'text') left.data = `${left.data} `;
       else $(right).before(' ');
     }
+  });
+
+  scope.find(blockSelector).addBack(blockSelector).each((index, element) => {
+    if ($(element).closest(englishTypographyExcludedSelector).length) return;
+    capitalizeEnglishBlockStart($, element);
   });
 }
 
@@ -1211,6 +1360,22 @@ function validateTranslatedPages(pages) {
       ));
       throw new Error(`English page still contains visible Chinese prose: ${relativePath} (${context})`);
     }
+    if (/[，。；：？！（）【】]/.test(visibleEnglishText)) {
+      throw new Error(`English page still contains full-width Chinese punctuation: ${relativePath}`);
+    }
+
+    const lowercaseStarts = [];
+    visibleEnglish.find(blockSelector).each((index, element) => {
+      if ($(element).closest(englishTypographyExcludedSelector).length) return;
+      const text = normalizeWhitespace($(element).text());
+      if (capitalizeEnglishBlockStart($, element)) lowercaseStarts.push(text.slice(0, 100));
+    });
+    if (lowercaseStarts.length) {
+      throw new Error(
+        `English page contains an unnormalized lowercase block start: ${relativePath} ` +
+        `(${lowercaseStarts[0]})`
+      );
+    }
 
     const englishComments = bilingual
       ? $('[data-language-content="en"] .highlight .comment')
@@ -1265,7 +1430,59 @@ async function main() {
   console.log(`[translate] Generated ${pages.length} English page(s); article and About pages remain bilingual.`);
 }
 
-main().catch(error => {
+function runTypographySelfTest() {
+  let reviewedTranslation;
+  queueTranslation('现居中国广州。', {
+    kind: 'plain_text',
+    apply: translated => {
+      reviewedTranslation = translated;
+    }
+  });
+  assert.equal(reviewedTranslation, 'Currently lives in Guangzhou, China.');
+
+  const reviewedHtml = '和<code>StatelessWidget</code>一样，<code>StatefulWidget</code>也是继承自' +
+    '<code>widget</code>类，并重写了<code>createElement()</code>方法，不同的是返回的' +
+    '<code>Element</code> 对象并不相同；另外<code>StatefulWidget</code>类中添加了一个新的接口' +
+    '<code>createState()</code>。';
+  queueTranslation(reviewedHtml, {
+    kind: 'html_fragment',
+    apply: translated => {
+      reviewedTranslation = translated;
+    }
+  });
+  assert.match(reviewedTranslation, /^Like <code>StatelessWidget<\/code>/);
+  assert.equal(pendingRecords.size, 0);
+
+  const $ = cheerio.load(`
+    <main>
+      <li id="location">currently lives in Guangzhou, China。</li>
+      <li id="prose">generates an Element tree；</li>
+      <h2 id="method">1.1 canUpdate method</h2>
+      <h2 id="command">3.1 init</h2>
+      <p id="brand">iOS remains lowercase.</p>
+      <p id="variable">p is an integer greater than 1.</p>
+      <p id="code"><code>builder</code> is a callback.</p>
+      <p id="markup"><code>StatelessWidget</code> Same,<code>StatefulWidget</code> Also</p>
+      <table><tbody><tr><td id="duration">4.13 s</td></tr></tbody></table>
+    </main>
+  `, { decodeEntities: false }, false);
+
+  normalizeEnglishInlineSpacing($, $('main'));
+  assert.equal($('#location').text(), 'Currently lives in Guangzhou, China.');
+  assert.equal($('#prose').text(), 'Generates an Element tree;');
+  assert.equal($('#method').text(), '1.1 canUpdate method');
+  assert.equal($('#command').text(), '3.1 init');
+  assert.equal($('#brand').text(), 'iOS remains lowercase.');
+  assert.equal($('#variable').text(), 'p is an integer greater than 1.');
+  assert.equal($('#code').text(), 'builder is a callback.');
+  assert.equal($('#markup').text(), 'StatelessWidget Same, StatefulWidget Also');
+  assert.equal($('#duration').text(), '4.13 s');
+  console.log('[translate] English typography self-test passed.');
+}
+
+const run = process.env.OYSTER_TRANSLATION_SELF_TEST === '1' ? runTypographySelfTest : main;
+
+Promise.resolve(run()).catch(error => {
   const detail = String(error.stack || error.message || error);
   console.error(`[translate] ${detail}`);
   if (process.env.GITHUB_ACTIONS === 'true') {
