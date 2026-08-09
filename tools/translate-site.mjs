@@ -114,6 +114,22 @@ const fixedTranslations = new Map([
     'Mao Wei, director of the Beijing Engineering Research Center for the Internet Domain Name System (ZDNS), said that experts continually improve the security of the DNS root system. Even if access to the root were disrupted, contingency measures would remain available. Within China, operators could use root-zone backups and emergency root servers; globally, options include root server mirrors, more root server instances over IPv6, and alternative root server operator mechanisms.'],
   ['DNS 查询服务在传输层是使用 UDP 协议，并且对数据内容来源没有任何校验机制。并且根据惯例查询者会接受第一个返回的结果而抛弃之后。因此攻击者只需监控 53 端口（DNS 标准端口）的 UDP查询数据报并分析，一旦发现敏感查询，则抢先向查询者返回一个伪造的错误结果，从而实现 DNS 污染。&nbsp;',
     'DNS queries commonly use UDP at the transport layer, which does not authenticate the source of a response. A resolver typically accepts the first response it receives and discards later ones. An attacker who can observe and analyze UDP query datagrams on port 53 can therefore race the legitimate server with a forged response, causing DNS poisoning.'],
+  ['首先解析DNS 中的域名都是用句点来分隔的，比如 <code>www.smallfan.top</code>，这里的句点代表了不同层次之间的界限。在域名中，<strong>越靠右</strong>的位置表示其层级<strong>越高</strong>。实际上域名最后还有一个点，比如 <code>www.smallfan.top.</code> ，这个最后的一个点代表根域名。',
+    'DNS domain names are divided into labels by dots, as in <code>www.smallfan.top</code>. Each dot marks a boundary between levels. The farther a label appears to the right, the higher it is in the hierarchy. A fully qualified domain name actually ends with a trailing dot, as in <code>www.smallfan.top.</code>; that final dot represents the DNS root.'],
+  ['所以，<code>根 DNS 服务器</code> 不易太多，13个算是比较合适的数目。更多具体可阅读《 <a target="_blank" rel="noopener" href="https://www.lifewire.com/dns-root-name-servers-3971336">Why There Are Only 13 DNS Root Name Servers</a> 》文章。',
+    'The root server set could not grow arbitrarily large, and 13 was a practical choice. For more detail, see <a target="_blank" rel="noopener" href="https://www.lifewire.com/dns-root-name-servers-3971336">Why There Are Only 13 DNS Root Name Servers</a>.'],
+  ['<code>根 DNS 服务器</code> 只负责提供 <code>顶级域服务器</code> 的 域名 和 IP地址，接下来由 <code>顶级域服务器</code> 继续服务，直到找到最终的域名IP地址为止。',
+    '<code>Root DNS servers</code> provide the names and IP addresses of <code>TLD servers</code>. Resolution then continues through the DNS hierarchy until the final IP address for the domain is found.'],
+  ['辅根从主根同步数据，根镜像从根同步数据。最终，所有根和镜像都有着同样的根区文件。而且最有意思的是，<strong>根镜像和根有着同样的IP</strong>。',
+    'Secondary root servers synchronize from the primary root, while root server mirrors synchronize from a root server. All of them ultimately serve the same root zone file. Notably, <strong>a root server mirror advertises the same IP address as its corresponding root server</strong>.'],
+  ['在 project工程文件 中引入 CocoaHttpServer 之后，',
+    'After adding CocoaHTTPServer to the project:'],
+  ['在 project工程 中引入相对资源目录（蓝色文件夹），在该目录中实现一个 <code>index.html</code> 和 <code>hi.js</code> 资源文件',
+    'Add a referenced resource directory (the blue folder) to the project, then create <code>index.html</code> and <code>hi.js</code> in that directory.'],
+  ['将p12文件导入 project工程 中的资源目录中，<br>同时新建一个 <code>MyHttpConnection</code> 继承于 <code>HttpConnection</code> ，重载 <code>- (BOOL)isSecureServer</code> 方法及 <code>sslIdentityAndCertificates</code> 方法。',
+    'Import the P12 file into the project\'s resource directory.<br>Then create <code>MyHttpConnection</code> as a subclass of <code>HttpConnection</code> and override <code>- (BOOL)isSecureServer</code> and <code>sslIdentityAndCertificates</code>.'],
+  ['通过UIWebView发起请求 <a target="_blank" rel="noopener" href="http://www.smallfan.net/">http://www.smallfan.net</a>，则请求头会自动带上cookie: Nicholas=test；<br>而通过WKWebView发起请求 <a target="_blank" rel="noopener" href="http://www.smallfan.net/">http://www.smallfan.net</a>，请求头不会自动带上cookie: Nicholas=test。<br>解决方案：',
+    'A UIWebView request to <a target="_blank" rel="noopener" href="http://www.smallfan.net/">http://www.smallfan.net</a> automatically includes the cookie header: <code>Nicholas=test</code>.<br>A WKWebView request to the same URL does not include it automatically.<br>Solution:'],
   ['关于', 'About'],
   ['归档', 'Archives'],
   ['分类', 'Categories'],
@@ -723,6 +739,10 @@ function normalizeEnglishText(value) {
     .replace(/Modular Multiplicative Inversed/g, 'modular multiplicative inverse')
     .replace(/(Euler['’]s Totient Function)(?=φ)/g, '$1 ')
     .replace(/\bDDOS\b/g, 'DDoS')
+    .replace(/\bEuler['’]s Totient Function\b/g, "Euler's totient function")
+    .replace(/\bDiscrete Logarithm\b/g, 'discrete logarithm')
+    .replace(/\bForward Secrecy\b/g, 'forward secrecy')
+    .replace(/\bKey Agreement\b/g, 'key agreement')
     .replace(/\bis re-build\b/gi, 'is rebuilt')
     .replace(/\bto re[ -]build\b/gi, 'to rebuild')
     .replace(/\bre[ -]build itself\b/gi, 'rebuild itself')
@@ -732,6 +752,13 @@ function normalizeEnglishText(value) {
     .replace(/\breturn data\b/gi, 'return value')
     .replace(/\bcan not\b/gi, 'cannot')
     .replace(/\bqueryer\b/gi, 'requester')
+    .replace(/\bA estimatedProgress\b/g, 'An estimatedProgress')
+    .replace(/\ba onGenerateRoute\b/g, 'an onGenerateRoute')
+    .replace(/\bRoot DNS Servers is\b/g, 'Root DNS Servers are')
+    .replace(/\bTLD servers continues\b/g, 'TLD servers continue')
+    .replace(/\broot server mirrors synchronizes\b/g, 'root server mirrors synchronize')
+    .replace(/\bTLD Server\b/g, 'TLD server')
+    .replace(/\bAuthoritative DNS Server\b/g, 'authoritative DNS server')
     .replace(/\bRoot DNS Servers information\b/g, 'root DNS server information')
     .replace(/\b([A-M])Root Server Mirrors (server|servers)\b/g, (match, root, noun) => {
       return `${root}-root server ${noun === 'servers' ? 'mirrors' : 'mirror'}`;
@@ -1570,6 +1597,20 @@ function runTypographySelfTest() {
     }
   );
   assert.match(reviewedTranslation, /^<p><code>Future push/);
+
+  queueTranslation(
+    '通过UIWebView发起请求 <a target="_blank" rel="noopener" href="http://www.smallfan.net/">' +
+      'http://www.smallfan.net</a>，则请求头会自动带上cookie: Nicholas=test；<br>' +
+      '而通过WKWebView发起请求 <a target="_blank" rel="noopener" href="http://www.smallfan.net/">' +
+      'http://www.smallfan.net</a>，请求头不会自动带上cookie: Nicholas=test。<br>解决方案：',
+    {
+      kind: 'html_fragment',
+      apply: translated => {
+        reviewedTranslation = translated;
+      }
+    }
+  );
+  assert.match(reviewedTranslation, /^A UIWebView request/);
   assert.equal(pendingRecords.size, 0);
 
   const $ = cheerio.load(`
@@ -1583,6 +1624,8 @@ function runTypographySelfTest() {
       <p id="code"><code>builder</code> is a callback.</p>
       <p id="inline-punctuation"><code>IP（Internet Protocol）</code></p>
       <p id="domain-suffix">Access the .cn domain.</p>
+      <p id="technical-case">Euler's Totient Function and Discrete Logarithm.</p>
+      <p id="dns-agreement">Root DNS Servers is available; TLD servers continues.</p>
       <figure class="highlight javascript"><span class="string" id="code-string">'Perfect！'</span></figure>
       <p id="markup"><code>StatelessWidget</code> Same,<code>StatefulWidget</code> Also</p>
       <table><tbody><tr><td id="duration">4.13 s</td></tr></tbody></table>
@@ -1599,6 +1642,8 @@ function runTypographySelfTest() {
   assert.equal($('#code').text(), 'builder is a callback.');
   assert.equal($('#inline-punctuation').text(), 'IP (Internet Protocol)');
   assert.equal($('#domain-suffix').text(), 'Access the .cn domain.');
+  assert.equal($('#technical-case').text(), "Euler's totient function and discrete logarithm.");
+  assert.equal($('#dns-agreement').text(), 'Root DNS Servers are available; TLD servers continue.');
   assert.equal($('#code-string').text(), "'Perfect!'");
   assert.equal($('#markup').text(), 'StatelessWidget Same, StatefulWidget Also');
   assert.equal($('#duration').text(), '4.13 s');

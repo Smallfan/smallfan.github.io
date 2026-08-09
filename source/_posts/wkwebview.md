@@ -69,10 +69,10 @@ WKWebView平均请求耗时：**0.7 s**
 WKWebView发起的请求不会自动带上存储于 `NSHTTPCookieStorage` 容器中的cookie。
 比如，`NSHTTPCookieStorage` 中存储了一个cookie:
 ```JSON
-name=Nicholas;value=test;domain=www.smallfan.net;expires=Sat, 02 May 2019 23:38:25 GMT；
+name=Nicholas;value=test;domain=www.smallfan.net;expires=Sat, 02 May 2019 23:38:25 GMT;
 ```
-通过UIWebView发起请求http://www.smallfan.net，则请求头会自动带上cookie: Nicholas=test；
-而通过WKWebView发起请求http://www.smallfan.net，请求头不会自动带上cookie: Nicholas=test。
+通过UIWebView发起请求 <http://www.smallfan.net>，则请求头会自动带上cookie: Nicholas=test；
+而通过WKWebView发起请求 <http://www.smallfan.net>，请求头不会自动带上cookie: Nicholas=test。
 解决方案：
 
 + A. WKWebView `loadRequest` 前，在request的header中设置cookie, 解决首个请求cookie带不上的问题。

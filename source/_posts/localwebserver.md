@@ -141,7 +141,7 @@ tags: [WebView]
 ```
 ```javascript
 function invokeAlert() {
-    alert('Perfect！')
+    alert('Perfect!')
 }
 ```
 
