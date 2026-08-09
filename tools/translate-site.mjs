@@ -76,6 +76,44 @@ const fixedTranslations = new Map([
     'When overriding methods in a class that extends <code>StatefulWidget</code>, every superclass method annotated with <code>@mustCallSuper</code> must be called from the subclass implementation.'],
   ['解决方案：<br>通过在<code>completionHandler</code>里<code>retain``WKWebView</code>防止<code>completionHandler</code>被过早释放。',
     'Solution:<br>Retain <code>WKWebView</code> inside <code>completionHandler</code> to prevent the handler from being released too early.'],
+  ['<code>canUpdate(...)</code>是一个静态方法，它主要用于在 widget 树重新<code>build</code>时复用旧的 widget。',
+    '<code>canUpdate(...)</code> is a static method used primarily to reuse existing widgets when the widget tree is rebuilt.'],
+  ['实现一个全局的事件总线，将语言状态改变对应为一个事件，然后在APP中依赖应用语言的组件的<code>initState</code> 方法中订阅语言改变的事件。当用户在设置页切换语言后，我们发布语言改变事件，而订阅了此事件的组件就会收到通知，收到通知后调用<code>setState(...)</code>方法重新<code>build</code>一下自身即可。',
+    'Implement a global event bus and represent language-state changes as events. In each app component that depends on the current language, subscribe to the language-change event in <code>initState</code>. When the user changes the language in Settings, publish the event. Subscribers then receive the notification and call <code>setState(...)</code> to rebuild themselves.'],
+  ['<code>builder</code> 是一个WidgetBuilder类型的回调函数，它的作用是构建路由页面的具体内容，返回值是一个widget。我们通常要实现此回调，返回新路由的实例。',
+    '<code>builder</code> is a WidgetBuilder callback that constructs the route\'s content and returns a widget. Typically, this callback returns an instance of the new route.'],
+  ['<code>fullscreenDialog</code> 表示新的路由页面是否是一个全屏的模态对话框，在 iOS 中，如果fullscreenDialog为 <code>true</code>，新页面将会从屏幕底部滑入（而不是水平方向）。',
+    '<code>fullscreenDialog</code> indicates whether the new route is presented as a full-screen modal. On iOS, when <code>fullscreenDialog</code> is <code>true</code>, the page slides in from the bottom of the screen rather than horizontally.'],
+  ['Navigator是一个路由管理的组件，它提供了打开和退出路由页方法。Navigator通过一个栈来管理活动路由集合。通常当前屏幕显示的页面就是栈顶的路由。Navigator提供了一系列方法来管理路由栈，在此我们只介绍其最常用的两个方法：',
+    'Navigator is Flutter\'s route-management component. It provides methods for opening and closing routes and manages the active routes as a stack. The route at the top of the stack is normally the page displayed on screen. Navigator exposes many methods for managing this stack; here are the two most commonly used ones:'],
+  ['<p><code>Future push(BuildContext context, Route route)</code><br>将给定的路由入栈（即打开新的页面），返回值是一个<code>Future</code>对象，用以接收新路由出栈（即关闭）时的返回数据。</p>',
+    '<p><code>Future push(BuildContext context, Route route)</code><br>Pushes the given route onto the stack, opening a new page. The returned <code>Future</code> completes with the value passed back when the route is popped (closed).</p>'],
+  ['<p>提示文案“我是提示xxxx”是通过<code>TipRoute</code>的<code>text</code>参数传递给新路由页的。我们可以通过等待<code>Navigator.push(…)</code>返回的<code>Future</code>来获取新路由的返回数据。</p>',
+    '<p>The prompt text “I am prompt xxxx” is passed to the new route through <code>TipRoute</code>\'s <code>text</code> parameter. Await the <code>Future</code> returned by <code>Navigator.push(...)</code> to receive the route\'s result.</p>'],
+  ['<p>在<code>TipRoute</code>页中有两种方式可以返回到上一页；第一种方式是直接点击导航栏返回箭头，第二种方式是点击页面中的“返回”按钮。这两种返回方式的区别是前者不会返回数据给上一个路由，而后者会。下面是分别点击页面中的返回按钮和导航栏返回箭头后，<code>RouterTestRoute</code>页中<code>print</code>方法在控制台输出的内容：</p>',
+    '<p>There are two ways to return from <code>TipRoute</code>: click the back arrow in the navigation bar or click the “Return” button on the page. The first returns no data to the previous route, while the second does. The following shows what <code>print</code> in <code>RouterTestRoute</code> writes to the console for each action:</p>'],
+  ['它是一个<code>Map</code>，key为路由的名字，是个字符串；value是个<code>builder</code>回调函数，用于生成相应的路由widget。我们在通过路由名字打开新路由时，应用会根据路由名字在路由表中查找到对应的<code>WidgetBuilder</code>回调函数，然后调用该回调函数生成路由widget并返回。',
+    'The route table is a <code>Map</code>: each key is a route-name string, and each value is a <code>builder</code> callback that creates the corresponding route widget. When a route is opened by name, the app looks up its <code>WidgetBuilder</code>, invokes it, and returns the generated widget.'],
+  ['路由表的注册方式很简单，我们回到之前“计数器”的示例，然后在<code>MyApp</code>类的<code>build</code>方法中找到<code>MaterialApp</code>，添加<code>routes</code>属性，代码如下：',
+    'Registering the route table is straightforward. Return to the earlier counter example, locate <code>MaterialApp</code> in <code>MyApp.build</code>, and add the <code>routes</code> property:'],
+  ['可以看到，我们只需在路由表中注册一下<code>MyHomePage</code>路由，然后将其名字作为<code>MaterialApp</code>的<code>initialRoute</code>属性值即可，该属性决定应用的初始路由页是哪一个命名路由。',
+    'Register <code>MyHomePage</code> in the route table, then use its name as the value of <code>MaterialApp.initialRoute</code>. This property determines the app\'s initial named route.'],
+  ['<code>Navigator</code> 除了<code>pushNamed</code>方法，还有<code>pushReplacementNamed</code>等其他管理命名路由的方法，读者可以自行查看API文档。接下来我们通过路由名来打开新的路由页，修改<code>TextButton</code>的<code>onPressed</code>回调代码，改为：',
+    'In addition to <code>pushNamed</code>, <code>Navigator</code> provides methods such as <code>pushReplacementNamed</code> for managing named routes. See the API documentation for the full list. To open a new route by name, update the <code>onPressed</code> callback of <code>TextButton</code> as follows:'],
+  ['<code>MaterialApp</code>有一个<code>onGenerateRoute</code>属性，它在打开命名路由时可能会被调用，之所以说可能，是因为当调用<code>Navigator.pushNamed(...)</code>打开命名路由时，如果指定的路由名在路由表中已注册，则会调用路由表中的<code>builder</code>函数来生成路由组件；如果路由表中没有注册，才会调用<code>onGenerateRoute</code>来生成路由。<code>onGenerateRoute</code>回调签名如下：',
+    '<code>MaterialApp</code> has an <code>onGenerateRoute</code> property that may be called when opening a named route. If the requested name is registered in the route table, Flutter uses that route\'s <code>builder</code>. Otherwise, it calls <code>onGenerateRoute</code> to create the route. The callback signature is:'],
+  ['在 <a target="_blank" rel="noopener" href="https://root-servers.org/">root-servers网站</a> 上可以查到所有这些根服务器的分布，我国境内发出的对 根DNS 的请求，其实都由镜像完成了。这一点后面会解释。',
+    'The distribution of these root servers is available on <a target="_blank" rel="noopener" href="https://root-servers.org/">root-servers.org</a>. Requests to the root DNS from within China are actually handled by local root server mirrors, as explained later.'],
+  ['位于 <code>TLD 服务器</code> 下一级的域名服务器便是 <code>权威性 DNS 服务器</code> 。 <code>权威 DNS</code> 由<strong>域名解析服务商（如帝恩思的 ns1.dns.com ns2.dns.com）</strong> 建设，提供域名管理服务，维护域名解析记录。',
+    'The level below a <code>TLD server</code> is an <code>authoritative DNS server</code>. <code>Authoritative DNS</code> infrastructure is operated by <strong>DNS hosting providers (such as DNS.com at ns1.dns.com and ns2.dns.com)</strong>; it provides domain-management services and maintains DNS records.'],
+  ['在 <a target="_blank" rel="noopener" href="https://root-servers.org/">root-servers网站</a> 上可以查到所有根服务器的分布，从网站展示的根镜像服务器地图上看（2023年2月15日），北京有 8 个根镜像服务器，上海 2 个，重庆 1 个，杭州 2 个，武汉 2 个、郑州 2 个、西宁 2 个、贵阳 1 个、南宁 1 个，海口 1 个，广州 3 个、香港 8 个，台北 9 个。',
+    'The distribution of all root servers is available on <a target="_blank" rel="noopener" href="https://root-servers.org/">root-servers.org</a>. Its root server mirror map showed the following counts on February 15, 2023: Beijing 8, Shanghai 2, Chongqing 1, Hangzhou 2, Wuhan 2, Zhengzhou 2, Xining 2, Guiyang 1, Nanning 1, Haikou 1, Guangzhou 3, Hong Kong 8, and Taipei 9.'],
+  ['因为我们维护着根镜像，所以我们控制着镜像中的内容。而中国境内的对根的访问，通过我们的运营商，都会落到对我国根镜像的访问上。所以，答案是：<strong>我们可以不同步关于cn的修改，这样就解决了国内访问.cn网站的问题。</strong>',
+    'Because China operates local root server mirrors, it controls the data served by those mirrors, and domestic root queries are routed to them by local network operators. Therefore, <strong>the mirrors could decline to synchronize a change that removes <code>.cn</code>, preserving domestic access to <code>.cn</code> sites.</strong>'],
+  ['互联网域名系统北京市工程研究中心（ZDNS）主任毛伟表示：互联网专家一直都在不断完善域名根系统安全保障机制，就算真的断“根”了，也有应急方法来解决。在境内，可以采用根区数据备份并搭建应急根服务器来解决；在全球层面，可以用根镜像、IPv6环境下的根服务器数量扩展、根服务器运行机构备选机制等方法来解决。',
+    'Mao Wei, director of the Beijing Engineering Research Center for the Internet Domain Name System (ZDNS), said that experts continually improve the security of the DNS root system. Even if access to the root were disrupted, contingency measures would remain available. Within China, operators could use root-zone backups and emergency root servers; globally, options include root server mirrors, more root server instances over IPv6, and alternative root server operator mechanisms.'],
+  ['DNS 查询服务在传输层是使用 UDP 协议，并且对数据内容来源没有任何校验机制。并且根据惯例查询者会接受第一个返回的结果而抛弃之后。因此攻击者只需监控 53 端口（DNS 标准端口）的 UDP查询数据报并分析，一旦发现敏感查询，则抢先向查询者返回一个伪造的错误结果，从而实现 DNS 污染。&nbsp;',
+    'DNS queries commonly use UDP at the transport layer, which does not authenticate the source of a response. A resolver typically accepts the first response it receives and discards later ones. An attacker who can observe and analyze UDP query datagrams on port 53 can therefore race the legitimate server with a forged response, causing DNS poisoning.'],
   ['关于', 'About'],
   ['归档', 'Archives'],
   ['分类', 'Categories'],
@@ -187,8 +225,7 @@ const sourceTermTranslations = [
   ['七、', '7. '],
   ['八、', '8. '],
   ['九、', '9. '],
-  ['十、', '10. '],
-  ['关于', 'About']
+  ['十、', '10. ']
 ];
 
 const intentionalLowercaseStarts = new Set([
@@ -677,6 +714,23 @@ function normalizeEnglishText(value) {
     .replace(/\bDDOS\b/g, 'DDoS')
     .replace(/\bis re-build\b/gi, 'is rebuilt')
     .replace(/\bto re[ -]build\b/gi, 'to rebuild')
+    .replace(/\bre[ -]build itself\b/gi, 'rebuild itself')
+    .replace(/\brouting pages?\b/gi, match => match.toLowerCase().endsWith('s') ? 'routes' : 'route')
+    .replace(/\brouting (table|component|widget|stack|parameter|name|management)\b/gi, 'route $1')
+    .replace(/\bpopped out of the stack\b/gi, 'popped from the stack')
+    .replace(/\breturn data\b/gi, 'return value')
+    .replace(/\bcan not\b/gi, 'cannot')
+    .replace(/\bqueryer\b/gi, 'requester')
+    .replace(/\bRoot DNS Servers information\b/g, 'root DNS server information')
+    .replace(/\b([A-M])Root Server Mirrors (server|servers)\b/g, (match, root, noun) => {
+      return `${root}-root server ${noun === 'servers' ? 'mirrors' : 'mirror'}`;
+    })
+    .replace(/\b([A-M])Root Server Mirrors\b/g, '$1-root server mirror')
+    .replace(/\bRoot Server Mirrors servers?\b/g, 'root server mirrors')
+    .replace(/\bRoot Server Mirrors\b/g, 'root server mirrors')
+    .replace(/\balternative root server operating mechanism mechanisms\b/gi,
+      'alternative root server operator mechanisms')
+    .replace(/\bAPP\b/g, 'app')
     .replace(/[ \t]+([,.;:!?])/g, '$1')
     .replace(/([,;:!?])(?=[A-Za-z0-9])/g, '$1 ');
 }
